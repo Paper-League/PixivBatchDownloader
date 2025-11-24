@@ -309,6 +309,7 @@ interface XzSetting {
   autoMergeNovel: boolean
   /** 自动合并系列小说时，如果一篇小说属于某个系列，则不下载它（因为合并后的小说里会包含这篇小说，所以没必要重复下载） */
   skipNovelsInSeriesWhenAutoMerge: boolean
+  seriesNovelNameRule: string
 }
 
 type SettingKeys = keyof XzSetting
@@ -750,6 +751,8 @@ class Settings {
     rememberTheLastSaveLocation: false,
     autoMergeNovel: false,
     skipNovelsInSeriesWhenAutoMerge: true,
+    seriesNovelNameRule:
+      'pixiv/novel series/{page_tag}/{series_title}-{series_id}-{user}-{user_id}-{tags}.{ext}',
   }
 
   private allSettingKeys = Object.keys(this.defaultSettings)

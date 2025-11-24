@@ -541,6 +541,11 @@ class Utils {
       return false
     }
   }
+
+  /** 检测字符串是否全部为 ASCII 字符 */
+  static isAscii(str: string) {
+    return /^[\x00-\x7F]*$/.test(str)
+  }
 }
 
 export { Utils }

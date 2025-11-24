@@ -335,6 +335,8 @@ export const formHtml = `
         <option value="{page_tag}">{page_tag}</option>
         <option value="{type}">{type}</option>
         <option value="{AI}">{AI}</option>
+        <option value="{age}">{age}</option>
+        <option value="{age_r}">{age_r}</option>
         <option value="{like}">{like}</option>
         <option value="{bmk}">{bmk}</option>
         <option value="{bmk_1000}">{bmk_1000}</option>
@@ -397,6 +399,12 @@ export const formHtml = `
       <br>
       * <span class="blue name">{AI}</span>
       <span data-xztext="_命名标记AI"></span>
+      <br>
+      <span class="blue name">{age}</span>
+      <span data-xztext="_命名标记age"></span>
+      <br>
+      * <span class="blue name">{age_r}</span>
+      <span data-xztext="_命名标记age_r"></span>
       <br>
       <span class="blue name">{like}</span>
       <span data-xztext="_命名标记like"></span>
@@ -466,6 +474,7 @@ export const formHtml = `
       <span class="subOptionWrap" data-show="r18Folder">
         <span data-xztext="_目录名"></span>
         <input type="text" name="r18FolderName" class="setinput_style1 blue" style="width:150px;min-width: 150px;" value="[R-18&R-18G]">
+        <button type="button" class="gray1 textButton" id="showR18FolderNameTip" data-xztext="_提示"></button>
       </span>
     </p>
     <p class="option" data-no="16">
@@ -826,6 +835,77 @@ export const formHtml = `
         <span class="beautify_switch" tabindex="0"></span>
       </span>
     </p>
+    <p class="option" data-no="91">
+      <a href="${wiki.link(91)}" target="_blank" class="settingNameStyle" data-xztext="_合并系列小说时的命名规则"></a>
+      <span class="rowWrap">
+        <textarea class="centerPanelTextArea beautify_scrollbar" name="seriesNovelNameRule" rows="1"></textarea>
+        <button class="showFileNameTip textButton" id="showSeriesNovelNameTip" type="button" data-xztext="_提示"></button>
+      </span>
+    </p>
+    <p class="fileNameTip tip namingTipArea" id="seriesNovelNameTip">
+      <span data-xztext="_系列小说的命名标记提醒"></span>
+      <br>
+      * <span data-xztext="_有些标记并不总是可用的提醒"></span>
+      <br>
+      <span data-xztext="_提示点击下方的标记就可以把它复制到剪贴板"></span>
+      <br>
+      <span class="blue name">{series_title}</span>
+      <span data-xztext="_命名标记id"></span>
+      <br>
+      <span class="blue name">{series_id}</span>
+      <span data-xztext="_命名标记id"></span>
+      <br>
+      <span class="blue name">{user}</span>
+      <span data-xztext="_命名标记id"></span>
+      <br>
+      <span class="blue name">{user_id}</span>
+      <span data-xztext="_命名标记id"></span>
+      <br>
+      <span class="blue name">{part}</span>
+      <span data-xztext="_命名标记id"></span>
+      <br>
+      <span class="blue name">{ext}</span>
+      <span data-xztext="_命名标记id"></span>
+      <br>
+      <span class="blue name">{age}</span>
+      <span data-xztext="_命名标记id"></span>
+      <br>
+      * <span class="blue name">{AI}</span>
+      <span data-xztext="_命名标记id"></span>
+      <br>
+      <span class="blue name">{lang}</span>
+      <span data-xztext="_命名标记id"></span>
+      <br>
+      <span class="blue name">{total}</span>
+      <span data-xztext="_命名标记id"></span>
+      <br>
+      <span class="blue name">{char_count}</span>
+      <span data-xztext="_命名标记id"></span>
+      <br>
+      <span class="blue name">{create_date}</span>
+      <span data-xztext="_命名标记id"></span>
+      <br>
+      <span class="blue name">{last_date}</span>
+      <span data-xztext="_命名标记id"></span>
+      <br>
+      <span class="blue name">{task_date}</span>
+      <span data-xztext="_命名标记id"></span>
+      <br>
+      <span class="blue name">{first_id}</span>
+      <span data-xztext="_命名标记id"></span>
+      <br>
+      <span class="blue name">{latest_id}</span>
+      <span data-xztext="_命名标记id"></span>
+      <br>
+      <span class="blue name">{tags}</span>
+      <span data-xztext="_命名标记id"></span>
+      <br>
+      <span class="blue name">{page_tag}</span>
+      <span data-xztext="_命名标记id"></span>
+      <br>
+      <span class="blue name">{page_title}</span>
+      <span data-xztext="_命名标记id"></span>
+    </p>
     <p class="option" data-no="27">
       <a href="${wiki.link(27)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_在小说里保存元数据提示">
         <span data-xztext="_在小说里保存元数据"></span>
@@ -1105,13 +1185,13 @@ export const formHtml = `
       <input type="text" name="copyWorkInfoFormat" class="setinput_style1 blue" style="width:100%;max-width:350px;" value="id: {id}{n}title: {title}{n}tags: {tags}{n}url: {url}{n}user: {user}">
       <button type="button" class="gray1 textButton" id="showCopyWorkInfoFormatTip" data-xztext="_提示"></button>
     </p>
-    <p class="tip" id="copyWorkInfoFormatTip">
+    <p class="tip namingTipArea" id="copyWorkInfoFormatTip">
       <span data-xztext="_复制内容的格式的提示"></span>
       <br>
-      <span class="blue">{url}</span>
+      <span class="blue name">{url}</span>
       <span data-xztext="_url标记的说明"></span>
       <br>
-      <span class="blue">{n}</span>
+      <span class="blue name">{n}</span>
       <span data-xztext="_换行标记的说明"></span>
       <br>
     </p>

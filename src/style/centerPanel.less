@@ -257,6 +257,19 @@
           flex-shrink: 0;
         }
 
+        // 用于组织一行里的多个元素，使其共同占据一行的宽度
+        .rowWrap {
+          display: flex;
+          flex-basis: 100%;
+          flex-wrap: nowrap;
+          align-items: flex-start;
+          justify-content: center;
+          button,
+          .textButton {
+            flex-shrink: 0;
+          }
+        }
+
         // 对于美化的复选框，其原本高度是 14px，使用 margin 将其占据的高度撑到 @height
         .beautify_switch,
         .beautify_checkbox {

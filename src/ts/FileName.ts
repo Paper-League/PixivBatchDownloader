@@ -76,6 +76,17 @@ class FileName {
     }
   }
 
+  private getAgeLimit(xRestrict: 0 | 1 | 2, handleAll = true) {
+    switch (xRestrict) {
+      case 0:
+        return handleAll ? 'All Ages' : ''
+      case 1:
+        return 'R-18'
+      case 2:
+        return 'R-18G'
+    }
+  }
+
   // 在文件名前面添加一层文件夹
   // appendFolder 方法会对非法字符进行处理（包括处理路径分隔符 / 这主要是因为 tags 可能含有斜线 /，需要替换）
   private appendFolder(fullPath: string, folderName: string): string {
@@ -305,6 +316,14 @@ class FileName {
       },
       '{bmk_1000}': {
         value: this.getBKM1000(data.bmk),
+        safe: true,
+      },
+      '{age}': {
+        value: this.getAgeLimit(data.xRestrict),
+        safe: true,
+      },
+      '{age_r}': {
+        value: this.getAgeLimit(data.xRestrict, false),
         safe: true,
       },
       '{like}': {

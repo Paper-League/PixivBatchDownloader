@@ -677,6 +677,17 @@ body.mobile #quickCrawlBtn {
   line-height: 26px;
   flex-shrink: 0;
 }
+.centerWrap .centerWrap_con .settingForm p.option .rowWrap {
+  display: flex;
+  flex-basis: 100%;
+  flex-wrap: nowrap;
+  align-items: flex-start;
+  justify-content: center;
+}
+.centerWrap .centerWrap_con .settingForm p.option .rowWrap button,
+.centerWrap .centerWrap_con .settingForm p.option .rowWrap .textButton {
+  flex-shrink: 0;
+}
 .centerWrap .centerWrap_con .settingForm p.option .beautify_switch,
 .centerWrap .centerWrap_con .settingForm p.option .beautify_checkbox {
   margin: 6px 0;

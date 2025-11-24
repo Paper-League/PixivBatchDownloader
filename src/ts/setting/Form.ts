@@ -151,6 +151,15 @@ class Form {
 
   /**点击一些按钮时，切换显示对应的帮助区域 */
   private toggleHelpArea() {
+    // 显示系列小说的命名规则的提示
+    this.form
+      .querySelector('#showSeriesNovelNameTip')!
+      .addEventListener('click', () =>
+        Utils.toggleEl(
+          document.querySelector('#seriesNovelNameTip')! as HTMLElement
+        )
+      )
+
     // 显示命名字段提示
     this.form
       .querySelector('#showFileNameTip')!
@@ -204,6 +213,18 @@ class Form {
 
   /**点击一些按钮时，通过 msgBox 显示帮助 */
   private showMsgWhenClick() {
+    // 显示“把 R-18(G) 作品存入指定的文件夹里”可以用命名标记代替的说明
+    this.form
+      .querySelector('#showR18FolderNameTip')!
+      .addEventListener('click', () => {
+        msgBox.show(
+          lang.transl('_把r18作品存入指定的文件夹里可以使用命名标记替代的说明'),
+          {
+            title: lang.transl('_把r18作品存入指定的文件夹里'),
+          }
+        )
+      })
+
     // 把文件保存到用户上次选择的位置的说明
     this.form
       .querySelector('#showRememberTheLastSaveLocationTip')!

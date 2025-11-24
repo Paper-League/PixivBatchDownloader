@@ -3663,6 +3663,16 @@ class FileName {
             return str.slice(0, str.length - 3) + '000+';
         }
     }
+    getAgeLimit(xRestrict, handleAll = true) {
+        switch (xRestrict) {
+            case 0:
+                return handleAll ? 'All Ages' : '';
+            case 1:
+                return 'R-18';
+            case 2:
+                return 'R-18G';
+        }
+    }
     // 在文件名前面添加一层文件夹
     // appendFolder 方法会对非法字符进行处理（包括处理路径分隔符 / 这主要是因为 tags 可能含有斜线 /，需要替换）
     appendFolder(fullPath, folderName) {
@@ -3866,6 +3876,14 @@ class FileName {
             },
             '{bmk_1000}': {
                 value: this.getBKM1000(data.bmk),
+                safe: true,
+            },
+            '{age}': {
+                value: this.getAgeLimit(data.xRestrict),
+                safe: true,
+            },
+            '{age_r}': {
+                value: this.getAgeLimit(data.xRestrict, false),
                 safe: true,
             },
             '{like}': {
@@ -26187,6 +26205,22 @@ Zip 파일이 원본 파일입니다.`,
         '단순화된 북마크 수. 예: <span class="blue">0+</span>, <span class="blue">1000+</span>, <span class="blue">2000+</span>, <span class="blue">3000+</span> ……',
         'Упрощенное количество закладок, напр. <span class="blue">0+</span>、<span class="blue">1000+</span>、<span class="blue">2000+</span>、<span class="blue">3000+</span> ......',
     ],
+    _命名标记age: [
+        `作品的年龄限制，分为：<span class="blue">All Ages</span>、<span class="blue">R-18</span>、<span class="blue">R-18G</span>`,
+        `作品的年齡限制，分為：<span class="blue">All Ages</span>、<span class="blue">R-18</span>、<span class="blue">R-18G</span>`,
+        `The age restriction of the work is divided into: <span class="blue">All Ages</span>, <span class="blue">R-18</span>, <span class="blue">R-18G</span>`,
+        `作品の年齢制限は、<span class="blue">All Ages</span>、<span class="blue">R-18</span>、<span class="blue">R-18G</span>に分かれます`,
+        `작품의 연령 제한은 <span class="blue">All Ages</span>、<span class="blue">R-18</span>、<span class="blue">R-18G</span>으로 나뉩니다`,
+        `Возрастное ограничение работы разделено на: <span class="blue">All Ages</span>, <span class="blue">R-18</span>, <span class="blue">R-18G</span>`,
+    ],
+    _命名标记age_r: [
+        `仅当作品为限制级时，输出它的年龄限制，分为：<span class="blue">R-18</span>、<span class="blue">R-18G</span>`,
+        `僅當作品為限制級時，輸出它的年齡限制，分為：<span class="blue">R-18</span>、<span class="blue">R-18G</span>`,
+        `Output its age restriction only when the work is restricted, divided into: <span class="blue">R-18</span>, <span class="blue">R-18G</span>`,
+        `作品が制限級の場合のみ、その年齢制限を出力：<span class="blue">R-18</span>、<span class="blue">R-18G</span>`,
+        `작품이 제한 등급일 때만 그 연령 제한을 출력：<span class="blue">R-18</span>、<span class="blue">R-18G</span>`,
+        `Выводить возрастное ограничение только если работа ограничена, разделено на: <span class="blue">R-18</span>, <span class="blue">R-18G</span>`,
+    ],
     _命名标记like: [
         'Like count，作品的点赞数。',
         'Like count，作品的點讚數。',
@@ -28482,6 +28516,20 @@ This setting is also used when you use the Downloader to bookmark works in batch
         '<span class="key">R-18(G)</span> の作品を指定のフォルダに入れる',
         '<span class="key">R-18(G)</span> 작품을 지정된 디렉토리에 저장',
         'Сохраните <span class="key">R-18(G)</span> работы в указанной папке',
+    ],
+    _把r18作品存入指定的文件夹里可以使用命名标记替代的说明: [
+        `现在你可以使用命名标记 <span class="blue">{age_r}</span> 来取代这个设置：<br>
+仅当作品为限制级时，输出它的年龄限制，分为：<span class="blue">R-18</span>、<span class="blue">R-18G</span>`,
+        `現在你可以使用命名標記 <span class="blue">{age_r}</span> 來取代這個設置：<br>
+僅當作品為限制級時，輸出它的年齡限制，分為：<span class="blue">R-18</span>、<span class="blue">R-18G</span>`,
+        `Now you can use the naming tag <span class="blue">{age_r}</span> to replace this setting:<br>
+Output its age restriction only when the work is restricted, divided into: <span class="blue">R-18</span>, <span class="blue">R-18G</span>`,
+        `今は命名タグ <span class="blue">{age_r}</span> を使用してこの設定を置き換えることができます：<br>
+作品が制限級の場合のみ、その年齢制限を出力：<span class="blue">R-18</span>、<span class="blue">R-18G</span>`,
+        `이제 명명 태그 <span class="blue">{age_r}</span> 를 사용하여 이 설정을 대체할 수 있습니다：<br>
+작품이 제한 등급일 때만 그 연령 제한을 출력：<span class="blue">R-18</span>、<span class="blue">R-18G</span>`,
+        `Теперь вы можете использовать тег именования <span class="blue">{age_r}</span> для замены этой настройки:<br>
+Выводить возрастное ограничение только если работа ограничена, разделено на: <span class="blue">R-18</span>, <span class="blue">R-18G</span>`,
     ],
     _必填项不能为空: [
         '必填项不能为空',
@@ -32163,14 +32211,6 @@ If you want to use this feature, please note:
         `주의: 시리즈 하나가 병합 중입니다. 병합이 완료될 때까지 작업을 계속합니다. 더 이상 필요하지 않으면 이 페이지를 새로고침할 수 있습니다`,
         `Примечание: Одна серия в процессе объединения, она продолжит работу до завершения объединения. Если он вам больше не нужен, вы можете обновить эту страницу`,
     ],
-    _系列小说的命名规则: [
-        `系列小说的<span class="key">命名</span>规则`,
-        `系列小說的<span class="key">命名</span>規則`,
-        `Novel series <span class="key">naming</span> rule`,
-        `シリーズ小説の<span class="key">命名</span>ルール`,
-        `시리즈 소설 <span class="key">명명</span> 규칙`,
-        `Правило <span class="key">наименования</span> серий романов`,
-    ],
     _提示点击下方的标记就可以把它复制到剪贴板: [
         `提示：点击下方的标记就可以把它复制到剪贴板。`,
         `提示：點擊下方的標記就可以把它複製到剪貼板。`,
@@ -32178,6 +32218,40 @@ If you want to use this feature, please note:
         `ヒント：下のマーカーをクリックすると、それをクリップボードにコピーできます。`,
         `팁: 아래 표시를 클릭하면 클립보드에 복사할 수 있습니다.`,
         `Подсказка: Нажмите на маркер ниже, чтобы скопировать его в буфер обмена.`,
+    ],
+    _合并系列小说时的命名规则: [
+        `合并系列小说时的<span class="key">命名</span>规则`,
+        `合併系列小說時的<span class="key">命名</span>規則`,
+        `Naming rule when merging novel series`,
+        `シリーズ小説をマージする際の<span class="key">命名</span>ルール`,
+        `시리즈 소설 병합 시 <span class="key">명명</span> 규칙`,
+        `Правило <span class="key">наименования</span> при объединении серий романов`,
+    ],
+    _系列小说的命名标记提醒: [
+        `这个命名规则用于设置合集文件的名字，而非单个小说的名字。<br>
+可以使用<span class="key">/</span>建立文件夹。<br>
+你可以使用多个标记，也可以添加自定义文字。例如：novel series/title {series_title} id {series_id}<br>
+为了防止文件名重复，建议你始终添加 {series_id}。`,
+        `這個命名規則用於設定合集檔案的名字，而非單個小說的名字。<br>
+可以使用<span class="key">/</span>建立資料夾。<br>
+你可以使用多個標記，也可以添加自訂文字。例如：novel series/title {series_title} id {series_id}<br>
+為了防止檔案名重複，建議你始終添加 {series_id}。`,
+        `This naming rule is used to set the name of the collection file, not the name of individual novels.<br>
+You can use <span class="key">/</span> to create folders.<br>
+You can use multiple tags and add custom text. For example: novel series/title {series_title} id {series_id}<br>
+To prevent duplicate filenames, it is recommended to always add {series_id}.`,
+        `この命名ルールは、単一の小説の名前ではなく、コレクションファイルの名前を設定するために使用されます。<br>
+<span class="key">/</span>を使用してフォルダーを作成できます。<br>
+複数のタグを使用したり、カスタムテキストを追加したりできます。例：novel series/title {series_title} id {series_id}<br>
+ファイル名の重複を防ぐため、常に {series_id} を追加することをお勧めします。`,
+        `이 명명 규칙은 개별 소설의 이름이 아닌 컬렉션 파일의 이름을 설정하는 데 사용됩니다.<br>
+<span class="key">/</span>를 사용하여 폴더를 생성할 수 있습니다.<br>
+여러 태그를 사용하거나 사용자 지정 텍스트를 추가할 수 있습니다. 예: novel series/title {series_title} id {series_id}<br>
+파일 이름 중복을 방지하기 위해 항상 {series_id}를 추가하는 것을 권장합니다.`,
+        `Это правило именования используется для установки имени файла коллекции, а не имени отдельных романов.<br>
+Вы можете использовать <span class="key">/</span> для создания папок.<br>
+Вы можете использовать несколько тегов и добавлять пользовательский текст. Например: novel series/title {series_title} id {series_id}<br>
+Чтобы предотвратить дублирование имен файлов, рекомендуется всегда добавлять {series_id}.`,
     ],
     _版本更新内容1820: [
         `📖 优化了保存小说时的内容
@@ -32221,6 +32295,7 @@ If you want to use this feature, please note:
 // - 如果中文语句里有 html 标签，翻译时需要原样保留。
 // - 如果原语句里有 `<span class="key">关键字</span>` 形式的标记，那么在翻译后的语句里也要加上。
 // - 中文的引号如 `“` 和 `”` 都翻译成英语的引号 `"`。
+// - 如果原语句使用了 \n 来换行（这是为了区分每条子语句），在翻译时需要保持换行格式（而非把多行文字合并到一行）。
 // 术语表：
 // - `作品`（指 pixiv 上的投稿）翻译为`work`。
 // - `插画`翻译为`illustration`。
@@ -35642,6 +35717,10 @@ class Form {
     }
     /**点击一些按钮时，切换显示对应的帮助区域 */
     toggleHelpArea() {
+        // 显示系列小说的命名规则的提示
+        this.form
+            .querySelector('#showSeriesNovelNameTip')
+            .addEventListener('click', () => _utils_Utils__WEBPACK_IMPORTED_MODULE_7__.Utils.toggleEl(document.querySelector('#seriesNovelNameTip')));
         // 显示命名字段提示
         this.form
             .querySelector('#showFileNameTip')
@@ -35669,6 +35748,14 @@ class Form {
     }
     /**点击一些按钮时，通过 msgBox 显示帮助 */
     showMsgWhenClick() {
+        // 显示“把 R-18(G) 作品存入指定的文件夹里”可以用命名标记代替的说明
+        this.form
+            .querySelector('#showR18FolderNameTip')
+            .addEventListener('click', () => {
+            _MsgBox__WEBPACK_IMPORTED_MODULE_10__.msgBox.show(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_把r18作品存入指定的文件夹里可以使用命名标记替代的说明'), {
+                title: _Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_把r18作品存入指定的文件夹里'),
+            });
+        });
         // 把文件保存到用户上次选择的位置的说明
         this.form
             .querySelector('#showRememberTheLastSaveLocationTip')
@@ -36165,6 +36252,8 @@ const formHtml = `
         <option value="{page_tag}">{page_tag}</option>
         <option value="{type}">{type}</option>
         <option value="{AI}">{AI}</option>
+        <option value="{age}">{age}</option>
+        <option value="{age_r}">{age_r}</option>
         <option value="{like}">{like}</option>
         <option value="{bmk}">{bmk}</option>
         <option value="{bmk_1000}">{bmk_1000}</option>
@@ -36227,6 +36316,12 @@ const formHtml = `
       <br>
       * <span class="blue name">{AI}</span>
       <span data-xztext="_命名标记AI"></span>
+      <br>
+      <span class="blue name">{age}</span>
+      <span data-xztext="_命名标记age"></span>
+      <br>
+      * <span class="blue name">{age_r}</span>
+      <span data-xztext="_命名标记age_r"></span>
       <br>
       <span class="blue name">{like}</span>
       <span data-xztext="_命名标记like"></span>
@@ -36296,6 +36391,7 @@ const formHtml = `
       <span class="subOptionWrap" data-show="r18Folder">
         <span data-xztext="_目录名"></span>
         <input type="text" name="r18FolderName" class="setinput_style1 blue" style="width:150px;min-width: 150px;" value="[R-18&R-18G]">
+        <button type="button" class="gray1 textButton" id="showR18FolderNameTip" data-xztext="_提示"></button>
       </span>
     </p>
     <p class="option" data-no="16">
@@ -36656,6 +36752,77 @@ const formHtml = `
         <span class="beautify_switch" tabindex="0"></span>
       </span>
     </p>
+    <p class="option" data-no="91">
+      <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(91)}" target="_blank" class="settingNameStyle" data-xztext="_合并系列小说时的命名规则"></a>
+      <span class="rowWrap">
+        <textarea class="centerPanelTextArea beautify_scrollbar" name="seriesNovelNameRule" rows="1"></textarea>
+        <button class="showFileNameTip textButton" id="showSeriesNovelNameTip" type="button" data-xztext="_提示"></button>
+      </span>
+    </p>
+    <p class="fileNameTip tip namingTipArea" id="seriesNovelNameTip">
+      <span data-xztext="_系列小说的命名标记提醒"></span>
+      <br>
+      * <span data-xztext="_有些标记并不总是可用的提醒"></span>
+      <br>
+      <span data-xztext="_提示点击下方的标记就可以把它复制到剪贴板"></span>
+      <br>
+      <span class="blue name">{series_title}</span>
+      <span data-xztext="_命名标记id"></span>
+      <br>
+      <span class="blue name">{series_id}</span>
+      <span data-xztext="_命名标记id"></span>
+      <br>
+      <span class="blue name">{user}</span>
+      <span data-xztext="_命名标记id"></span>
+      <br>
+      <span class="blue name">{user_id}</span>
+      <span data-xztext="_命名标记id"></span>
+      <br>
+      <span class="blue name">{part}</span>
+      <span data-xztext="_命名标记id"></span>
+      <br>
+      <span class="blue name">{ext}</span>
+      <span data-xztext="_命名标记id"></span>
+      <br>
+      <span class="blue name">{age}</span>
+      <span data-xztext="_命名标记id"></span>
+      <br>
+      * <span class="blue name">{AI}</span>
+      <span data-xztext="_命名标记id"></span>
+      <br>
+      <span class="blue name">{lang}</span>
+      <span data-xztext="_命名标记id"></span>
+      <br>
+      <span class="blue name">{total}</span>
+      <span data-xztext="_命名标记id"></span>
+      <br>
+      <span class="blue name">{char_count}</span>
+      <span data-xztext="_命名标记id"></span>
+      <br>
+      <span class="blue name">{create_date}</span>
+      <span data-xztext="_命名标记id"></span>
+      <br>
+      <span class="blue name">{last_date}</span>
+      <span data-xztext="_命名标记id"></span>
+      <br>
+      <span class="blue name">{task_date}</span>
+      <span data-xztext="_命名标记id"></span>
+      <br>
+      <span class="blue name">{first_id}</span>
+      <span data-xztext="_命名标记id"></span>
+      <br>
+      <span class="blue name">{latest_id}</span>
+      <span data-xztext="_命名标记id"></span>
+      <br>
+      <span class="blue name">{tags}</span>
+      <span data-xztext="_命名标记id"></span>
+      <br>
+      <span class="blue name">{page_tag}</span>
+      <span data-xztext="_命名标记id"></span>
+      <br>
+      <span class="blue name">{page_title}</span>
+      <span data-xztext="_命名标记id"></span>
+    </p>
     <p class="option" data-no="27">
       <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(27)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_在小说里保存元数据提示">
         <span data-xztext="_在小说里保存元数据"></span>
@@ -36935,13 +37102,13 @@ const formHtml = `
       <input type="text" name="copyWorkInfoFormat" class="setinput_style1 blue" style="width:100%;max-width:350px;" value="id: {id}{n}title: {title}{n}tags: {tags}{n}url: {url}{n}user: {user}">
       <button type="button" class="gray1 textButton" id="showCopyWorkInfoFormatTip" data-xztext="_提示"></button>
     </p>
-    <p class="tip" id="copyWorkInfoFormatTip">
+    <p class="tip namingTipArea" id="copyWorkInfoFormatTip">
       <span data-xztext="_复制内容的格式的提示"></span>
       <br>
-      <span class="blue">{url}</span>
+      <span class="blue name">{url}</span>
       <span data-xztext="_url标记的说明"></span>
       <br>
-      <span class="blue">{n}</span>
+      <span class="blue name">{n}</span>
       <span data-xztext="_换行标记的说明"></span>
       <br>
     </p>
@@ -37176,6 +37343,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Settings__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Settings */ "./src/ts/setting/Settings.ts");
 /* harmony import */ var _utils_DateFormat__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../utils/DateFormat */ "./src/ts/utils/DateFormat.ts");
 /* harmony import */ var _NameRuleManager__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./NameRuleManager */ "./src/ts/setting/NameRuleManager.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
+
+
 
 
 
@@ -37357,7 +37528,12 @@ class FormSettings {
             'downloadOrderSortBy',
             'copyImageSize',
         ],
-        textarea: ['notNeedTag', 'blockList', 'createFolderTagList'],
+        textarea: [
+            'notNeedTag',
+            'blockList',
+            'createFolderTagList',
+            'seriesNovelNameRule',
+        ],
         datetime: ['postDateStart', 'postDateEnd'],
     };
     restoreTimer = 0;
@@ -37390,15 +37566,15 @@ class FormSettings {
     }
     /**根据文本长度，动态设置 textarea 的高度 */
     setRows(name) {
+        const el = this.form[name];
         // 下载器的 textarea 默认 rows 是 1，随着内容增多，应该增大 rows，以提供更好的交互体验
         // 由于文本内容可能有数字、字母、中日文，所以 length 只是个大致的值。
-        // 对于中日文，假设 50 个字符为一行（PC 端的宽度）
-        // 对于数字、字母，80 个字符为一行
-        let oneRowLength = 50;
-        if (name === 'blockList') {
-            oneRowLength = 80;
+        // 如果含有非 ASCII 字符，假设 50 个字符为一行（PC 端的宽度）
+        // 如果全部是 ASCII 字符，则 90 个字符为一行
+        let oneRowLength = _Config__WEBPACK_IMPORTED_MODULE_5__.Config.mobile ? 20 : 50;
+        if (_utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.isAscii(el.value)) {
+            oneRowLength = _Config__WEBPACK_IMPORTED_MODULE_5__.Config.mobile ? 30 : 90;
         }
-        const el = this.form[name];
         let rows = Math.ceil(el.value.length / oneRowLength);
         // 如果值是空字符串，rows 会是 0，此时设置为 1
         if (rows === 0) {
@@ -38542,6 +38718,7 @@ class Settings {
         rememberTheLastSaveLocation: false,
         autoMergeNovel: false,
         skipNovelsInSeriesWhenAutoMerge: true,
+        seriesNovelNameRule: 'pixiv/novel series/{page_tag}/{series_title}-{series_id}-{user}-{user_id}-{tags}.{ext}',
     };
     allSettingKeys = Object.keys(this.defaultSettings);
     // 值为浮点数的选项
@@ -57474,6 +57651,10 @@ class Utils {
             console.error('Writing to clipboard failed', error.message);
             return false;
         }
+    }
+    /** 检测字符串是否全部为 ASCII 字符 */
+    static isAscii(str) {
+        return /^[\x00-\x7F]*$/.test(str);
     }
 }
 

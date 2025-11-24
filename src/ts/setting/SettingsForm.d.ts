@@ -164,4 +164,5 @@ export interface SettingsForm extends HTMLFormElement {
   rememberTheLastSaveLocation: HTMLInputElement
   autoMergeNovel: HTMLInputElement
   skipNovelsInSeriesWhenAutoMerge: HTMLInputElement
+  seriesNovelNameRule: HTMLInputElement
 }

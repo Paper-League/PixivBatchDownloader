@@ -1225,6 +1225,22 @@ Zip 파일이 원본 파일입니다.`,
     '단순화된 북마크 수. 예: <span class="blue">0+</span>, <span class="blue">1000+</span>, <span class="blue">2000+</span>, <span class="blue">3000+</span> ……',
     'Упрощенное количество закладок, напр. <span class="blue">0+</span>、<span class="blue">1000+</span>、<span class="blue">2000+</span>、<span class="blue">3000+</span> ......',
   ],
+  _命名标记age: [
+    `作品的年龄限制，分为：<span class="blue">All Ages</span>、<span class="blue">R-18</span>、<span class="blue">R-18G</span>`,
+    `作品的年齡限制，分為：<span class="blue">All Ages</span>、<span class="blue">R-18</span>、<span class="blue">R-18G</span>`,
+    `The age restriction of the work is divided into: <span class="blue">All Ages</span>, <span class="blue">R-18</span>, <span class="blue">R-18G</span>`,
+    `作品の年齢制限は、<span class="blue">All Ages</span>、<span class="blue">R-18</span>、<span class="blue">R-18G</span>に分かれます`,
+    `작품의 연령 제한은 <span class="blue">All Ages</span>、<span class="blue">R-18</span>、<span class="blue">R-18G</span>으로 나뉩니다`,
+    `Возрастное ограничение работы разделено на: <span class="blue">All Ages</span>, <span class="blue">R-18</span>, <span class="blue">R-18G</span>`,
+  ],
+  _命名标记age_r: [
+    `仅当作品为限制级时，输出它的年龄限制，分为：<span class="blue">R-18</span>、<span class="blue">R-18G</span>`,
+    `僅當作品為限制級時，輸出它的年齡限制，分為：<span class="blue">R-18</span>、<span class="blue">R-18G</span>`,
+    `Output its age restriction only when the work is restricted, divided into: <span class="blue">R-18</span>, <span class="blue">R-18G</span>`,
+    `作品が制限級の場合のみ、その年齢制限を出力：<span class="blue">R-18</span>、<span class="blue">R-18G</span>`,
+    `작품이 제한 등급일 때만 그 연령 제한을 출력：<span class="blue">R-18</span>、<span class="blue">R-18G</span>`,
+    `Выводить возрастное ограничение только если работа ограничена, разделено на: <span class="blue">R-18</span>, <span class="blue">R-18G</span>`,
+  ],
   _命名标记like: [
     'Like count，作品的点赞数。',
     'Like count，作品的點讚數。',
@@ -3530,6 +3546,20 @@ This setting is also used when you use the Downloader to bookmark works in batch
     '<span class="key">R-18(G)</span> の作品を指定のフォルダに入れる',
     '<span class="key">R-18(G)</span> 작품을 지정된 디렉토리에 저장',
     'Сохраните <span class="key">R-18(G)</span> работы в указанной папке',
+  ],
+  _把r18作品存入指定的文件夹里可以使用命名标记替代的说明: [
+    `现在你可以使用命名标记 <span class="blue">{age_r}</span> 来取代这个设置：<br>
+仅当作品为限制级时，输出它的年龄限制，分为：<span class="blue">R-18</span>、<span class="blue">R-18G</span>`,
+    `現在你可以使用命名標記 <span class="blue">{age_r}</span> 來取代這個設置：<br>
+僅當作品為限制級時，輸出它的年齡限制，分為：<span class="blue">R-18</span>、<span class="blue">R-18G</span>`,
+    `Now you can use the naming tag <span class="blue">{age_r}</span> to replace this setting:<br>
+Output its age restriction only when the work is restricted, divided into: <span class="blue">R-18</span>, <span class="blue">R-18G</span>`,
+    `今は命名タグ <span class="blue">{age_r}</span> を使用してこの設定を置き換えることができます：<br>
+作品が制限級の場合のみ、その年齢制限を出力：<span class="blue">R-18</span>、<span class="blue">R-18G</span>`,
+    `이제 명명 태그 <span class="blue">{age_r}</span> 를 사용하여 이 설정을 대체할 수 있습니다：<br>
+작품이 제한 등급일 때만 그 연령 제한을 출력：<span class="blue">R-18</span>、<span class="blue">R-18G</span>`,
+    `Теперь вы можете использовать тег именования <span class="blue">{age_r}</span> для замены этой настройки:<br>
+Выводить возрастное ограничение только если работа ограничена, разделено на: <span class="blue">R-18</span>, <span class="blue">R-18G</span>`,
   ],
   _必填项不能为空: [
     '必填项不能为空',
@@ -7216,14 +7246,6 @@ If you want to use this feature, please note:
     `주의: 시리즈 하나가 병합 중입니다. 병합이 완료될 때까지 작업을 계속합니다. 더 이상 필요하지 않으면 이 페이지를 새로고침할 수 있습니다`,
     `Примечание: Одна серия в процессе объединения, она продолжит работу до завершения объединения. Если он вам больше не нужен, вы можете обновить эту страницу`,
   ],
-  _系列小说的命名规则: [
-    `系列小说的<span class="key">命名</span>规则`,
-    `系列小說的<span class="key">命名</span>規則`,
-    `Novel series <span class="key">naming</span> rule`,
-    `シリーズ小説の<span class="key">命名</span>ルール`,
-    `시리즈 소설 <span class="key">명명</span> 규칙`,
-    `Правило <span class="key">наименования</span> серий романов`,
-  ],
   _提示点击下方的标记就可以把它复制到剪贴板: [
     `提示：点击下方的标记就可以把它复制到剪贴板。`,
     `提示：點擊下方的標記就可以把它複製到剪貼板。`,
@@ -7231,6 +7253,40 @@ If you want to use this feature, please note:
     `ヒント：下のマーカーをクリックすると、それをクリップボードにコピーできます。`,
     `팁: 아래 표시를 클릭하면 클립보드에 복사할 수 있습니다.`,
     `Подсказка: Нажмите на маркер ниже, чтобы скопировать его в буфер обмена.`,
+  ],
+  _合并系列小说时的命名规则: [
+    `合并系列小说时的<span class="key">命名</span>规则`,
+    `合併系列小說時的<span class="key">命名</span>規則`,
+    `Naming rule when merging novel series`,
+    `シリーズ小説をマージする際の<span class="key">命名</span>ルール`,
+    `시리즈 소설 병합 시 <span class="key">명명</span> 규칙`,
+    `Правило <span class="key">наименования</span> при объединении серий романов`,
+  ],
+  _系列小说的命名标记提醒: [
+    `这个命名规则用于设置合集文件的名字，而非单个小说的名字。<br>
+可以使用<span class="key">/</span>建立文件夹。<br>
+你可以使用多个标记，也可以添加自定义文字。例如：novel series/title {series_title} id {series_id}<br>
+为了防止文件名重复，建议你始终添加 {series_id}。`,
+    `這個命名規則用於設定合集檔案的名字，而非單個小說的名字。<br>
+可以使用<span class="key">/</span>建立資料夾。<br>
+你可以使用多個標記，也可以添加自訂文字。例如：novel series/title {series_title} id {series_id}<br>
+為了防止檔案名重複，建議你始終添加 {series_id}。`,
+    `This naming rule is used to set the name of the collection file, not the name of individual novels.<br>
+You can use <span class="key">/</span> to create folders.<br>
+You can use multiple tags and add custom text. For example: novel series/title {series_title} id {series_id}<br>
+To prevent duplicate filenames, it is recommended to always add {series_id}.`,
+    `この命名ルールは、単一の小説の名前ではなく、コレクションファイルの名前を設定するために使用されます。<br>
+<span class="key">/</span>を使用してフォルダーを作成できます。<br>
+複数のタグを使用したり、カスタムテキストを追加したりできます。例：novel series/title {series_title} id {series_id}<br>
+ファイル名の重複を防ぐため、常に {series_id} を追加することをお勧めします。`,
+    `이 명명 규칙은 개별 소설의 이름이 아닌 컬렉션 파일의 이름을 설정하는 데 사용됩니다.<br>
+<span class="key">/</span>를 사용하여 폴더를 생성할 수 있습니다.<br>
+여러 태그를 사용하거나 사용자 지정 텍스트를 추가할 수 있습니다. 예: novel series/title {series_title} id {series_id}<br>
+파일 이름 중복을 방지하기 위해 항상 {series_id}를 추가하는 것을 권장합니다.`,
+    `Это правило именования используется для установки имени файла коллекции, а не имени отдельных романов.<br>
+Вы можете использовать <span class="key">/</span> для создания папок.<br>
+Вы можете использовать несколько тегов и добавлять пользовательский текст. Например: novel series/title {series_title} id {series_id}<br>
+Чтобы предотвратить дублирование имен файлов, рекомендуется всегда добавлять {series_id}.`,
   ],
   _版本更新内容1820: [
     `📖 优化了保存小说时的内容
@@ -7280,6 +7336,7 @@ export { langText }
 // - 如果中文语句里有 html 标签，翻译时需要原样保留。
 // - 如果原语句里有 `<span class="key">关键字</span>` 形式的标记，那么在翻译后的语句里也要加上。
 // - 中文的引号如 `“` 和 `”` 都翻译成英语的引号 `"`。
+// - 如果原语句使用了 \n 来换行（这是为了区分每条子语句），在翻译时需要保持换行格式（而非把多行文字合并到一行）。
 
 // 术语表：
 // - `作品`（指 pixiv 上的投稿）翻译为`work`。
