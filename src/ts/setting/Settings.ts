@@ -752,7 +752,7 @@ class Settings {
     autoMergeNovel: false,
     skipNovelsInSeriesWhenAutoMerge: true,
     seriesNovelNameRule:
-      'pixiv/novel series/{page_tag}/{series_title}-{series_id}-{user}-{user_id}-{tags}.{ext}',
+      'novel series/{page_tag}/{series_title}-{series_id}-{user}-{part}-{tags}.{ext}',
   }
 
   private allSettingKeys = Object.keys(this.defaultSettings)

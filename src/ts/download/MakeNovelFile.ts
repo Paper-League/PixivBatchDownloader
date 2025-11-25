@@ -32,7 +32,7 @@ class MakeNovelFile {
         'downloadNovelCover' + id
       )
       await downloadInterval.wait()
-      await downloadNovelCover.download(url, filename, 'downloadNovel')
+      await downloadNovelCover.download(url, filename)
     }
   }
 

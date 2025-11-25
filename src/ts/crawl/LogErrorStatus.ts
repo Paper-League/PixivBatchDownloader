@@ -128,6 +128,9 @@ class LogErrorStatus {
 
       case 404:
         log.error(workLink + ' ' + lang.transl('_状态码404的提示'))
+        log.error(
+          lang.transl('_该作品可能已经被删除或者需要成为作者的好友才能查看')
+        )
         break
 
       case 429:

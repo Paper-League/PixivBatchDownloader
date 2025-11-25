@@ -1,4 +1,3 @@
-import browser from 'webextension-polyfill'
 import { EVT } from '../EVT'
 import { store } from '../store/Store'
 import { DonwloadSuccessData, SendToBackEndData } from './DownloadType'
@@ -7,7 +6,7 @@ import { Result } from '../store/StoreType'
 import { settings } from '../setting/Settings'
 import { Utils } from '../utils/Utils'
 import { Tools } from '../Tools'
-import { Config } from '../Config'
+import { SendDownload } from './SendDownload'
 
 // 为每个作品创建一个 txt 文件，保存这个作品的元数据
 class SaveWorkMeta {
@@ -147,26 +146,7 @@ class SaveWorkMeta {
     }
     // 拼接出元数据文件的文件名
     const metaFileName = `${part1}-meta.txt`
-
-    // 发送下载请求
-
-    let dataURL: string | undefined = undefined
-    if (Config.sendDataURL) {
-      dataURL = await Utils.blobToDataURL(blob)
-    }
-
-    // 不检查下载状态，默认下载成功
-    const sendData: SendToBackEndData = {
-      msg: 'save_description_file',
-      fileName: metaFileName,
-      id: 'fake',
-      taskBatch: -1,
-      blobURL: URL.createObjectURL(blob),
-      blob: Config.sendBlob ? blob : undefined,
-      dataURL,
-    }
-    browser.runtime.sendMessage(sendData)
-
+    await SendDownload.noReply(blob, metaFileName)
     this.savedIds.push(id)
   }
 }

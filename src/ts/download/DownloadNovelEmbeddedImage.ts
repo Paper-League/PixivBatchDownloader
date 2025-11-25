@@ -1,4 +1,3 @@
-import browser from 'webextension-polyfill'
 import { API } from '../API'
 import { Config } from '../Config'
 import { lang } from '../Language'
@@ -6,8 +5,8 @@ import { log } from '../Log'
 import { settings } from '../setting/Settings'
 import { Utils } from '../utils/Utils'
 import { downloadInterval } from './DownloadInterval'
-import { SendToBackEndData } from './DownloadType'
 import { Tools } from '../Tools'
+import { SendDownload } from './SendDownload'
 
 type EmbeddedImages = null | {
   [key: string]: string
@@ -42,7 +41,6 @@ class DownloadNovelEmbeddedImage {
     content: string,
     embeddedImages: EmbeddedImages,
     novelName: string,
-    action: 'downloadNovel' | 'mergeNovel' = 'downloadNovel',
     interval = 0
   ) {
     const imageList = await this.getImageList(novelId, content, embeddedImages)
@@ -72,36 +70,13 @@ class DownloadNovelEmbeddedImage {
       let imageName = Utils.replaceSuffix(novelName, image.url!)
       // 在文件名末尾加上内嵌图片的 id 和序号
       const array = imageName.split('.')
-      const addString = image.flag_id_part
-      array[array.length - 2] = array[array.length - 2] + addString
+      array[array.length - 2] =
+        array[array.length - 2] + '-' + image.flag_id_part
       imageName = array.join('.')
 
-      // 合并系列小说时，文件直接保存在下载目录里，内嵌图片也保存在下载目录里
-      // 所以要替换掉内嵌图片路径里的斜线
-      if (action === 'mergeNovel') {
-        imageName = Utils.replaceUnsafeStr(imageName)
-      }
-
-      const blobURL = URL.createObjectURL(blob)
-      let dataURL: string | undefined = undefined
-      if (Config.sendDataURL) {
-        dataURL = await Utils.blobToDataURL(blob)
-      }
-
-      // 不检查下载状态，默认下载成功
-      const sendData: SendToBackEndData = {
-        msg: 'save_novel_embedded_image',
-        fileName: imageName,
-        id: 'fake',
-        taskBatch: -1,
-        blobURL,
-        blob: Config.sendBlob ? blob : undefined,
-        dataURL,
-      }
-      browser.runtime.sendMessage(sendData)
+      await SendDownload.noReply(blob, imageName)
+      log.persistentRefresh('downloadNovelImage' + novelId)
     }
-
-    log.persistentRefresh('downloadNovelImage' + novelId)
   }
 
   /**小说保存为 epub 时，内嵌到 Epub 对象里。返回值是个对象：size 是图片体积总数，content 是替换后的正文内容 */

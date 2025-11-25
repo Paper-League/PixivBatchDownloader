@@ -15,8 +15,9 @@ import { DateFormat } from '../utils/DateFormat'
 import { pageType } from '../PageType'
 import { cacheWorkData } from '../store/CacheWorkData'
 import { setTimeoutWorker } from '../SetTimeoutWorker'
-import { SendToBackEndData } from './DownloadType'
-import browser from 'webextension-polyfill'
+import { mergeNovelFileName } from './MergeNovelFileName'
+import { SendDownload } from './SendDownload'
+import { msgBox } from '../MsgBox'
 
 declare const jEpub: any
 
@@ -48,7 +49,12 @@ class MergeNovel {
   private seriesGlossary = ''
   private seriesTags: string[] = []
   private userName = ''
+  /** 合并后的小说文件的完整文件名。一开始是空字符串，在合并过程中才会填充实际的值 */
+  // 注意：这个变量里的 {part} 总是空字符串（也就是默认合并后的文件不会分割成多个）
+  // 如果需要分割成多个文件，那么在分割时生成新的文件名在局部使用即可
+  private novelName = ''
 
+  private seriesData: NovelSeriesData | null = null
   private novelIdList: string[] = []
   private allNovelData: NovelSummary[] = []
   private readonly limit = 30
@@ -138,33 +144,28 @@ class MergeNovel {
     // 获取这个系列本身的详细数据
     await this.sleep(this.crawlInterval)
     log.log(lang.transl('_获取系列数据'))
-    const seriesDataJSON = await API.getNovelSeriesData(this.seriesId)
-    const seriesData = seriesDataJSON.body
-    this.userName = Tools.replaceEPUBText(
-      Utils.replaceUnsafeStr(seriesData.userName)
-    )
+    this.seriesData = await API.getNovelSeriesData(this.seriesId)
+    const body = this.seriesData.body
+    this.userName = Tools.replaceEPUBText(Utils.replaceUnsafeStr(body.userName))
     this.seriesTitle = Tools.replaceEPUBTitle(
-      Utils.replaceUnsafeStr(seriesData.title)
+      Utils.replaceUnsafeStr(body.title)
     )
-    this.seriesCaption = Utils.htmlToText(Utils.htmlDecode(seriesData.caption))
-    this.seriesTags = seriesData.tags
-    this.seriesUpdateDate = DateFormat.format(seriesData.updateDate)
+    this.seriesCaption = Utils.htmlToText(Utils.htmlDecode(body.caption))
+    this.seriesTags = body.tags
+    this.seriesUpdateDate = DateFormat.format(body.updateDate)
 
-    // 生成小说文件并下载
-    let file: Blob | null = null
-    let novelName = `series-${this.userName}-${this.seriesTitle}-user_${this.userName}-seriesId_${this.seriesId}-tags_${seriesData.tags}.${settings.novelSaveAs}`
-    novelName = Utils.replaceUnsafeStr(novelName)
+    // 进入合并流程
+    this.novelName = mergeNovelFileName.getName(this.seriesData)
+    // msgBox.show(this.novelName +'<br>' + settings.seriesNovelNameRule)
+    // await Utils.sleep(3600000)
     if (settings.novelSaveAs === 'txt') {
-      file = await this.mergeTXT(novelName)
-      const url = URL.createObjectURL(file)
-      Utils.downloadFile(url, novelName)
-      URL.revokeObjectURL(url)
+      await this.mergeTXT()
     } else {
-      await this.mergeEPUB(seriesData, novelName)
+      await this.mergeEPUB(body)
     }
 
     // 下载系列小说的封面图片，保存到单独的文件
-    const coverUrl = seriesData.cover.urls.original
+    const coverUrl = body.cover.urls.original
     if (settings.downloadNovelCoverImage && coverUrl) {
       this.logDownloadSeriesCover()
       // 在 mergeEPUB 里会先加载一遍封面图片，所以这里有可能会从缓存加载，就不需要添加等待时间
@@ -172,7 +173,7 @@ class MergeNovel {
       if (settings.novelSaveAs === 'txt') {
         await this.sleep(this.downloadInterval)
       }
-      await downloadNovelCover.download(coverUrl, novelName, 'mergeNovel')
+      await downloadNovelCover.download(coverUrl, this.novelName)
     }
 
     // 合并完成
@@ -193,121 +194,115 @@ class MergeNovel {
     return total
   }
 
-  private async mergeTXT(novelName: string): Promise<Blob> {
-    return new Promise(async (resolve, reject) => {
-      // 保存为 txt 格式时，在这里下载小说内嵌的图片
-      for (const data of this.allNovelData) {
-        // 虽然 downloadNovelEmbeddedImage 里会使用“下载间隔”设置，但是在自动合并系列小说时，抓取结果的数量可能比较少，没有达到生效条件，所以实际上不会等待
-        // 因此这里需要单独添加等待时间。考虑到 Pixiv 对下载文件的限制没有调用 API 那么严格，所以间隔时间设置为 1 秒应该没问题
-        await downloadNovelEmbeddedImage.TXT(
-          data.id,
-          data.title,
-          data.content,
-          data.embeddedImages,
-          novelName,
-          'mergeNovel',
-          this.downloadInterval
-        )
+  private async mergeTXT() {
+    // 保存为 txt 格式时，在这里下载小说内嵌的图片
+    for (const data of this.allNovelData) {
+      // 虽然 downloadNovelEmbeddedImage 里会使用“下载间隔”设置，但是在自动合并系列小说时，抓取结果的数量可能比较少，没有达到生效条件，所以实际上不会等待
+      // 因此这里需要单独添加等待时间。考虑到 Pixiv 对下载文件的限制没有调用 API 那么严格，所以间隔时间设置为 1 秒应该没问题
+      await downloadNovelEmbeddedImage.TXT(
+        data.id,
+        data.title,
+        data.content,
+        data.embeddedImages,
+        this.novelName,
+        this.downloadInterval
+      )
+    }
+
+    // 合并文本内容
+    const text: string[] = []
+
+    // 添加系列的元数据
+    if (settings.saveNovelMeta) {
+      const a: string[] = []
+      const CRLF_2 = this.CRLF2
+      // 系列标题
+      a.push(this.seriesTitle)
+      a.push(CRLF_2)
+      // 作者
+      a.push(`${lang.transl('_作者')}: ` + this.userName)
+      a.push(CRLF_2)
+      // 系列网址
+      const link = `https://www.pixiv.net/novel/series/${this.seriesId}`
+      a.push(link)
+      a.push(CRLF_2)
+      // 更新日期
+      a.push(lang.transl('_更新日期') + ': ' + this.seriesUpdateDate)
+      a.push(CRLF_2)
+      // 系列 tags
+      if (this.seriesTags.length > 0) {
+        const tags = this.seriesTags.map((tag) => `#${tag}`).join(', ')
+        a.push(tags)
+        a.push(CRLF_2)
       }
+      // 系列简介
+      if (this.seriesCaption) {
+        a.push(lang.transl('_系列简介') + ': ')
+        a.push(CRLF_2)
+        a.push(this.seriesCaption)
+        a.push(CRLF_2)
+      }
+      // 设定资料
+      if (this.seriesGlossary) {
+        a.push(lang.transl('_设定资料') + ': ')
+        a.push(CRLF_2)
+        a.push(Utils.htmlToText(Utils.htmlDecode(this.seriesGlossary)))
+        // seriesGlossary 结尾有两个\n，这里再添加一个以增大空白区域，和其他部分做出区分
+        a.push(this.CRLF)
+      }
+      a.push(`----- ${lang.transl('_系列小说的元数据部分结束')} -----`)
+      a.push(this.CRLF.repeat(3))
 
-      // 合并文本内容
-      const text: string[] = []
+      // 合并
+      text.push(a.join(''))
+    }
 
-      // 添加系列的元数据
+    // 添加每篇小说的内容
+    for (const data of this.allNovelData) {
+      // 添加章节编号
+      // 让编号独占一行。如果编号和标题在一行里，会导致无法识别目录
+      text.push(`${this.chapterNo(data.no)}`)
+      // 我测试了 Android 上的静读天下（Moon+ Reader），对于 txt 小说，它可以识别中文的“第x章”这样的章节名
+      // 但如果使用英语章节名如 Chapter 1 就识别不出来，我尝试了各种格式都不行，放弃了
+      text.push(this.CRLF2)
+      text.push(data.title)
+      text.push(this.CRLF2)
+      // 添加小说的元数据，内容包含：
+      // url 小说的 URL
+      // date 小说的更新日期
+      // tags 小说的标签列表
+      // description 小说的简介
       if (settings.saveNovelMeta) {
-        const a: string[] = []
-        const CRLF_2 = this.CRLF2
-        // 系列标题
-        a.push(this.seriesTitle)
-        a.push(CRLF_2)
-        // 作者
-        a.push(`${lang.transl('_作者')}: ` + this.userName)
-        a.push(CRLF_2)
-        // 系列网址
-        const link = `https://www.pixiv.net/novel/series/${this.seriesId}`
-        a.push(link)
-        a.push(CRLF_2)
-        // 更新日期
-        a.push(lang.transl('_更新日期') + ': ' + this.seriesUpdateDate)
-        a.push(CRLF_2)
-        // 系列 tags
-        if (this.seriesTags.length > 0) {
-          const tags = this.seriesTags.map((tag) => `#${tag}`).join(', ')
-          a.push(tags)
-          a.push(CRLF_2)
-        }
-        // 系列简介
-        if (this.seriesCaption) {
-          a.push(lang.transl('_系列简介') + ': ')
-          a.push(CRLF_2)
-          a.push(this.seriesCaption)
-          a.push(CRLF_2)
-        }
-        // 设定资料
-        if (this.seriesGlossary) {
-          a.push(lang.transl('_设定资料') + ': ')
-          a.push(CRLF_2)
-          a.push(Utils.htmlToText(Utils.htmlDecode(this.seriesGlossary)))
-          // seriesGlossary 结尾有两个\n，这里再添加一个以增大空白区域，和其他部分做出区分
-          a.push(this.CRLF)
-        }
-        a.push(`----- ${lang.transl('_系列小说的元数据部分结束')} -----`)
-        a.push(this.CRLF.repeat(3))
-
-        // 合并
-        text.push(a.join(''))
-      }
-
-      // 添加每篇小说的内容
-      for (const data of this.allNovelData) {
-        // 添加章节编号
-        // 让编号独占一行。如果编号和标题在一行里，会导致无法识别目录
-        text.push(`${this.chapterNo(data.no)}`)
-        // 我测试了 Android 上的静读天下（Moon+ Reader），对于 txt 小说，它可以识别中文的“第x章”这样的章节名
-        // 但如果使用英语章节名如 Chapter 1 就识别不出来，我尝试了各种格式都不行，放弃了
+        const url = `https://www.pixiv.net/novel/show.php?id=${data.id}`
+        text.push(url)
         text.push(this.CRLF2)
-        text.push(data.title)
+        text.push(lang.transl('_更新日期') + ': ' + data.updateDate)
         text.push(this.CRLF2)
-        // 添加小说的元数据，内容包含：
-        // url 小说的 URL
-        // date 小说的更新日期
-        // tags 小说的标签列表
-        // description 小说的简介
-        if (settings.saveNovelMeta) {
-          const url = `https://www.pixiv.net/novel/show.php?id=${data.id}`
-          text.push(url)
-          text.push(this.CRLF2)
-          text.push(lang.transl('_更新日期') + ': ' + data.updateDate)
-          text.push(this.CRLF2)
-          const tags = `${data.tags.map((tag) => `#${tag}`).join(this.CRLF)}`
-          text.push(tags)
-          text.push(this.CRLF2)
-          text.push(data.description)
-          text.push(this.CRLF2)
-          text.push(`----- ${lang.transl('_下面是正文')} -----`)
-          text.push(this.CRLF2)
-        }
-        // 添加正文
-        // 替换换行标签，移除 html 标签
-        text.push(
-          data.content.replace(/<br \/>/g, this.CRLF).replace(/<\/?.+?>/g, '')
-        )
-        // 在正文结尾添加换行标记，使得不同章节之间区分开来
-        text.push(this.CRLF.repeat(4))
+        const tags = `${data.tags.map((tag) => `#${tag}`).join(this.CRLF)}`
+        text.push(tags)
+        text.push(this.CRLF2)
+        text.push(data.description)
+        text.push(this.CRLF2)
+        text.push(`----- ${lang.transl('_下面是正文')} -----`)
+        text.push(this.CRLF2)
       }
+      // 添加正文
+      // 替换换行标签，移除 html 标签
+      text.push(
+        data.content.replace(/<br \/>/g, this.CRLF).replace(/<\/?.+?>/g, '')
+      )
+      // 在正文结尾添加换行标记，使得不同章节之间区分开来
+      text.push(this.CRLF.repeat(4))
+    }
 
-      const blob = new Blob(text, {
-        type: 'text/plain',
-      })
-      return resolve(blob)
+    const blob = new Blob(text, {
+      type: 'text/plain',
     })
+    await SendDownload.noReply(blob, this.novelName)
   }
 
   // 生成的 EPUB 文件在这个方法里自行保存
-  private async mergeEPUB(
-    seriesData: NovelSeriesData['body'],
-    novelName: string
-  ): Promise<void> {
+  private async mergeEPUB(body: NovelSeriesData['body']) {
     // 生成一些在每个文件里固定不变的数据
     const link = `https://www.pixiv.net/novel/series/${this.seriesId}`
     const date = new Date(this.seriesUpdateDate)
@@ -378,7 +373,7 @@ class MergeNovel {
       jepub.date(date)
 
       // 添加这个系列的封面图片到 EPUB 文件里
-      const coverUrl = seriesData.cover.urls.original
+      const coverUrl = body.cover.urls.original
       if (settings.downloadNovelCoverImage && coverUrl) {
         await this.sleep(this.downloadInterval)
         this.logDownloadSeriesCover()
@@ -461,7 +456,7 @@ class MergeNovel {
 
         // 如果添加了所有小说
         if (index === this.allNovelData.length - 1) {
-          await this.saveEPUBFile(jepub, novelName, true)
+          await this.saveEPUBFile(jepub, true)
           return
         } else {
           // 如果还有未添加的小说
@@ -471,7 +466,7 @@ class MergeNovel {
           const limit = this.checkSizeLimit()
           // 如果文件体积达到限制，就保存这个 EPUB 文件
           if (limit) {
-            await this.saveEPUBFile(jepub, novelName)
+            await this.saveEPUBFile(jepub)
             // 生成新的 EPUB 文件
             index++
             return generateEPUB()
@@ -486,14 +481,14 @@ class MergeNovel {
 
   /** 获取这个系列里所有小说的 id */
   private async getNovelIds(): Promise<void> {
-    const seriesData = await API.getNovelSeriesContent(
+    const seriesContents = await API.getNovelSeriesContent(
       this.seriesId,
       this.limit,
       this.last,
       'asc'
     )
 
-    const list = seriesData.body.page.seriesContents
+    const list = seriesContents.body.page.seriesContents
     list.forEach((item) => {
       this.novelIdList.push(item.id)
     })
@@ -612,11 +607,9 @@ class MergeNovel {
     return false
   }
 
-  private async saveEPUBFile(
-    jepub: any,
-    name: string,
-    complete: boolean = false
-  ) {
+  private async saveEPUBFile(jepub: any, complete: boolean = false) {
+    let name = this.novelName
+
     // 判断是否需要添加 part 标记
     let addPartFlag = true
     // 如果已经添加了所有小说，并且只有一条 size 记录，说明这个 EPUB 文件里包含了所有小说，所以无须添加 part 标记
@@ -624,45 +617,26 @@ class MergeNovel {
       addPartFlag = false
     }
 
-    // 在后缀名前面添加 part 编号
+    // 如果需要添加 part 编号
     if (addPartFlag) {
       let part = 0
       const current = this.sizeLog.find((item) => item.inUse)
       if (current) {
         part = current.part
       }
-      const nameArray = name.split('.' + settings.novelSaveAs)
-      name = `${nameArray[0]} part${part + 1}.${settings.novelSaveAs}`
+      // 为这个分割的文件生成新的文件名（添加了 part 编号）
+      name = mergeNovelFileName.getName(this.seriesData!, part + 1)
     }
-    name = 'series_merge/' + name
 
     // 保存文件
+    // 如果这个小说需要分割成多个文件，那么把文件名冲突时的处理方式改为由浏览器自动添加编号
+    // 这是因为当文件名太长而被截断时，如果 {part} 位于文件名末尾部分，可能会被截断
+    // 这可能会导致出现重名文件。此时把冲突方式改为 uniquify，以免覆盖同名文件
+    let conflictAction: 'uniquify' | undefined = addPartFlag
+      ? 'uniquify'
+      : undefined
     const blob = await jepub.generate('blob', (metadata: any) => {})
-    const url = URL.createObjectURL(blob)
-    let dataURL: string | undefined = undefined
-    if (Config.sendDataURL) {
-      dataURL = await Utils.blobToDataURL(blob)
-    }
-
-    const sendData: SendToBackEndData = {
-      msg: 'save_novel_series_file',
-      fileName: name,
-      id: 'fake',
-      taskBatch: -1,
-      blobURL: url,
-      blob: Config.sendBlob ? blob : undefined,
-      dataURL,
-    }
-
-    // 使用 a.download 来下载文件时，不调用 downloads API
-    if (settings.rememberTheLastSaveLocation) {
-      // 移除文件夹，只保留文件名部分，因为这种方式不支持建立文件夹
-      const lastName = name.split('/').pop()
-      Utils.downloadFile(url, lastName!)
-      URL.revokeObjectURL(url)
-    } else {
-      browser.runtime.sendMessage(sendData)
-    }
+    await SendDownload.noReply(blob, name, conflictAction)
 
     // 当这个系列里的所有小说都下载完毕后，如果它被分割成了多个文件，则显示提示日志
     if (complete && this.sizeLog.length > 1) {
@@ -706,11 +680,13 @@ class MergeNovel {
   }
 
   private reset() {
+    this.seriesData = null
     this.allNovelData = []
     this.novelIdList = []
     this.seriesTags = []
     this.seriesId = ''
     this.seriesTitle = ''
+    this.novelName = ''
   }
 }
 

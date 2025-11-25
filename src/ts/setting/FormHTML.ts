@@ -451,7 +451,7 @@ export const formHtml = `
       <span class="blue name">{id_num}</span>
       <span data-xztext="_命名标记id_num"></span>
       <br>
-      <span class="blue name">{p_num}</span>
+      * <span class="blue name">{p_num}</span>
       <span data-xztext="_命名标记p_num"></span>
     </p>
     <p class="option" data-no="50">
@@ -850,61 +850,64 @@ export const formHtml = `
       <span data-xztext="_提示点击下方的标记就可以把它复制到剪贴板"></span>
       <br>
       <span class="blue name">{series_title}</span>
-      <span data-xztext="_命名标记id"></span>
+      <span data-xztext="_系列小说的命名标记_series_title"></span>
       <br>
       <span class="blue name">{series_id}</span>
-      <span data-xztext="_命名标记id"></span>
+      <span data-xztext="_系列小说的命名标记_series_id"></span>
       <br>
       <span class="blue name">{user}</span>
-      <span data-xztext="_命名标记id"></span>
+      <span data-xztext="_系列小说的命名标记_user"></span>
       <br>
       <span class="blue name">{user_id}</span>
-      <span data-xztext="_命名标记id"></span>
+      <span data-xztext="_系列小说的命名标记_user_id"></span>
       <br>
-      <span class="blue name">{part}</span>
-      <span data-xztext="_命名标记id"></span>
+      * <span class="blue name">{part}</span>
+      <span data-xztext="_系列小说的命名标记_part"></span>
       <br>
       <span class="blue name">{ext}</span>
-      <span data-xztext="_命名标记id"></span>
+      <span data-xztext="_系列小说的命名标记_ext"></span>
       <br>
       <span class="blue name">{age}</span>
-      <span data-xztext="_命名标记id"></span>
+      <span data-xztext="_系列小说的命名标记_age"></span>
+      <br>
+      * <span class="blue name">{age_r}</span>
+      <span data-xztext="_系列小说的命名标记_age_r"></span>
       <br>
       * <span class="blue name">{AI}</span>
-      <span data-xztext="_命名标记id"></span>
+      <span data-xztext="_系列小说的命名标记_AI"></span>
       <br>
       <span class="blue name">{lang}</span>
-      <span data-xztext="_命名标记id"></span>
+      <span data-xztext="_系列小说的命名标记_lang"></span>
       <br>
       <span class="blue name">{total}</span>
-      <span data-xztext="_命名标记id"></span>
+      <span data-xztext="_系列小说的命名标记_total"></span>
       <br>
       <span class="blue name">{char_count}</span>
-      <span data-xztext="_命名标记id"></span>
+      <span data-xztext="_系列小说的命名标记_char_count"></span>
       <br>
       <span class="blue name">{create_date}</span>
-      <span data-xztext="_命名标记id"></span>
+      <span data-xztext="_系列小说的命名标记_create_date"></span>
       <br>
       <span class="blue name">{last_date}</span>
-      <span data-xztext="_命名标记id"></span>
+      <span data-xztext="_系列小说的命名标记_last_date"></span>
       <br>
       <span class="blue name">{task_date}</span>
-      <span data-xztext="_命名标记id"></span>
+      <span data-xztext="_系列小说的命名标记_task_date"></span>
       <br>
       <span class="blue name">{first_id}</span>
-      <span data-xztext="_命名标记id"></span>
+      <span data-xztext="_系列小说的命名标记_first_id"></span>
       <br>
       <span class="blue name">{latest_id}</span>
-      <span data-xztext="_命名标记id"></span>
+      <span data-xztext="_系列小说的命名标记_latest_id"></span>
       <br>
       <span class="blue name">{tags}</span>
-      <span data-xztext="_命名标记id"></span>
+      <span data-xztext="_系列小说的命名标记_tags"></span>
       <br>
-      <span class="blue name">{page_tag}</span>
-      <span data-xztext="_命名标记id"></span>
+      * <span class="blue name">{page_tag}</span>
+      <span data-xztext="_文件夹标记PTag"></span>
       <br>
       <span class="blue name">{page_title}</span>
-      <span data-xztext="_命名标记id"></span>
+      <span data-xztext="_系列小说的命名标记_page_title"></span>
     </p>
     <p class="option" data-no="27">
       <a href="${wiki.link(27)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_在小说里保存元数据提示">

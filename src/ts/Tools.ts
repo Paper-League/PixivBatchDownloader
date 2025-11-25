@@ -1021,6 +1021,18 @@ class Tools {
             <br>
             ${lang.transl('_你的账号可能已经被限制无法添加收藏')}`
   }
+
+  /** 把 xRestrict 的值转换为对应的字符串 */
+  static getAgeLimit(xRestrict: 0 | 1 | 2, handleAll = true) {
+    switch (xRestrict) {
+      case 0:
+        return handleAll ? 'All Ages' : ''
+      case 1:
+        return 'R-18'
+      case 2:
+        return 'R-18G'
+    }
+  }
 }
 
 export { Tools }

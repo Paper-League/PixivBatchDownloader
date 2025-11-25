@@ -30,6 +30,8 @@ export interface SendToBackEndData {
   /**blobURL 必定有值 */
   blobURL: string
   dataURL?: string
+  /** 当存在同名文件时，后台脚本默认会覆写。如果有必要的话，可以指定其他处理方式 */
+  conflictAction?: 'uniquify' | 'overwrite' | 'prompt'
 }
 
 // 浏览器下载时每个任务的信息

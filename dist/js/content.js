@@ -3605,148 +3605,6 @@ class FileName {
     // 下载器所有的动图格式后缀名
     ugoiraExt = ['zip', 'webm', 'gif', 'png'];
     addStr = '[downloader_add]';
-    // 生成 {rank} 标记的值
-    createRank(rank) {
-        // 处理空值
-        if (rank === null) {
-            return '';
-        }
-        // string 是旧版本中使用的，以前抓取结果里的 rank 直接就是 '#1' 这样的字符串，后来改成了数字类型
-        if (typeof rank === 'string') {
-            return rank;
-        }
-        // 其他的情况则应该是期望的值（数字类型）
-        return '#' + rank;
-    }
-    // 生成 {p_num} 标记的值
-    createPNum(data) {
-        // 只有插画和漫画有编号
-        if (data.type === 0 || data.type === 1) {
-            const index = data.index ?? _Tools__WEBPACK_IMPORTED_MODULE_7__.Tools.getResultIndex(data);
-            // 处理第一张图不带序号的情况
-            if (index === 0 && _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.noSerialNo) {
-                if (data.pageCount === 1 && _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.noSerialNoForSingleImg) {
-                    return '';
-                }
-                if (data.pageCount > 1 && _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.noSerialNoForMultiImg) {
-                    return '';
-                }
-            }
-            const p = index.toString();
-            // 处理在前面填充 0 的情况
-            return _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.zeroPadding
-                ? p.padStart(_setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.zeroPaddingLength, '0')
-                : p;
-        }
-        else {
-            // 其他类型没有编号，返回空字符串
-            return '';
-        }
-    }
-    // 生成 {id} 标记的值
-    createId(data, p_num) {
-        // 如果不需要添加序号，或者没有序号，则只返回数字 id
-        if (p_num === '') {
-            return data.idNum.toString();
-        }
-        // 添加序号
-        return `${data.idNum}_p${p_num}`;
-    }
-    // 返回收藏数的简化显示
-    getBKM1000(bmk) {
-        if (bmk < 1000) {
-            return '0+';
-        }
-        else {
-            // 1000 以上，以 1000 为单位
-            const str = bmk.toString();
-            return str.slice(0, str.length - 3) + '000+';
-        }
-    }
-    getAgeLimit(xRestrict, handleAll = true) {
-        switch (xRestrict) {
-            case 0:
-                return handleAll ? 'All Ages' : '';
-            case 1:
-                return 'R-18';
-            case 2:
-                return 'R-18G';
-        }
-    }
-    // 在文件名前面添加一层文件夹
-    // appendFolder 方法会对非法字符进行处理（包括处理路径分隔符 / 这主要是因为 tags 可能含有斜线 /，需要替换）
-    appendFolder(fullPath, folderName) {
-        const allPart = fullPath.split('/');
-        allPart.splice(allPart.length - 1, 0, _utils_Utils__WEBPACK_IMPORTED_MODULE_6__.Utils.replaceUnsafeStr(folderName));
-        return allPart.join('/');
-    }
-    // 不能出现在文件名开头的一些特定字符
-    checkStartCharList = ['/', ' '];
-    // 检查文件名开头是否含有特定字符
-    checkStartChar(str) {
-        for (const check of this.checkStartCharList) {
-            if (str.startsWith(check)) {
-                return true;
-            }
-        }
-        return false;
-    }
-    // 移除文件名开头的特定字符
-    removeStartChar(str) {
-        while (this.checkStartChar(str)) {
-            for (const check of this.checkStartCharList) {
-                if (str.startsWith(check)) {
-                    str = str.replace(check, '');
-                }
-            }
-        }
-        return str;
-    }
-    atList = ['@', '＠'];
-    RemoveAtFromUsername(name) {
-        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.removeAtFromUsername) {
-            return name;
-        }
-        for (const at of this.atList) {
-            let index = name.indexOf(at);
-            if (index > 0) {
-                name = name.substring(0, index);
-            }
-        }
-        return name;
-    }
-    // 传入命名规则和所有标记，生成文件名
-    generateFileName(rule, cfg) {
-        let result = rule;
-        // 把命名规则里的标记替换成实际值
-        for (const [key, val] of Object.entries(cfg)) {
-            if (rule.includes(key)) {
-                // 空值替换成空字符串
-                let temp = val.value ?? '';
-                // 如果这个值不是字符串类型则转换为字符串
-                temp = typeof temp !== 'string' ? temp.toString() : temp;
-                // 替换不可以作为文件名的特殊字符
-                if (!val.safe) {
-                    temp = _utils_Utils__WEBPACK_IMPORTED_MODULE_6__.Utils.replaceUnsafeStr(temp);
-                }
-                // 将标记替换成结果，如果有重复的标记，全部替换
-                result = result.replace(new RegExp(key, 'g'), temp);
-            }
-        }
-        // 处理文件名里的一些边界情况
-        // 如果文件名开头不可用的特殊字符
-        result = this.removeStartChar(result);
-        // 测试用例
-        // const testStr = ' / / {page_tag} / {page_title} /{id}-{user}'
-        // console.log(this.removeStartChar(testStr))
-        // 如果文件名的尾部是 / 则去掉
-        if (result.endsWith('/')) {
-            result = result.substring(0, result.length - 1);
-        }
-        // 处理连续的 /
-        result = result.replace(/\/{2,100}/g, '/');
-        return result;
-    }
     /**传入一个抓取结果，生成其文件名 */
     createFileName(data) {
         // 命名规则
@@ -3879,11 +3737,11 @@ class FileName {
                 safe: true,
             },
             '{age}': {
-                value: this.getAgeLimit(data.xRestrict),
+                value: _Tools__WEBPACK_IMPORTED_MODULE_7__.Tools.getAgeLimit(data.xRestrict),
                 safe: true,
             },
             '{age_r}': {
-                value: this.getAgeLimit(data.xRestrict, false),
+                value: _Tools__WEBPACK_IMPORTED_MODULE_7__.Tools.getAgeLimit(data.xRestrict, false),
                 safe: true,
             },
             '{like}': {
@@ -3937,8 +3795,28 @@ class FileName {
                 safe: true,
             },
         };
+        let rule = userSetName;
+        // 有些标记可能是空字符串，移除它们
+        const mayEmptyList = [
+            '{p_num}',
+            '{page_tag}',
+            '{AI}',
+            '{age_r}',
+            '{tags}',
+            '{tags_translate}',
+            '{tags_transl_only}',
+            '{rank}',
+            '{series_title}',
+            '{series_order}',
+            '{series_id}',
+        ];
+        mayEmptyList.forEach((tag) => {
+            if (cfg[tag].value === '') {
+                rule = this.removeEmptyTag(rule, tag);
+            }
+        });
         // 2 生成文件名
-        let result = this.generateFileName(userSetName, cfg);
+        let result = this.generateFileName(rule, cfg);
         // 3 根据某些设置向结果中添加新的文件夹
         // 注意：添加文件夹的顺序会影响文件夹的层级，所以不可随意更改顺序
         // 根据作品类型自动创建对应的文件夹
@@ -3994,18 +3872,7 @@ class FileName {
             }
         }
         // 4 文件夹部分和文件名已经全部生成完毕，处理一些边界情况
-        // 处理连续的 / 有时候两个斜线中间的字段是空值，最后就变成两个斜线挨在一起了
-        result = result.replace(/\/{2,100}/g, '/');
-        // 对每一层路径和文件名进行处理
-        const paths = result.split('/');
-        for (let i = 0; i < paths.length; i++) {
-            // 去掉每层路径首尾的空格
-            // 把每层路径头尾的 . 替换成全角的．因为 Chrome 不允许头尾使用 .
-            paths[i] = paths[i].trim().replace(/^\./g, '．').replace(/\.$/g, '．');
-            // 处理路径是 Windows 保留文件名的情况（不需要处理后缀名）
-            paths[i] = _utils_Utils__WEBPACK_IMPORTED_MODULE_6__.Utils.handleWindowsReservedName(paths[i], this.addStr);
-        }
-        result = paths.join('/');
+        result = this.handleEdgeCases(result);
         // 5 生成后缀名
         // 如果是动图，那么此时根据用户设置的动图保存格式，更新其后缀名
         if (this.ugoiraExt.includes(data.ext) &&
@@ -4024,21 +3891,192 @@ class FileName {
             // 舍弃文件夹部分，只保留文件名
             result = result.split('/').pop();
         }
-        // 7 文件名长度限制
-        // 不计算文件夹的长度，只计算 文件名+后缀名 部分
-        // 理论上文件夹部分也可能会超长，但是实际使用中几乎不会有人这么设置，所以不处理
+        // 7 处理文件名长度限制
+        result = this.lengthLimit(result, extResult);
+        // 8 添加后缀名
+        result += extResult;
+        // 9 返回结果
+        return result;
+    }
+    /** 传入命名规则和所有标记的配置，生成文件名 */
+    generateFileName(rule, cfg) {
+        let result = rule;
+        // 把命名规则里的标记替换成实际值
+        for (const [key, val] of Object.entries(cfg)) {
+            if (rule.includes(key)) {
+                // 空值替换成空字符串
+                let temp = val.value ?? '';
+                // 如果这个值不是字符串类型则转换为字符串
+                if (typeof temp !== 'string') {
+                    temp = temp.toString();
+                }
+                // 替换不可以作为文件名的特殊字符
+                if (!val.safe) {
+                    temp = _utils_Utils__WEBPACK_IMPORTED_MODULE_6__.Utils.replaceUnsafeStr(temp);
+                }
+                // 将标记替换成结果，如果有重复的标记，全部替换
+                result = result.replace(new RegExp(key, 'g'), temp);
+            }
+        }
+        // 移除文件名开头的不可用的特殊字符
+        result = this.removeStartChar(result);
+        // 测试用例
+        // const testStr = ' / / {page_tag} / {page_title} /{id}-{user}'
+        // console.log(this.removeStartChar(testStr))
+        // 如果文件名的尾部是 / 则去掉
+        if (result.endsWith('/')) {
+            result = result.substring(0, result.length - 1);
+        }
+        // 处理连续的 /
+        result = result.replace(/\/{2,100}/g, '/');
+        return result;
+    }
+    // 生成 {rank} 标记的值
+    createRank(rank) {
+        // 处理空值
+        if (rank === null) {
+            return '';
+        }
+        // string 是旧版本中使用的，以前抓取结果里的 rank 直接就是 '#1' 这样的字符串，后来改成了数字类型
+        if (typeof rank === 'string') {
+            return rank;
+        }
+        // 其他的情况则应该是期望的值（数字类型）
+        return '#' + rank;
+    }
+    // 生成 {p_num} 标记的值
+    createPNum(data) {
+        // 只有插画和漫画有编号
+        if (data.type === 0 || data.type === 1) {
+            const index = data.index ?? _Tools__WEBPACK_IMPORTED_MODULE_7__.Tools.getResultIndex(data);
+            // 处理第一张图不带序号的情况
+            if (index === 0 && _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.noSerialNo) {
+                if (data.pageCount === 1 && _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.noSerialNoForSingleImg) {
+                    return '';
+                }
+                if (data.pageCount > 1 && _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.noSerialNoForMultiImg) {
+                    return '';
+                }
+            }
+            return this.zeroPadding(index);
+        }
+        else {
+            // 其他类型没有编号，返回空字符串
+            return '';
+        }
+    }
+    /** 处理在前面填充 0 的情况 */
+    zeroPadding(number) {
+        const p = number.toString();
+        return _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.zeroPadding
+            ? p.padStart(_setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.zeroPaddingLength, '0')
+            : p;
+    }
+    // 生成 {id} 标记的值
+    createId(data, p_num) {
+        // 如果不需要添加序号，或者没有序号，则只返回数字 id
+        if (p_num === '') {
+            return data.idNum.toString();
+        }
+        // 添加序号
+        return `${data.idNum}_p${p_num}`;
+    }
+    // 返回收藏数的简化显示
+    getBKM1000(bmk) {
+        if (bmk < 1000) {
+            return '0+';
+        }
+        else {
+            // 1000 以上，以 1000 为单位
+            const str = bmk.toString();
+            return str.slice(0, str.length - 3) + '000+';
+        }
+    }
+    // 在文件名前面添加一层文件夹
+    // appendFolder 方法会对非法字符进行处理（包括处理路径分隔符 / 这主要是因为 tags 可能含有斜线 /，需要替换）
+    appendFolder(fullPath, folderName) {
+        const allPart = fullPath.split('/');
+        allPart.splice(allPart.length - 1, 0, _utils_Utils__WEBPACK_IMPORTED_MODULE_6__.Utils.replaceUnsafeStr(folderName));
+        return allPart.join('/');
+    }
+    // 不能出现在文件名开头的一些特定字符
+    checkStartCharList = ['/', ' '];
+    // 检查文件名开头是否含有特定字符
+    checkStartChar(str) {
+        for (const check of this.checkStartCharList) {
+            if (str.startsWith(check)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    // 移除文件名开头的特定字符
+    removeStartChar(str) {
+        while (this.checkStartChar(str)) {
+            for (const check of this.checkStartCharList) {
+                if (str.startsWith(check)) {
+                    str = str.replace(check, '');
+                }
+            }
+        }
+        return str;
+    }
+    atList = ['@', '＠'];
+    RemoveAtFromUsername(name) {
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.removeAtFromUsername) {
+            return name;
+        }
+        for (const at of this.atList) {
+            let index = name.indexOf(at);
+            if (index > 0) {
+                name = name.substring(0, index);
+            }
+        }
+        return name;
+    }
+    /** 如果某个标记的值是空字符串，则检查它前面是否有分割字符，有的话就把它和分隔符一起去掉。返回修改后的 rule */
+    // 例如：如果 {part} 是空字符串，那么 `-{part}` 会留下一个横线 `-`
+    // 这里的处理是为了去掉横线。除了 `-` 还检测了其他一些常用的分割字符
+    // 但如果用户在前面添加了自定义文字，是无法去掉自定义文字的，例如 `part:{part}` 会留下 `part`
+    removeEmptyTag(rule, tag) {
+        const symbols = ['-', '_', ' ', ',', '&', '#'];
+        for (const symbol of symbols) {
+            rule = rule.replaceAll(symbol + tag, '');
+        }
+        // 不需要替换这个标记本身，因为在后续步骤里它会被替换成它的值（空字符串）
+        return rule;
+    }
+    /** 处理一些边界情况 */
+    handleEdgeCases(result) {
+        // 处理连续的 / 有时候两个斜线中间的字段是空值，最后就变成两个斜线挨在一起了
+        result = result.replace(/\/{2,100}/g, '/');
+        // 对每一层路径和文件名进行处理
+        const paths = result.split('/');
+        for (let i = 0; i < paths.length; i++) {
+            // 去掉每层路径首尾的空格
+            // 把每层路径头尾的 . 替换成全角的．因为 Chrome 不允许头尾使用 .
+            paths[i] = paths[i].trim().replace(/^\./g, '．').replace(/\.$/g, '．');
+            // 处理路径是 Windows 保留文件名的情况（不需要处理后缀名）
+            paths[i] = _utils_Utils__WEBPACK_IMPORTED_MODULE_6__.Utils.handleWindowsReservedName(paths[i], this.addStr);
+        }
+        result = paths.join('/');
+        return result;
+    }
+    /** 处理文件名长度限制 */
+    // 不计算文件夹的长度，只计算 文件名+后缀名 部分
+    // 理论上文件夹部分也可能会超长，但是实际使用中几乎不会有人这么设置，所以不处理
+    lengthLimit(result, ext) {
+        const extLength = ext.length;
         if (_setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.fileNameLengthLimitSwitch) {
             let limit = _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.fileNameLengthLimit;
             const allPart = result.split('/');
             const lastIndex = allPart.length - 1;
-            if (allPart[lastIndex].length + extResult.length > limit) {
-                allPart[lastIndex] = allPart[lastIndex].substring(0, limit - extResult.length);
+            if (allPart[lastIndex].length + extLength > limit) {
+                const subString = allPart[lastIndex].substring(0, limit - extLength);
+                allPart[lastIndex] = subString.trim();
             }
             result = allPart.join('/');
         }
-        // 8 添加后缀名
-        result += extResult;
-        // 9 返回结果
         return result;
     }
 }
@@ -11325,6 +11363,17 @@ class Tools {
             <br>
             ${_Language__WEBPACK_IMPORTED_MODULE_1__.lang.transl('_你的账号可能已经被限制无法添加收藏')}`;
     }
+    /** 把 xRestrict 的值转换为对应的字符串 */
+    static getAgeLimit(xRestrict, handleAll = true) {
+        switch (xRestrict) {
+            case 0:
+                return handleAll ? 'All Ages' : '';
+            case 1:
+                return 'R-18';
+            case 2:
+                return 'R-18G';
+        }
+    }
 }
 
 
@@ -12799,8 +12848,8 @@ class InitPageBase {
     }
     // 抓取完毕
     crawlFinished() {
-        // 当下载器没有处于慢速抓取模式时，会使用 10 个并发请求
-        // 此时如果第一个请求触发了停止抓取 states.stopCrawl，这 10 个都会进入这里
+        // 当下载器没有处于慢速抓取模式时，会使用并发请求（例如同时发送 3 个请求）
+        // 此时如果第一个请求触发了停止抓取 states.stopCrawl，这些并发请求都会进入这里
         // 所以我设置了个一次性的标记，防止重复执行这里的代码
         if (this.crawlFinishBecauseStopCrawl) {
             return;
@@ -13068,6 +13117,7 @@ class LogErrorStatus {
                 break;
             case 404:
                 _Log__WEBPACK_IMPORTED_MODULE_1__.log.error(workLink + ' ' + _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_状态码404的提示'));
+                _Log__WEBPACK_IMPORTED_MODULE_1__.log.error(_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_该作品可能已经被删除或者需要成为作者的好友才能查看'));
                 break;
             case 429:
                 _Log__WEBPACK_IMPORTED_MODULE_1__.log.error(workLink + ' ' + _Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_状态码429的提示'));
@@ -18436,7 +18486,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
 /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
 /* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
-/* harmony import */ var _MergeNovel__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./MergeNovel */ "./src/ts/download/MergeNovel.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _MergeNovel__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./MergeNovel */ "./src/ts/download/MergeNovel.ts");
+
 
 
 
@@ -18461,7 +18513,7 @@ class AutoMergeNovel {
     workingId = '';
     /* *保存系列 id 和它对应的标题，用于在日志里显示**/
     idTitleMap = {};
-    /** 指示是否可以工作 */
+    /** 指示是否可以工作。当抓取完毕、抓取停止时，不再处理等待队列里的任务，但当前进行中的这个合并任务会正常执行完。 */
     stop = true;
     /** 在本次抓取任务里，自动合并的系列里一共包含多少篇小说 */
     novelTotal = 0;
@@ -18489,30 +18541,50 @@ class AutoMergeNovel {
             check();
         });
     }
+    /** 如果某个系列 id 已经存在于等待队列里，则等待这个系列合并完成（等待它从等待队列里移除） */
+    async waitMergeComplete(seriesId) {
+        while (true) {
+            if (this.stop || !this.pendingQueue.includes(seriesId)) {
+                return;
+            }
+            await _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.sleep(500);
+        }
+    }
     async merge(seriesId, seriesTitle) {
         if (!seriesId) {
             _Toast__WEBPACK_IMPORTED_MODULE_4__.toast.error('seriesId is undefined');
             return;
         }
-        if (this.stop) {
-            console.log('auto merge stopped');
-            return;
-        }
         const absent = this.push(seriesId);
         if (!absent) {
+            // 如果这个系列 id 已经存在，则检查它是否在等待队列里
+            // 如果是，则等到这个系列合并完成（从等待队列里移除）再返回
+            // 这个等待机制是为了解决这个问题：
+            // getWorksData 抓取小说数据时，可能有连续多个小说作品都属于同一个系列（特别是在小说系列页面里抓取时）
+            // 当第一个小说调用这个 merge 方法时，会在下面等待合并完成
+            // 但当后续作品调用这个 merge 方法时，由于 absent 为 false，不会实际合成
+            // 如果在这里立刻返回，getWorksData 会继续抓取下一个小说，导致它和 MergeNovel.merge 同时发送请求
+            // 尤其是当作品数量不满足“减慢抓取速度”的条件时，getWorksData 的抓取速度很快
+            // 这样两个模块会同时发送请求，会增加用户被 Pixiv 警告的风险
+            // 所以如果 absent 为 false，则等待这个系列合并完成（这会让 getWorksData 也保持等待），避免两个模块同时发送请求
+            await this.waitMergeComplete(seriesId);
+            return;
+        }
+        if (this.stop) {
+            // console.log('auto merge stopped')
             return;
         }
         this.idTitleMap[seriesId] = seriesTitle || '';
         this.showTip();
         this.workingId = await this.next();
         const seriesTitleLog = this.idTitleMap[this.workingId];
-        const novelTotal = await new _MergeNovel__WEBPACK_IMPORTED_MODULE_5__.MergeNovel().merge(this.workingId, seriesTitleLog, true);
+        const novelTotal = await new _MergeNovel__WEBPACK_IMPORTED_MODULE_6__.MergeNovel().merge(this.workingId, seriesTitleLog, true);
         // 调试用：跳过合并过程，节省时间
         // log.log(`skip merge ${this.workingId} ${seriesTitleLog}`)
         // await Utils.sleep(1000)
         // const novelTotal = 0
         if (this.stop) {
-            console.log('auto merge stopped');
+            // console.log('auto merge stopped')
             return;
         }
         this.novelTotal += novelTotal;
@@ -19864,13 +19936,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   downloadNovelCover: () => (/* binding */ downloadNovelCover)
 /* harmony export */ });
-/* harmony import */ var webextension_polyfill__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! webextension-polyfill */ "./node_modules/webextension-polyfill/dist/browser-polyfill.js");
-/* harmony import */ var webextension_polyfill__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(webextension_polyfill__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
-/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
-/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
-/* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
-
+/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
+/* harmony import */ var _SendDownload__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./SendDownload */ "./src/ts/download/SendDownload.ts");
 
 
 
@@ -19881,32 +19950,13 @@ class DownloadNovelCover {
      * 默认是正常下载小说的情况，可以设置为合并系列小说的情况
      */
     // 这个模块内部没有添加间隔时间，由调用者负责添加间隔时间
-    async download(coverURL, novelName, action = 'downloadNovel') {
+    async download(coverURL, novelName) {
         const blob = await this.getCover(coverURL, 'blob');
         if (blob === null) {
             return;
         }
-        let coverName = _utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.replaceSuffix(novelName, coverURL);
-        // 合并系列小说时，文件直接保存在下载目录里，封面图片也保存在下载目录里
-        // 所以要替换掉封面图路径里的斜线
-        if (action === 'mergeNovel') {
-            coverName = _utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.replaceUnsafeStr(coverName);
-        }
-        let dataURL = undefined;
-        if (_Config__WEBPACK_IMPORTED_MODULE_3__.Config.sendDataURL) {
-            dataURL = await _utils_Utils__WEBPACK_IMPORTED_MODULE_2__.Utils.blobToDataURL(blob);
-        }
-        // 不检查下载状态，默认下载成功
-        const sendData = {
-            msg: 'save_novel_cover_file',
-            fileName: coverName,
-            id: 'fake',
-            taskBatch: -1,
-            blobURL: URL.createObjectURL(blob),
-            blob: _Config__WEBPACK_IMPORTED_MODULE_3__.Config.sendBlob ? blob : undefined,
-            dataURL,
-        };
-        webextension_polyfill__WEBPACK_IMPORTED_MODULE_0___default().runtime.sendMessage(sendData);
+        let coverName = _utils_Utils__WEBPACK_IMPORTED_MODULE_1__.Utils.replaceSuffix(novelName, coverURL);
+        _SendDownload__WEBPACK_IMPORTED_MODULE_3__.SendDownload.noReply(blob, coverName);
     }
     /**最多重试一定次数，避免无限重试 */
     retryMax = 5;
@@ -19926,7 +19976,7 @@ class DownloadNovelCover {
             retry++;
             console.log(retry, url);
             if (retry > this.retryMax) {
-                _Log__WEBPACK_IMPORTED_MODULE_1__.log.error(`${_Language__WEBPACK_IMPORTED_MODULE_4__.lang.transl('_下载小说封面失败')}: ${url}`);
+                _Log__WEBPACK_IMPORTED_MODULE_0__.log.error(`${_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_下载小说封面失败')}: ${url}`);
                 return null;
             }
             return this.getCover(url, type, retry);
@@ -19950,16 +20000,15 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   downloadNovelEmbeddedImage: () => (/* binding */ downloadNovelEmbeddedImage)
 /* harmony export */ });
-/* harmony import */ var webextension_polyfill__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! webextension-polyfill */ "./node_modules/webextension-polyfill/dist/browser-polyfill.js");
-/* harmony import */ var webextension_polyfill__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(webextension_polyfill__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../API */ "./src/ts/API.ts");
-/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
-/* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
-/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
-/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
-/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
-/* harmony import */ var _DownloadInterval__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./DownloadInterval */ "./src/ts/download/DownloadInterval.ts");
-/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../API */ "./src/ts/API.ts");
+/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
+/* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
+/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _DownloadInterval__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./DownloadInterval */ "./src/ts/download/DownloadInterval.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _SendDownload__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./SendDownload */ "./src/ts/download/SendDownload.ts");
 
 
 
@@ -19975,7 +20024,7 @@ class DownloadNovelEmbeddedImage {
      *
      * 默认是正常下载小说的情况，可以设置为合并系列小说的情况
      */
-    async TXT(novelId, novelTitle, content, embeddedImages, novelName, action = 'downloadNovel', interval = 0) {
+    async TXT(novelId, novelTitle, content, embeddedImages, novelName, interval = 0) {
         const imageList = await this.getImageList(novelId, content, embeddedImages);
         let current = 1;
         const total = imageList.length;
@@ -19984,48 +20033,28 @@ class DownloadNovelEmbeddedImage {
             this.logProgress(novelId, novelTitle, current, total);
             current++;
             if (image.url === '') {
-                _Log__WEBPACK_IMPORTED_MODULE_4__.log.warning(`image ${image.id} not found`);
+                _Log__WEBPACK_IMPORTED_MODULE_3__.log.warning(`image ${image.id} not found`);
                 continue;
             }
             if (interval) {
-                await _utils_Utils__WEBPACK_IMPORTED_MODULE_6__.Utils.sleep(interval);
+                await _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.sleep(interval);
             }
             else {
-                await _DownloadInterval__WEBPACK_IMPORTED_MODULE_7__.downloadInterval.wait();
+                await _DownloadInterval__WEBPACK_IMPORTED_MODULE_6__.downloadInterval.wait();
             }
             const blob = await this.getImage(image.url, 'blob');
             if (blob === null) {
                 continue;
             }
-            let imageName = _utils_Utils__WEBPACK_IMPORTED_MODULE_6__.Utils.replaceSuffix(novelName, image.url);
+            let imageName = _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.replaceSuffix(novelName, image.url);
             // 在文件名末尾加上内嵌图片的 id 和序号
             const array = imageName.split('.');
-            const addString = image.flag_id_part;
-            array[array.length - 2] = array[array.length - 2] + addString;
+            array[array.length - 2] =
+                array[array.length - 2] + '-' + image.flag_id_part;
             imageName = array.join('.');
-            // 合并系列小说时，文件直接保存在下载目录里，内嵌图片也保存在下载目录里
-            // 所以要替换掉内嵌图片路径里的斜线
-            if (action === 'mergeNovel') {
-                imageName = _utils_Utils__WEBPACK_IMPORTED_MODULE_6__.Utils.replaceUnsafeStr(imageName);
-            }
-            const blobURL = URL.createObjectURL(blob);
-            let dataURL = undefined;
-            if (_Config__WEBPACK_IMPORTED_MODULE_2__.Config.sendDataURL) {
-                dataURL = await _utils_Utils__WEBPACK_IMPORTED_MODULE_6__.Utils.blobToDataURL(blob);
-            }
-            // 不检查下载状态，默认下载成功
-            const sendData = {
-                msg: 'save_novel_embedded_image',
-                fileName: imageName,
-                id: 'fake',
-                taskBatch: -1,
-                blobURL,
-                blob: _Config__WEBPACK_IMPORTED_MODULE_2__.Config.sendBlob ? blob : undefined,
-                dataURL,
-            };
-            webextension_polyfill__WEBPACK_IMPORTED_MODULE_0___default().runtime.sendMessage(sendData);
+            await _SendDownload__WEBPACK_IMPORTED_MODULE_8__.SendDownload.noReply(blob, imageName);
+            _Log__WEBPACK_IMPORTED_MODULE_3__.log.persistentRefresh('downloadNovelImage' + novelId);
         }
-        _Log__WEBPACK_IMPORTED_MODULE_4__.log.persistentRefresh('downloadNovelImage' + novelId);
     }
     /**小说保存为 epub 时，内嵌到 Epub 对象里。返回值是个对象：size 是图片体积总数，content 是替换后的正文内容 */
     async EPUB(novelId, novelTitle, content, embeddedImages, jepub, interval = 0) {
@@ -20043,10 +20072,10 @@ class DownloadNovelEmbeddedImage {
             }
             // 加载图片
             if (interval) {
-                await _utils_Utils__WEBPACK_IMPORTED_MODULE_6__.Utils.sleep(interval);
+                await _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.sleep(interval);
             }
             else {
-                await _DownloadInterval__WEBPACK_IMPORTED_MODULE_7__.downloadInterval.wait();
+                await _DownloadInterval__WEBPACK_IMPORTED_MODULE_6__.downloadInterval.wait();
             }
             const buffer = await this.getImage(image.url, 'arrayBuffer');
             // 如果图片获取失败，将正文里它对应的标记替换为提示文字
@@ -20054,7 +20083,7 @@ class DownloadNovelEmbeddedImage {
                 content = content.replaceAll(image.flag, `fetch ${image.url} failed`);
                 continue;
             }
-            jepub.image(_Config__WEBPACK_IMPORTED_MODULE_2__.Config.isFirefox ? _utils_Utils__WEBPACK_IMPORTED_MODULE_6__.Utils.copyArrayBuffer(buffer) : buffer, imageID);
+            jepub.image(_Config__WEBPACK_IMPORTED_MODULE_1__.Config.isFirefox ? _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.copyArrayBuffer(buffer) : buffer, imageID);
             size += buffer.byteLength;
             // 将小说正文里的图片标记替换为真实的的图片路径，以在 EPUB 里显示
             // 例如把
@@ -20066,13 +20095,13 @@ class DownloadNovelEmbeddedImage {
             // 也就是说不能是 src="./assets/17995414.png"
             // 因为某些在线阅读器(https://epub-reader.online/)会读取图片内容，生成 blob URL，然后替换原 src 里的值。
             // 当 src 前面有 ./ 的时候，blob URL 会跟在 ./ 后面，导致图片路径错误，无法显示
-            const ext = _utils_Utils__WEBPACK_IMPORTED_MODULE_6__.Utils.getURLExt(image.url);
+            const ext = _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.getURLExt(image.url);
             // 在图片前后添加换行，因为有时图片和文字挨在一起，或者多张图片挨在一起。
             // 不添加换行的话，在某些阅读器里这些内容会并排，影响阅读体验
             const imgTag = `<br/><img src="assets/${imageID}.${ext}" /><br/>`;
             content = content.replaceAll(image.flag, imgTag);
         }
-        _Log__WEBPACK_IMPORTED_MODULE_4__.log.persistentRefresh('downloadNovelImage' + novelId);
+        _Log__WEBPACK_IMPORTED_MODULE_3__.log.persistentRefresh('downloadNovelImage' + novelId);
         return {
             size,
             content,
@@ -20081,7 +20110,7 @@ class DownloadNovelEmbeddedImage {
     // 获取正文里上传的图片 id 和引用的图片 id
     async getImageList(novelID, content, embeddedImages) {
         return new Promise(async (resolve) => {
-            if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_5__.settings.downloadNovelEmbeddedImage) {
+            if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.downloadNovelEmbeddedImage) {
                 return resolve([]);
             }
             const idList = [];
@@ -20138,7 +20167,7 @@ class DownloadNovelEmbeddedImage {
                 return resolve(idList);
             }
             try {
-                const allInsert = await _API__WEBPACK_IMPORTED_MODULE_1__.API.getNovelInsertIllustsData(novelID, insertIllustIDs);
+                const allInsert = await _API__WEBPACK_IMPORTED_MODULE_0__.API.getNovelInsertIllustsData(novelID, insertIllustIDs);
                 for (const id_part of insertIllustIDs) {
                     const illustData = allInsert.body[id_part];
                     for (const idData of idList) {
@@ -20179,7 +20208,7 @@ class DownloadNovelEmbeddedImage {
         });
     }
     logProgress(id, title, current, total) {
-        _Log__WEBPACK_IMPORTED_MODULE_4__.log.log(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_正在下载小说x中的插画x', _Tools__WEBPACK_IMPORTED_MODULE_8__.Tools.createWorkLink(id, title, 'novel'), `${current} / ${total}`), 1, false, 'downloadNovelImage' + id);
+        _Log__WEBPACK_IMPORTED_MODULE_3__.log.log(_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_正在下载小说x中的插画x', _Tools__WEBPACK_IMPORTED_MODULE_7__.Tools.createWorkLink(id, title, 'novel'), `${current} / ${total}`), 1, false, 'downloadNovelImage' + id);
     }
     /**最多重试一定次数，避免无限重试 */
     retryMax = 5;
@@ -20196,7 +20225,7 @@ class DownloadNovelEmbeddedImage {
             retry++;
             // console.log(retry, url)
             if (retry > this.retryMax) {
-                _Log__WEBPACK_IMPORTED_MODULE_4__.log.error(`${_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_下载小说里的图片失败')}: ${url}`);
+                _Log__WEBPACK_IMPORTED_MODULE_3__.log.error(`${_Language__WEBPACK_IMPORTED_MODULE_2__.lang.transl('_下载小说里的图片失败')}: ${url}`);
                 return null;
             }
             // 重试下载
@@ -21238,7 +21267,7 @@ class MakeNovelFile {
         if (_setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.downloadNovelCoverImage && url) {
             _Log__WEBPACK_IMPORTED_MODULE_4__.log.log(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_下载小说的封面图片的提示', _Tools__WEBPACK_IMPORTED_MODULE_1__.Tools.createWorkLink(id, title, 'novel')), 1, false, 'downloadNovelCover' + id);
             await _DownloadInterval__WEBPACK_IMPORTED_MODULE_5__.downloadInterval.wait();
-            await _DownloadNovelCover__WEBPACK_IMPORTED_MODULE_8__.downloadNovelCover.download(url, filename, 'downloadNovel');
+            await _DownloadNovelCover__WEBPACK_IMPORTED_MODULE_8__.downloadNovelCover.download(url, filename);
         }
     }
     // 建立串行机制（主要是在下载图片时启用限制），禁止并发执行。
@@ -21392,8 +21421,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
 /* harmony import */ var _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ../store/CacheWorkData */ "./src/ts/store/CacheWorkData.ts");
 /* harmony import */ var _SetTimeoutWorker__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ../SetTimeoutWorker */ "./src/ts/SetTimeoutWorker.ts");
-/* harmony import */ var webextension_polyfill__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! webextension-polyfill */ "./node_modules/webextension-polyfill/dist/browser-polyfill.js");
-/* harmony import */ var webextension_polyfill__WEBPACK_IMPORTED_MODULE_16___default = /*#__PURE__*/__webpack_require__.n(webextension_polyfill__WEBPACK_IMPORTED_MODULE_16__);
+/* harmony import */ var _MergeNovelFileName__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ./MergeNovelFileName */ "./src/ts/download/MergeNovelFileName.ts");
+/* harmony import */ var _SendDownload__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ./SendDownload */ "./src/ts/download/SendDownload.ts");
+
 
 
 
@@ -21419,6 +21449,11 @@ class MergeNovel {
     seriesGlossary = '';
     seriesTags = [];
     userName = '';
+    /** 合并后的小说文件的完整文件名。一开始是空字符串，在合并过程中才会填充实际的值 */
+    // 注意：这个变量里的 {part} 总是空字符串（也就是默认合并后的文件不会分割成多个）
+    // 如果需要分割成多个文件，那么在分割时生成新的文件名在局部使用即可
+    novelName = '';
+    seriesData = null;
     novelIdList = [];
     allNovelData = [];
     limit = 30;
@@ -21484,28 +21519,25 @@ class MergeNovel {
         // 获取这个系列本身的详细数据
         await this.sleep(this.crawlInterval);
         _Log__WEBPACK_IMPORTED_MODULE_7__.log.log(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_获取系列数据'));
-        const seriesDataJSON = await _API__WEBPACK_IMPORTED_MODULE_8__.API.getNovelSeriesData(this.seriesId);
-        const seriesData = seriesDataJSON.body;
-        this.userName = _Tools__WEBPACK_IMPORTED_MODULE_4__.Tools.replaceEPUBText(_utils_Utils__WEBPACK_IMPORTED_MODULE_1__.Utils.replaceUnsafeStr(seriesData.userName));
-        this.seriesTitle = _Tools__WEBPACK_IMPORTED_MODULE_4__.Tools.replaceEPUBTitle(_utils_Utils__WEBPACK_IMPORTED_MODULE_1__.Utils.replaceUnsafeStr(seriesData.title));
-        this.seriesCaption = _utils_Utils__WEBPACK_IMPORTED_MODULE_1__.Utils.htmlToText(_utils_Utils__WEBPACK_IMPORTED_MODULE_1__.Utils.htmlDecode(seriesData.caption));
-        this.seriesTags = seriesData.tags;
-        this.seriesUpdateDate = _utils_DateFormat__WEBPACK_IMPORTED_MODULE_12__.DateFormat.format(seriesData.updateDate);
-        // 生成小说文件并下载
-        let file = null;
-        let novelName = `series-${this.userName}-${this.seriesTitle}-user_${this.userName}-seriesId_${this.seriesId}-tags_${seriesData.tags}.${_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.novelSaveAs}`;
-        novelName = _utils_Utils__WEBPACK_IMPORTED_MODULE_1__.Utils.replaceUnsafeStr(novelName);
+        this.seriesData = await _API__WEBPACK_IMPORTED_MODULE_8__.API.getNovelSeriesData(this.seriesId);
+        const body = this.seriesData.body;
+        this.userName = _Tools__WEBPACK_IMPORTED_MODULE_4__.Tools.replaceEPUBText(_utils_Utils__WEBPACK_IMPORTED_MODULE_1__.Utils.replaceUnsafeStr(body.userName));
+        this.seriesTitle = _Tools__WEBPACK_IMPORTED_MODULE_4__.Tools.replaceEPUBTitle(_utils_Utils__WEBPACK_IMPORTED_MODULE_1__.Utils.replaceUnsafeStr(body.title));
+        this.seriesCaption = _utils_Utils__WEBPACK_IMPORTED_MODULE_1__.Utils.htmlToText(_utils_Utils__WEBPACK_IMPORTED_MODULE_1__.Utils.htmlDecode(body.caption));
+        this.seriesTags = body.tags;
+        this.seriesUpdateDate = _utils_DateFormat__WEBPACK_IMPORTED_MODULE_12__.DateFormat.format(body.updateDate);
+        // 进入合并流程
+        this.novelName = _MergeNovelFileName__WEBPACK_IMPORTED_MODULE_16__.mergeNovelFileName.getName(this.seriesData);
+        // msgBox.show(this.novelName +'<br>' + settings.seriesNovelNameRule)
+        // await Utils.sleep(3600000)
         if (_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.novelSaveAs === 'txt') {
-            file = await this.mergeTXT(novelName);
-            const url = URL.createObjectURL(file);
-            _utils_Utils__WEBPACK_IMPORTED_MODULE_1__.Utils.downloadFile(url, novelName);
-            URL.revokeObjectURL(url);
+            await this.mergeTXT();
         }
         else {
-            await this.mergeEPUB(seriesData, novelName);
+            await this.mergeEPUB(body);
         }
         // 下载系列小说的封面图片，保存到单独的文件
-        const coverUrl = seriesData.cover.urls.original;
+        const coverUrl = body.cover.urls.original;
         if (_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.downloadNovelCoverImage && coverUrl) {
             this.logDownloadSeriesCover();
             // 在 mergeEPUB 里会先加载一遍封面图片，所以这里有可能会从缓存加载，就不需要添加等待时间
@@ -21513,7 +21545,7 @@ class MergeNovel {
             if (_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.novelSaveAs === 'txt') {
                 await this.sleep(this.downloadInterval);
             }
-            await _download_DownloadNovelCover__WEBPACK_IMPORTED_MODULE_5__.downloadNovelCover.download(coverUrl, novelName, 'mergeNovel');
+            await _download_DownloadNovelCover__WEBPACK_IMPORTED_MODULE_5__.downloadNovelCover.download(coverUrl, this.novelName);
         }
         // 合并完成
         _Log__WEBPACK_IMPORTED_MODULE_7__.log.success(`✅${_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_已合并系列小说')} ${link}`);
@@ -21529,102 +21561,100 @@ class MergeNovel {
         const total = this.allNovelData.length;
         return total;
     }
-    async mergeTXT(novelName) {
-        return new Promise(async (resolve, reject) => {
-            // 保存为 txt 格式时，在这里下载小说内嵌的图片
-            for (const data of this.allNovelData) {
-                // 虽然 downloadNovelEmbeddedImage 里会使用“下载间隔”设置，但是在自动合并系列小说时，抓取结果的数量可能比较少，没有达到生效条件，所以实际上不会等待
-                // 因此这里需要单独添加等待时间。考虑到 Pixiv 对下载文件的限制没有调用 API 那么严格，所以间隔时间设置为 1 秒应该没问题
-                await _DownloadNovelEmbeddedImage__WEBPACK_IMPORTED_MODULE_6__.downloadNovelEmbeddedImage.TXT(data.id, data.title, data.content, data.embeddedImages, novelName, 'mergeNovel', this.downloadInterval);
+    async mergeTXT() {
+        // 保存为 txt 格式时，在这里下载小说内嵌的图片
+        for (const data of this.allNovelData) {
+            // 虽然 downloadNovelEmbeddedImage 里会使用“下载间隔”设置，但是在自动合并系列小说时，抓取结果的数量可能比较少，没有达到生效条件，所以实际上不会等待
+            // 因此这里需要单独添加等待时间。考虑到 Pixiv 对下载文件的限制没有调用 API 那么严格，所以间隔时间设置为 1 秒应该没问题
+            await _DownloadNovelEmbeddedImage__WEBPACK_IMPORTED_MODULE_6__.downloadNovelEmbeddedImage.TXT(data.id, data.title, data.content, data.embeddedImages, this.novelName, this.downloadInterval);
+        }
+        // 合并文本内容
+        const text = [];
+        // 添加系列的元数据
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.saveNovelMeta) {
+            const a = [];
+            const CRLF_2 = this.CRLF2;
+            // 系列标题
+            a.push(this.seriesTitle);
+            a.push(CRLF_2);
+            // 作者
+            a.push(`${_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_作者')}: ` + this.userName);
+            a.push(CRLF_2);
+            // 系列网址
+            const link = `https://www.pixiv.net/novel/series/${this.seriesId}`;
+            a.push(link);
+            a.push(CRLF_2);
+            // 更新日期
+            a.push(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_更新日期') + ': ' + this.seriesUpdateDate);
+            a.push(CRLF_2);
+            // 系列 tags
+            if (this.seriesTags.length > 0) {
+                const tags = this.seriesTags.map((tag) => `#${tag}`).join(', ');
+                a.push(tags);
+                a.push(CRLF_2);
             }
-            // 合并文本内容
-            const text = [];
-            // 添加系列的元数据
+            // 系列简介
+            if (this.seriesCaption) {
+                a.push(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_系列简介') + ': ');
+                a.push(CRLF_2);
+                a.push(this.seriesCaption);
+                a.push(CRLF_2);
+            }
+            // 设定资料
+            if (this.seriesGlossary) {
+                a.push(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_设定资料') + ': ');
+                a.push(CRLF_2);
+                a.push(_utils_Utils__WEBPACK_IMPORTED_MODULE_1__.Utils.htmlToText(_utils_Utils__WEBPACK_IMPORTED_MODULE_1__.Utils.htmlDecode(this.seriesGlossary)));
+                // seriesGlossary 结尾有两个\n，这里再添加一个以增大空白区域，和其他部分做出区分
+                a.push(this.CRLF);
+            }
+            a.push(`----- ${_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_系列小说的元数据部分结束')} -----`);
+            a.push(this.CRLF.repeat(3));
+            // 合并
+            text.push(a.join(''));
+        }
+        // 添加每篇小说的内容
+        for (const data of this.allNovelData) {
+            // 添加章节编号
+            // 让编号独占一行。如果编号和标题在一行里，会导致无法识别目录
+            text.push(`${this.chapterNo(data.no)}`);
+            // 我测试了 Android 上的静读天下（Moon+ Reader），对于 txt 小说，它可以识别中文的“第x章”这样的章节名
+            // 但如果使用英语章节名如 Chapter 1 就识别不出来，我尝试了各种格式都不行，放弃了
+            text.push(this.CRLF2);
+            text.push(data.title);
+            text.push(this.CRLF2);
+            // 添加小说的元数据，内容包含：
+            // url 小说的 URL
+            // date 小说的更新日期
+            // tags 小说的标签列表
+            // description 小说的简介
             if (_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.saveNovelMeta) {
-                const a = [];
-                const CRLF_2 = this.CRLF2;
-                // 系列标题
-                a.push(this.seriesTitle);
-                a.push(CRLF_2);
-                // 作者
-                a.push(`${_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_作者')}: ` + this.userName);
-                a.push(CRLF_2);
-                // 系列网址
-                const link = `https://www.pixiv.net/novel/series/${this.seriesId}`;
-                a.push(link);
-                a.push(CRLF_2);
-                // 更新日期
-                a.push(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_更新日期') + ': ' + this.seriesUpdateDate);
-                a.push(CRLF_2);
-                // 系列 tags
-                if (this.seriesTags.length > 0) {
-                    const tags = this.seriesTags.map((tag) => `#${tag}`).join(', ');
-                    a.push(tags);
-                    a.push(CRLF_2);
-                }
-                // 系列简介
-                if (this.seriesCaption) {
-                    a.push(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_系列简介') + ': ');
-                    a.push(CRLF_2);
-                    a.push(this.seriesCaption);
-                    a.push(CRLF_2);
-                }
-                // 设定资料
-                if (this.seriesGlossary) {
-                    a.push(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_设定资料') + ': ');
-                    a.push(CRLF_2);
-                    a.push(_utils_Utils__WEBPACK_IMPORTED_MODULE_1__.Utils.htmlToText(_utils_Utils__WEBPACK_IMPORTED_MODULE_1__.Utils.htmlDecode(this.seriesGlossary)));
-                    // seriesGlossary 结尾有两个\n，这里再添加一个以增大空白区域，和其他部分做出区分
-                    a.push(this.CRLF);
-                }
-                a.push(`----- ${_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_系列小说的元数据部分结束')} -----`);
-                a.push(this.CRLF.repeat(3));
-                // 合并
-                text.push(a.join(''));
-            }
-            // 添加每篇小说的内容
-            for (const data of this.allNovelData) {
-                // 添加章节编号
-                // 让编号独占一行。如果编号和标题在一行里，会导致无法识别目录
-                text.push(`${this.chapterNo(data.no)}`);
-                // 我测试了 Android 上的静读天下（Moon+ Reader），对于 txt 小说，它可以识别中文的“第x章”这样的章节名
-                // 但如果使用英语章节名如 Chapter 1 就识别不出来，我尝试了各种格式都不行，放弃了
+                const url = `https://www.pixiv.net/novel/show.php?id=${data.id}`;
+                text.push(url);
                 text.push(this.CRLF2);
-                text.push(data.title);
+                text.push(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_更新日期') + ': ' + data.updateDate);
                 text.push(this.CRLF2);
-                // 添加小说的元数据，内容包含：
-                // url 小说的 URL
-                // date 小说的更新日期
-                // tags 小说的标签列表
-                // description 小说的简介
-                if (_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.saveNovelMeta) {
-                    const url = `https://www.pixiv.net/novel/show.php?id=${data.id}`;
-                    text.push(url);
-                    text.push(this.CRLF2);
-                    text.push(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_更新日期') + ': ' + data.updateDate);
-                    text.push(this.CRLF2);
-                    const tags = `${data.tags.map((tag) => `#${tag}`).join(this.CRLF)}`;
-                    text.push(tags);
-                    text.push(this.CRLF2);
-                    text.push(data.description);
-                    text.push(this.CRLF2);
-                    text.push(`----- ${_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_下面是正文')} -----`);
-                    text.push(this.CRLF2);
-                }
-                // 添加正文
-                // 替换换行标签，移除 html 标签
-                text.push(data.content.replace(/<br \/>/g, this.CRLF).replace(/<\/?.+?>/g, ''));
-                // 在正文结尾添加换行标记，使得不同章节之间区分开来
-                text.push(this.CRLF.repeat(4));
+                const tags = `${data.tags.map((tag) => `#${tag}`).join(this.CRLF)}`;
+                text.push(tags);
+                text.push(this.CRLF2);
+                text.push(data.description);
+                text.push(this.CRLF2);
+                text.push(`----- ${_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_下面是正文')} -----`);
+                text.push(this.CRLF2);
             }
-            const blob = new Blob(text, {
-                type: 'text/plain',
-            });
-            return resolve(blob);
+            // 添加正文
+            // 替换换行标签，移除 html 标签
+            text.push(data.content.replace(/<br \/>/g, this.CRLF).replace(/<\/?.+?>/g, ''));
+            // 在正文结尾添加换行标记，使得不同章节之间区分开来
+            text.push(this.CRLF.repeat(4));
+        }
+        const blob = new Blob(text, {
+            type: 'text/plain',
         });
+        await _SendDownload__WEBPACK_IMPORTED_MODULE_17__.SendDownload.noReply(blob, this.novelName);
     }
     // 生成的 EPUB 文件在这个方法里自行保存
-    async mergeEPUB(seriesData, novelName) {
+    async mergeEPUB(body) {
         // 生成一些在每个文件里固定不变的数据
         const link = `https://www.pixiv.net/novel/series/${this.seriesId}`;
         const date = new Date(this.seriesUpdateDate);
@@ -21689,7 +21719,7 @@ class MergeNovel {
             jepub.uuid(link);
             jepub.date(date);
             // 添加这个系列的封面图片到 EPUB 文件里
-            const coverUrl = seriesData.cover.urls.original;
+            const coverUrl = body.cover.urls.original;
             if (_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.downloadNovelCoverImage && coverUrl) {
                 await this.sleep(this.downloadInterval);
                 this.logDownloadSeriesCover();
@@ -21746,7 +21776,7 @@ class MergeNovel {
                 jepub.add(`${this.chapterNo(data.no)} ${title}`, content);
                 // 如果添加了所有小说
                 if (index === this.allNovelData.length - 1) {
-                    await this.saveEPUBFile(jepub, novelName, true);
+                    await this.saveEPUBFile(jepub, true);
                     return;
                 }
                 else {
@@ -21757,7 +21787,7 @@ class MergeNovel {
                     const limit = this.checkSizeLimit();
                     // 如果文件体积达到限制，就保存这个 EPUB 文件
                     if (limit) {
-                        await this.saveEPUBFile(jepub, novelName);
+                        await this.saveEPUBFile(jepub);
                         // 生成新的 EPUB 文件
                         index++;
                         return generateEPUB();
@@ -21770,8 +21800,8 @@ class MergeNovel {
     }
     /** 获取这个系列里所有小说的 id */
     async getNovelIds() {
-        const seriesData = await _API__WEBPACK_IMPORTED_MODULE_8__.API.getNovelSeriesContent(this.seriesId, this.limit, this.last, 'asc');
-        const list = seriesData.body.page.seriesContents;
+        const seriesContents = await _API__WEBPACK_IMPORTED_MODULE_8__.API.getNovelSeriesContent(this.seriesId, this.limit, this.last, 'asc');
+        const list = seriesContents.body.page.seriesContents;
         list.forEach((item) => {
             this.novelIdList.push(item.id);
         });
@@ -21866,50 +21896,33 @@ class MergeNovel {
         }
         return false;
     }
-    async saveEPUBFile(jepub, name, complete = false) {
+    async saveEPUBFile(jepub, complete = false) {
+        let name = this.novelName;
         // 判断是否需要添加 part 标记
         let addPartFlag = true;
         // 如果已经添加了所有小说，并且只有一条 size 记录，说明这个 EPUB 文件里包含了所有小说，所以无须添加 part 标记
         if (complete && this.sizeLog.length === 1) {
             addPartFlag = false;
         }
-        // 在后缀名前面添加 part 编号
+        // 如果需要添加 part 编号
         if (addPartFlag) {
             let part = 0;
             const current = this.sizeLog.find((item) => item.inUse);
             if (current) {
                 part = current.part;
             }
-            const nameArray = name.split('.' + _setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.novelSaveAs);
-            name = `${nameArray[0]} part${part + 1}.${_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.novelSaveAs}`;
+            // 为这个分割的文件生成新的文件名（添加了 part 编号）
+            name = _MergeNovelFileName__WEBPACK_IMPORTED_MODULE_16__.mergeNovelFileName.getName(this.seriesData, part + 1);
         }
-        name = 'series_merge/' + name;
         // 保存文件
+        // 如果这个小说需要分割成多个文件，那么把文件名冲突时的处理方式改为由浏览器自动添加编号
+        // 这是因为当文件名太长而被截断时，如果 {part} 位于文件名末尾部分，可能会被截断
+        // 这可能会导致出现重名文件。此时把冲突方式改为 uniquify，以免覆盖同名文件
+        let conflictAction = addPartFlag
+            ? 'uniquify'
+            : undefined;
         const blob = await jepub.generate('blob', (metadata) => { });
-        const url = URL.createObjectURL(blob);
-        let dataURL = undefined;
-        if (_Config__WEBPACK_IMPORTED_MODULE_9__.Config.sendDataURL) {
-            dataURL = await _utils_Utils__WEBPACK_IMPORTED_MODULE_1__.Utils.blobToDataURL(blob);
-        }
-        const sendData = {
-            msg: 'save_novel_series_file',
-            fileName: name,
-            id: 'fake',
-            taskBatch: -1,
-            blobURL: url,
-            blob: _Config__WEBPACK_IMPORTED_MODULE_9__.Config.sendBlob ? blob : undefined,
-            dataURL,
-        };
-        // 使用 a.download 来下载文件时，不调用 downloads API
-        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.rememberTheLastSaveLocation) {
-            // 移除文件夹，只保留文件名部分，因为这种方式不支持建立文件夹
-            const lastName = name.split('/').pop();
-            _utils_Utils__WEBPACK_IMPORTED_MODULE_1__.Utils.downloadFile(url, lastName);
-            URL.revokeObjectURL(url);
-        }
-        else {
-            webextension_polyfill__WEBPACK_IMPORTED_MODULE_16___default().runtime.sendMessage(sendData);
-        }
+        await _SendDownload__WEBPACK_IMPORTED_MODULE_17__.SendDownload.noReply(blob, name, conflictAction);
         // 当这个系列里的所有小说都下载完毕后，如果它被分割成了多个文件，则显示提示日志
         if (complete && this.sizeLog.length > 1) {
             _Log__WEBPACK_IMPORTED_MODULE_7__.log.warning(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_由于这个系列小说里的图片体积很大所以分割成了x个文件', this.sizeLog.length.toString()));
@@ -21940,13 +21953,173 @@ class MergeNovel {
         _Log__WEBPACK_IMPORTED_MODULE_7__.log.log(_Language__WEBPACK_IMPORTED_MODULE_3__.lang.transl('_下载系列小说的封面图片', link));
     }
     reset() {
+        this.seriesData = null;
         this.allNovelData = [];
         this.novelIdList = [];
         this.seriesTags = [];
         this.seriesId = '';
         this.seriesTitle = '';
+        this.novelName = '';
     }
 }
+
+
+
+/***/ }),
+
+/***/ "./src/ts/download/MergeNovelFileName.ts":
+/*!***********************************************!*\
+  !*** ./src/ts/download/MergeNovelFileName.ts ***!
+  \***********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   mergeNovelFileName: () => (/* binding */ mergeNovelFileName)
+/* harmony export */ });
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _utils_DateFormat__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../utils/DateFormat */ "./src/ts/utils/DateFormat.ts");
+/* harmony import */ var _FileName__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../FileName */ "./src/ts/FileName.ts");
+
+
+
+
+class MergeNovelFileName {
+    /**参数 part 只有在这个系列小说分割成多个文件时才需要传递。如果值为 0 不会生效，大于 0 才会生效 */
+    getName(seriesData, part = 0) {
+        let rule = _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.seriesNovelNameRule;
+        // 所有标记：
+        // {series_title}-{series_id}-{user}-{user_id}-{part}-{age}-{age_r}-{AI}-{lang}-{total}-{char_count}-{create_date}-{last_date}-{task_date}-{first_id}-{latest_id}-{tags}-{page_tag}-{page_title}.{ext}
+        const body = seriesData.body;
+        // 生成所有命名标记的值
+        const cfg = {
+            '{series_title}': {
+                value: body.title,
+                safe: false,
+            },
+            '{series_id}': {
+                value: body.id,
+                safe: true,
+            },
+            '{user}': {
+                value: _FileName__WEBPACK_IMPORTED_MODULE_3__.fileName.RemoveAtFromUsername(body.userName),
+                safe: false,
+            },
+            '{user_id}': {
+                value: body.userId,
+                safe: true,
+            },
+            '{part}': {
+                // 如果 part 大于 0 就使用 part，否则使用空字符串
+                value: part > 0 ? _FileName__WEBPACK_IMPORTED_MODULE_3__.fileName.zeroPadding(part) : '',
+                safe: true,
+            },
+            '{ext}': {
+                value: _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.novelSaveAs,
+                safe: true,
+            },
+            '{age}': {
+                value: _Tools__WEBPACK_IMPORTED_MODULE_1__.Tools.getAgeLimit(body.xRestrict),
+                safe: true,
+            },
+            '{age_r}': {
+                value: _Tools__WEBPACK_IMPORTED_MODULE_1__.Tools.getAgeLimit(body.xRestrict, false),
+                safe: true,
+            },
+            '{AI}': {
+                value: body.aiType === 2 || body.tags.includes('AI生成') ? 'AI' : '',
+                safe: true,
+            },
+            '{lang}': {
+                value: body.language,
+                safe: true,
+            },
+            '{total}': {
+                value: body.displaySeriesContentCount,
+                safe: true,
+            },
+            '{char_count}': {
+                value: body.publishedTotalCharacterCount,
+                safe: true,
+            },
+            '{create_date}': {
+                value: rule.includes('{create_date}')
+                    ? _utils_DateFormat__WEBPACK_IMPORTED_MODULE_2__.DateFormat.format(body.createDate, _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.dateFormat)
+                    : '',
+                safe: false,
+            },
+            '{last_date}': {
+                value: rule.includes('{last_date}')
+                    ? _utils_DateFormat__WEBPACK_IMPORTED_MODULE_2__.DateFormat.format(body.lastPublishedContentTimestamp * 1000, _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.dateFormat)
+                    : '',
+                safe: false,
+            },
+            '{task_date}': {
+                value: rule.includes('{task_date}')
+                    ? _utils_DateFormat__WEBPACK_IMPORTED_MODULE_2__.DateFormat.format(new Date(), _setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.dateFormat)
+                    : '',
+                safe: false,
+            },
+            '{first_id}': {
+                value: body.firstNovelId,
+                safe: true,
+            },
+            '{latest_id}': {
+                value: body.latestNovelId,
+                safe: true,
+            },
+            '{tags}': {
+                value: body.tags.join(_setting_Settings__WEBPACK_IMPORTED_MODULE_0__.settings.tagsSeparator),
+                safe: false,
+            },
+            '{page_tag}': {
+                value: rule.includes('{page_tag}') ? _Tools__WEBPACK_IMPORTED_MODULE_1__.Tools.getTagFromURL() : '',
+                safe: false,
+            },
+            '{page_title}': {
+                value: rule.includes('{page_title}') ? _Tools__WEBPACK_IMPORTED_MODULE_1__.Tools.getPageTitle() : '',
+                safe: false,
+            },
+        };
+        // 输出调试信息
+        // Object.entries(cfg).forEach(([key, val]) => {
+        //   console.log(key, val.value)
+        // })
+        // 有些标记可能是空字符串，移除它们
+        const mayEmptyList = [
+            '{part}',
+            '{page_tag}',
+            '{AI}',
+            '{age_r}',
+            '{tags}',
+        ];
+        mayEmptyList.forEach((tag) => {
+            if (cfg[tag].value === '') {
+                rule = _FileName__WEBPACK_IMPORTED_MODULE_3__.fileName.removeEmptyTag(rule, tag);
+            }
+        });
+        // 如果 {part} 不为空，但命名规则里没有 {part}，则在末尾添加 '-{part}'
+        if (cfg['{part}'].value && !rule.includes('{part}')) {
+            const name = rule.split('.{ext}')[0];
+            rule = name + '-{part}.{ext}';
+        }
+        // 生成文件名
+        let name = _FileName__WEBPACK_IMPORTED_MODULE_3__.fileName.generateFileName(rule, cfg);
+        // 处理一些边界情况
+        name = _FileName__WEBPACK_IMPORTED_MODULE_3__.fileName.handleEdgeCases(name);
+        // 处理文件名长度限制
+        const extResult = '.' + cfg['{ext}'].value;
+        // 截断文件名的时候移除后缀名部分，然后再添加回来，以避免发生截断后缀名的情况
+        let part1 = name.split(extResult)[0];
+        part1 = _FileName__WEBPACK_IMPORTED_MODULE_3__.fileName.lengthLimit(part1, extResult);
+        name = part1 + extResult;
+        // 返回结果
+        return name;
+    }
+}
+const mergeNovelFileName = new MergeNovelFileName();
 
 
 
@@ -22479,19 +22652,16 @@ new Resume();
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var webextension_polyfill__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! webextension-polyfill */ "./node_modules/webextension-polyfill/dist/browser-polyfill.js");
-/* harmony import */ var webextension_polyfill__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(webextension_polyfill__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
-/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../store/Store */ "./src/ts/store/Store.ts");
-/* harmony import */ var _FileName__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../FileName */ "./src/ts/FileName.ts");
-/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
-/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
-/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
-/* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
-/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
-/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
-/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
-
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
+/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../store/Store */ "./src/ts/store/Store.ts");
+/* harmony import */ var _FileName__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../FileName */ "./src/ts/FileName.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _Language__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../Language */ "./src/ts/Language.ts");
+/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
+/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
+/* harmony import */ var _SendDownload__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./SendDownload */ "./src/ts/download/SendDownload.ts");
 
 
 
@@ -22511,15 +22681,15 @@ class SaveWorkDescription {
     hasLinkRegexp = /http[s]:\/\//;
     bindEvents() {
         // 当有作品文件下载成功时，保存其元数据
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.downloadSuccess, (ev) => {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.downloadSuccess, (ev) => {
             const successData = ev.detail.data;
             this.saveOne(Number.parseInt(successData.id));
         });
         // 当开始新的抓取时，清空保存的 id 列表
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.crawlStart, () => {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.crawlStart, () => {
             this.savedIds = [];
         });
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.crawlComplete, () => {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.crawlComplete, () => {
             window.setTimeout(() => {
                 this.summary();
             }, 50);
@@ -22527,14 +22697,14 @@ class SaveWorkDescription {
     }
     /**保存单个作品的简介 */
     async saveOne(id) {
-        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.saveWorkDescription || !_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.saveEachDescription) {
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.saveWorkDescription || !_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.saveEachDescription) {
             return;
         }
         if (this.savedIds.includes(id)) {
             return;
         }
         // 查找这个作品的数据
-        const dataSource = _store_Store__WEBPACK_IMPORTED_MODULE_2__.store.resultMeta.length > 0 ? _store_Store__WEBPACK_IMPORTED_MODULE_2__.store.resultMeta : _store_Store__WEBPACK_IMPORTED_MODULE_2__.store.result;
+        const dataSource = _store_Store__WEBPACK_IMPORTED_MODULE_1__.store.resultMeta.length > 0 ? _store_Store__WEBPACK_IMPORTED_MODULE_1__.store.resultMeta : _store_Store__WEBPACK_IMPORTED_MODULE_1__.store.result;
         const data = dataSource.find((val) => val.idNum === id);
         if (data === undefined) {
             console.error(`Not find ${id} in result`);
@@ -22544,29 +22714,15 @@ class SaveWorkDescription {
             return;
         }
         // 生成文件
-        const desc = _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.htmlToText(_Tools__WEBPACK_IMPORTED_MODULE_6__.Tools.replaceATag(data.description));
+        const desc = _utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.htmlToText(_Tools__WEBPACK_IMPORTED_MODULE_5__.Tools.replaceATag(data.description));
         const blob = new Blob([desc], {
             type: 'text/plain',
         });
         // 如果简介里含有外链，则在文件名最后添加 links 标记
         const hasLink = this.hasLinkRegexp.test(desc);
         const namePart1 = this.createFileName(data);
-        const fileName = `${namePart1}-${_Language__WEBPACK_IMPORTED_MODULE_7__.lang.transl('_简介')}${hasLink ? '-links' : ''}.txt`;
-        let dataURL = undefined;
-        if (_Config__WEBPACK_IMPORTED_MODULE_10__.Config.sendDataURL) {
-            dataURL = await _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.blobToDataURL(blob);
-        }
-        // 不检查下载状态，默认下载成功
-        const sendData = {
-            msg: 'save_description_file',
-            fileName: fileName,
-            id: 'fake',
-            taskBatch: -1,
-            blobURL: URL.createObjectURL(blob),
-            blob: _Config__WEBPACK_IMPORTED_MODULE_10__.Config.sendBlob ? blob : undefined,
-            dataURL,
-        };
-        webextension_polyfill__WEBPACK_IMPORTED_MODULE_0___default().runtime.sendMessage(sendData);
+        const fileName = `${namePart1}-${_Language__WEBPACK_IMPORTED_MODULE_6__.lang.transl('_简介')}${hasLink ? '-links' : ''}.txt`;
+        await _SendDownload__WEBPACK_IMPORTED_MODULE_9__.SendDownload.noReply(blob, fileName);
         this.savedIds.push(id);
     }
     /**返回该作品的文件名（不含后缀名），并且把 id 字符串替换为数字 id */
@@ -22574,12 +22730,12 @@ class SaveWorkDescription {
         // 生成文件名
         // 元数据文件需要和它对应的图片/小说文件的路径相同，文件名相似，这样它们才能在资源管理器里排在一起，便于查看
         // 生成这个数据的路径和文件名
-        const _fileName = _FileName__WEBPACK_IMPORTED_MODULE_3__.fileName.createFileName(data);
+        const _fileName = _FileName__WEBPACK_IMPORTED_MODULE_2__.fileName.createFileName(data);
         // 取出后缀名之前的部分
         const index = _fileName.lastIndexOf('.');
         let part1 = _fileName.substring(0, index);
         // 把 id 字符串换成数字 id，这是为了去除 id 后面可能存在的序号，如 p0
-        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.zeroPadding) {
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.zeroPadding) {
             // 但如果用户启用了在序号前面填充 0，则不替换 id，因为文件名里的 id 后面可能带多个 0，如 p000，用 idNum 去替换的话替换不了后面两个 0
             part1 = part1.replace(data.id, data.idNum.toString());
         }
@@ -22587,10 +22743,10 @@ class SaveWorkDescription {
     }
     /**抓取完毕后，把所有简介汇总到一个文件里 */
     async summary() {
-        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.saveWorkDescription || !_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.summarizeDescription) {
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.saveWorkDescription || !_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.summarizeDescription) {
             return;
         }
-        if (_store_Store__WEBPACK_IMPORTED_MODULE_2__.store.resultMeta.length === 0) {
+        if (_store_Store__WEBPACK_IMPORTED_MODULE_1__.store.resultMeta.length === 0) {
             return;
         }
         // 生成文件内容
@@ -22598,7 +22754,7 @@ class SaveWorkDescription {
         const hasLinkContent = [];
         // 从 resultMeta 生成每个作品的简介数据（而不是从而 result 生成）
         // 因为 resultMeta 里每个作品只有一条数据，而 result 里可能有多条。使用 resultMeta 不需要去重
-        for (const result of _store_Store__WEBPACK_IMPORTED_MODULE_2__.store.resultMeta) {
+        for (const result of _store_Store__WEBPACK_IMPORTED_MODULE_1__.store.resultMeta) {
             if (result.description === '') {
                 continue;
             }
@@ -22606,7 +22762,7 @@ class SaveWorkDescription {
             // 1. 文件名
             // 2. 简介
             const namePart1 = this.createFileName(result);
-            const desc = _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.htmlToText(_Tools__WEBPACK_IMPORTED_MODULE_6__.Tools.replaceATag(result.description));
+            const desc = _utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.htmlToText(_Tools__WEBPACK_IMPORTED_MODULE_5__.Tools.replaceATag(result.description));
             const hasLink = this.hasLinkRegexp.test(desc);
             if (hasLink) {
                 hasLinkContent.push('links-' + namePart1);
@@ -22647,13 +22803,13 @@ class SaveWorkDescription {
         });
         // 设置 TXT 的文件名
         let txtName = '';
-        const name = _Language__WEBPACK_IMPORTED_MODULE_7__.lang.transl('_简介汇总');
-        const title = _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.replaceUnsafeStr(_Tools__WEBPACK_IMPORTED_MODULE_6__.Tools.getPageTitle());
-        const time = _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.replaceUnsafeStr(_store_Store__WEBPACK_IMPORTED_MODULE_2__.store.crawlCompleteTime.toLocaleString());
+        const name = _Language__WEBPACK_IMPORTED_MODULE_6__.lang.transl('_简介汇总');
+        const title = _utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.replaceUnsafeStr(_Tools__WEBPACK_IMPORTED_MODULE_5__.Tools.getPageTitle());
+        const time = _utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.replaceUnsafeStr(_store_Store__WEBPACK_IMPORTED_MODULE_1__.store.crawlCompleteTime.toLocaleString());
         // 在文件名里添加时间戳可以避免同名文件覆盖
         // 检查这些作品是否属于同一个画师
-        const firstUser = _store_Store__WEBPACK_IMPORTED_MODULE_2__.store.resultMeta[0].userId;
-        const notAllSame = _store_Store__WEBPACK_IMPORTED_MODULE_2__.store.resultMeta.some((result) => result.userId !== firstUser);
+        const firstUser = _store_Store__WEBPACK_IMPORTED_MODULE_1__.store.resultMeta[0].userId;
+        const notAllSame = _store_Store__WEBPACK_IMPORTED_MODULE_1__.store.resultMeta.some((result) => result.userId !== firstUser);
         // 如果不是同一个画师，则将汇总文件直接保存到下载目录里
         if (notAllSame) {
             txtName = `${name}-${title}-${time}.txt`;
@@ -22661,8 +22817,8 @@ class SaveWorkDescription {
         else {
             // 如果是同一个画师
             // 在文件名里添加画师名字
-            txtName = `${name}-user ${_store_Store__WEBPACK_IMPORTED_MODULE_2__.store.resultMeta[0].user}-${title}-${time}.txt`;
-            const array = _setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.userSetName.split('/');
+            txtName = `${name}-user ${_store_Store__WEBPACK_IMPORTED_MODULE_1__.store.resultMeta[0].user}-${title}-${time}.txt`;
+            const array = _setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.userSetName.split('/');
             array.pop(); // 去掉最后的文件名部分，只保留文件夹部分
             let folder = '';
             // 倒序遍历 array
@@ -22682,7 +22838,7 @@ class SaveWorkDescription {
                 // 查找 / 的数量来统计有几层文件夹
                 const count = (folder.match(/\//g) || []).length;
                 // 从文件名里提取对应的文件夹部分
-                const _fileName = _FileName__WEBPACK_IMPORTED_MODULE_3__.fileName.createFileName(_store_Store__WEBPACK_IMPORTED_MODULE_2__.store.resultMeta[0]);
+                const _fileName = _FileName__WEBPACK_IMPORTED_MODULE_2__.fileName.createFileName(_store_Store__WEBPACK_IMPORTED_MODULE_1__.store.resultMeta[0]);
                 const parts = _fileName.split('/');
                 if (parts.length >= count) {
                     const path = parts.slice(0, count).join('/');
@@ -22691,24 +22847,10 @@ class SaveWorkDescription {
                 }
             }
         }
-        let dataURL = undefined;
-        if (_Config__WEBPACK_IMPORTED_MODULE_10__.Config.sendDataURL) {
-            dataURL = await _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.blobToDataURL(blob);
-        }
-        // 不检查下载状态，默认下载成功
-        const sendData = {
-            msg: 'save_description_file',
-            fileName: txtName,
-            id: 'fake',
-            taskBatch: -1,
-            blobURL: URL.createObjectURL(blob),
-            blob: _Config__WEBPACK_IMPORTED_MODULE_10__.Config.sendBlob ? blob : undefined,
-            dataURL,
-        };
-        webextension_polyfill__WEBPACK_IMPORTED_MODULE_0___default().runtime.sendMessage(sendData);
-        const msg = `✅${_Language__WEBPACK_IMPORTED_MODULE_7__.lang.transl('_保存作品的简介2')}: ${_Language__WEBPACK_IMPORTED_MODULE_7__.lang.transl('_汇总到一个文件')}`;
-        _Log__WEBPACK_IMPORTED_MODULE_8__.log.success(msg);
-        _Toast__WEBPACK_IMPORTED_MODULE_9__.toast.success(msg);
+        await _SendDownload__WEBPACK_IMPORTED_MODULE_9__.SendDownload.noReply(blob, txtName);
+        const msg = `✅${_Language__WEBPACK_IMPORTED_MODULE_6__.lang.transl('_保存作品的简介2')}: ${_Language__WEBPACK_IMPORTED_MODULE_6__.lang.transl('_汇总到一个文件')}`;
+        _Log__WEBPACK_IMPORTED_MODULE_7__.log.success(msg);
+        _Toast__WEBPACK_IMPORTED_MODULE_8__.toast.success(msg);
     }
 }
 new SaveWorkDescription();
@@ -22724,16 +22866,13 @@ new SaveWorkDescription();
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var webextension_polyfill__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! webextension-polyfill */ "./node_modules/webextension-polyfill/dist/browser-polyfill.js");
-/* harmony import */ var webextension_polyfill__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(webextension_polyfill__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
-/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../store/Store */ "./src/ts/store/Store.ts");
-/* harmony import */ var _FileName__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../FileName */ "./src/ts/FileName.ts");
-/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
-/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
-/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
-/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
-
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
+/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../store/Store */ "./src/ts/store/Store.ts");
+/* harmony import */ var _FileName__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../FileName */ "./src/ts/FileName.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _SendDownload__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./SendDownload */ "./src/ts/download/SendDownload.ts");
 
 
 
@@ -22751,12 +22890,12 @@ class SaveWorkMeta {
     CRLF = '\n'; // txt 文件中使用的换行符
     bindEvents() {
         // 当有作品文件下载成功时，保存其元数据
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.downloadSuccess, (ev) => {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.downloadSuccess, (ev) => {
             const successData = ev.detail.data;
             this.saveMeta(Number.parseInt(successData.id));
         });
         // 当开始新的抓取时，清空保存的 id 列表
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.crawlStart, () => {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__.EVT.list.crawlStart, () => {
             this.savedIds = [];
         });
     }
@@ -22776,30 +22915,30 @@ class SaveWorkMeta {
     checkNeedSave(type) {
         switch (type) {
             case 0:
-                return _setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.saveMetaType0;
+                return _setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.saveMetaType0;
             case 1:
-                return _setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.saveMetaType1;
+                return _setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.saveMetaType1;
             case 2:
-                return _setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.saveMetaType2;
+                return _setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.saveMetaType2;
             case 3:
-                return _setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.saveMetaType3;
+                return _setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.saveMetaType3;
             default:
                 return false;
         }
     }
     async saveMeta(id) {
         // 如果所有类型的作品都不需要保存元数据
-        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.saveMetaType0 &&
-            !_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.saveMetaType1 &&
-            !_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.saveMetaType2 &&
-            !_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.saveMetaType3) {
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.saveMetaType0 &&
+            !_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.saveMetaType1 &&
+            !_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.saveMetaType2 &&
+            !_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.saveMetaType3) {
             return;
         }
         if (this.savedIds.includes(id)) {
             return;
         }
         // 查找这个作品的数据
-        const dataSource = _store_Store__WEBPACK_IMPORTED_MODULE_2__.store.resultMeta.length > 0 ? _store_Store__WEBPACK_IMPORTED_MODULE_2__.store.resultMeta : _store_Store__WEBPACK_IMPORTED_MODULE_2__.store.result;
+        const dataSource = _store_Store__WEBPACK_IMPORTED_MODULE_1__.store.resultMeta.length > 0 ? _store_Store__WEBPACK_IMPORTED_MODULE_1__.store.resultMeta : _store_Store__WEBPACK_IMPORTED_MODULE_1__.store.result;
         const data = dataSource.find((val) => val.idNum === id);
         if (data === undefined) {
             console.error(`Not find ${id} in result`);
@@ -22816,13 +22955,13 @@ class SaveWorkMeta {
             fileContent.push(this.addMeta('Original', data.original));
         }
         fileContent.push(this.addMeta('Thumbnail', data.thumb));
-        fileContent.push(this.addMeta('xRestrict', _Tools__WEBPACK_IMPORTED_MODULE_6__.Tools.getXRestrictText(data.xRestrict)));
+        fileContent.push(this.addMeta('xRestrict', _Tools__WEBPACK_IMPORTED_MODULE_5__.Tools.getXRestrictText(data.xRestrict)));
         const checkAITag = data.tags.includes('AI生成');
-        fileContent.push(this.addMeta('AI', _Tools__WEBPACK_IMPORTED_MODULE_6__.Tools.getAITypeText(checkAITag ? 2 : data.aiType || 0)));
+        fileContent.push(this.addMeta('AI', _Tools__WEBPACK_IMPORTED_MODULE_5__.Tools.getAITypeText(checkAITag ? 2 : data.aiType || 0)));
         fileContent.push(this.addMeta('User', data.user));
         fileContent.push(this.addMeta('UserID', data.userId));
         fileContent.push(this.addMeta('Title', data.title));
-        fileContent.push(this.addMeta('Description', _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.htmlToText(_Tools__WEBPACK_IMPORTED_MODULE_6__.Tools.replaceATag(data.description))));
+        fileContent.push(this.addMeta('Description', _utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.htmlToText(_Tools__WEBPACK_IMPORTED_MODULE_5__.Tools.replaceATag(data.description))));
         fileContent.push(this.addMeta('Tags', this.joinTags(data.tags)));
         if (data.type !== 3) {
             fileContent.push(this.addMeta('Size', `${data.fullWidth} x ${data.fullHeight}`));
@@ -22836,37 +22975,78 @@ class SaveWorkMeta {
         // 生成文件名
         // 元数据文件需要和它对应的图片/小说文件的路径相同，文件名相似，这样它们才能在资源管理器里排在一起，便于查看
         // 生成这个数据的路径和文件名
-        const _fileName = _FileName__WEBPACK_IMPORTED_MODULE_3__.fileName.createFileName(data);
+        const _fileName = _FileName__WEBPACK_IMPORTED_MODULE_2__.fileName.createFileName(data);
         // 取出后缀名之前的部分
         const index = _fileName.lastIndexOf('.');
         let part1 = _fileName.substring(0, index);
-        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__.settings.zeroPadding) {
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.zeroPadding) {
             // 把 id 字符串换成数字 id，这是为了去除 id 后面可能存在的序号，如 p0
             // 但如果用户启用了在序号前面填充 0，则不替换 id，因为文件名里的 id 后面可能带多个 0，如 p000，用 idNum 去替换的话替换不了后面两个 0
             part1 = part1.replace(data.id, data.idNum.toString());
         }
         // 拼接出元数据文件的文件名
         const metaFileName = `${part1}-meta.txt`;
-        // 发送下载请求
-        let dataURL = undefined;
-        if (_Config__WEBPACK_IMPORTED_MODULE_7__.Config.sendDataURL) {
-            dataURL = await _utils_Utils__WEBPACK_IMPORTED_MODULE_5__.Utils.blobToDataURL(blob);
-        }
-        // 不检查下载状态，默认下载成功
-        const sendData = {
-            msg: 'save_description_file',
-            fileName: metaFileName,
-            id: 'fake',
-            taskBatch: -1,
-            blobURL: URL.createObjectURL(blob),
-            blob: _Config__WEBPACK_IMPORTED_MODULE_7__.Config.sendBlob ? blob : undefined,
-            dataURL,
-        };
-        webextension_polyfill__WEBPACK_IMPORTED_MODULE_0___default().runtime.sendMessage(sendData);
+        await _SendDownload__WEBPACK_IMPORTED_MODULE_6__.SendDownload.noReply(blob, metaFileName);
         this.savedIds.push(id);
     }
 }
 new SaveWorkMeta();
+
+
+/***/ }),
+
+/***/ "./src/ts/download/SendDownload.ts":
+/*!*****************************************!*\
+  !*** ./src/ts/download/SendDownload.ts ***!
+  \*****************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   SendDownload: () => (/* binding */ SendDownload)
+/* harmony export */ });
+/* harmony import */ var webextension_polyfill__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! webextension-polyfill */ "./node_modules/webextension-polyfill/dist/browser-polyfill.js");
+/* harmony import */ var webextension_polyfill__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(webextension_polyfill__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Config */ "./src/ts/Config.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+
+
+
+
+class SendDownload {
+    // 由于现在有两种下载方式：交给浏览器下载和使用 a 标签下载，所以在这里统一处理
+    /** 不检查下载状态，默认下载成功。这些文件是不会出现在下载进度条上的独立文件 */
+    static async noReply(blob, name, conflictAction) {
+        const blobURL = URL.createObjectURL(blob);
+        // 如果需要使用 a.download 来下载文件
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_2__.settings.rememberTheLastSaveLocation) {
+            // 移除文件夹，只保留文件名部分，因为这种方式不支持建立文件夹
+            const lastName = name.split('/').pop();
+            _utils_Utils__WEBPACK_IMPORTED_MODULE_3__.Utils.downloadFile(blobURL, lastName);
+        }
+        else {
+            // 调用 downloads API
+            let dataURL = undefined;
+            if (_Config__WEBPACK_IMPORTED_MODULE_1__.Config.sendDataURL) {
+                dataURL = await _utils_Utils__WEBPACK_IMPORTED_MODULE_3__.Utils.blobToDataURL(blob);
+            }
+            const sendData = {
+                msg: 'save_novel_series_file',
+                fileName: name,
+                id: 'fake',
+                taskBatch: -1,
+                blobURL,
+                blob: _Config__WEBPACK_IMPORTED_MODULE_1__.Config.sendBlob ? blob : undefined,
+                dataURL,
+                conflictAction,
+            };
+            webextension_polyfill__WEBPACK_IMPORTED_MODULE_0___default().runtime.sendMessage(sendData);
+        }
+    }
+}
+
 
 
 /***/ }),
@@ -25930,6 +26110,14 @@ Zip 파일이 원본 파일입니다.`,
         `가져올 데이터가 존재하지 않습니다(404 Not Found)`,
         `Данные для получения не существуют (404 Not Found)`,
     ],
+    _该作品可能已经被删除或者需要成为作者的好友才能查看: [
+        `该作品可能已经被删除，或者需要成为作者的 Pixiv 好友才能查看`,
+        `該作品可能已經被刪除，或者需要成為作者的 Pixiv 好友才能查看`,
+        `This work may have been deleted, or you need to become the author's Pixiv friend to view it`,
+        `この作品は削除された可能性があります。あるいは、作者の Pixiv 友達になる必要があります`,
+        `이 작품은 삭제되었을 수 있으며, 작가의 Pixiv 친구가 되어야 볼 수 있습니다`,
+        `Это произведение, возможно, было удалено, или вам нужно стать Pixiv-другом автора, чтобы просмотреть его`,
+    ],
     _状态码429下载器会重试的提示: [
         `请求太频繁（429 Too Many Requests）。下载器会等待几分钟，然后重试该请求`,
         `請求太頻繁（429 Too Many Requests）。下載器會等待幾分鐘，然後重試該請求`,
@@ -26214,12 +26402,12 @@ Zip 파일이 원본 파일입니다.`,
         `Возрастное ограничение работы разделено на: <span class="blue">All Ages</span>, <span class="blue">R-18</span>, <span class="blue">R-18G</span>`,
     ],
     _命名标记age_r: [
-        `仅当作品为限制级时，输出它的年龄限制，分为：<span class="blue">R-18</span>、<span class="blue">R-18G</span>`,
-        `僅當作品為限制級時，輸出它的年齡限制，分為：<span class="blue">R-18</span>、<span class="blue">R-18G</span>`,
-        `Output its age restriction only when the work is restricted, divided into: <span class="blue">R-18</span>, <span class="blue">R-18G</span>`,
-        `作品が制限級の場合のみ、その年齢制限を出力：<span class="blue">R-18</span>、<span class="blue">R-18G</span>`,
-        `작품이 제한 등급일 때만 그 연령 제한을 출력：<span class="blue">R-18</span>、<span class="blue">R-18G</span>`,
-        `Выводить возрастное ограничение только если работа ограничена, разделено на: <span class="blue">R-18</span>, <span class="blue">R-18G</span>`,
+        `仅当作品为限制级时，输出它的年龄限制，分为：<span class="blue">R-18</span>、<span class="blue">R-18G</span>，否则忽略它。`,
+        `僅當作品為限制級時，輸出它的年齡限制，分為：<span class="blue">R-18</span>、<span class="blue">R-18G</span>，否則忽略它。`,
+        `Output its age restriction only when the work is restricted, divided into: <span class="blue">R-18</span>, <span class="blue">R-18G</span>; otherwise, ignore it.`,
+        `作品が制限級の場合のみ、その年齢制限を出力：<span class="blue">R-18</span>、<span class="blue">R-18G</span>。それ以外の場合はそれを無視します。`,
+        `작품이 제한 등급일 때만 그 연령 제한을 출력：<span class="blue">R-18</span>、<span class="blue">R-18G</span>。그렇지 않으면 이를 무시합니다。`,
+        `Выводить возрастное ограничение только если работа ограничена, разделено на: <span class="blue">R-18</span>, <span class="blue">R-18G</span>; в противном случае игнорируйте его。`,
     ],
     _命名标记like: [
         'Like count，作品的点赞数。',
@@ -26238,20 +26426,20 @@ Zip 파일이 원본 파일입니다.`,
         'Колличество просмотров',
     ],
     _命名标记id_num: [
-        '数字 ID，如 <span class="blue">44920385</span>',
-        '數字 ID，例如：<span class="blue">44920385</span>。',
-        'Number ID, for example <span class="blue">44920385</span>',
-        '<span class="blue">44920385</span> などの番号 ID',
-        '숫자 ID. 예: <span class="blue">44920385</span>',
-        'Идентификатор номера, например <span class="blue">44920385</span>',
+        `作品的数字 ID，不包括序号，例如 <span class="blue">62751951</span>。`,
+        `作品的數字 ID，不包括序號，例如 <span class="blue">62751951</span>。`,
+        `The numeric ID of the work, excluding the sequence number, for example <span class="blue">62751951</span>.`,
+        `作品の数字 ID、シーケンス番号を含まない、例：<span class="blue">62751951</span>。`,
+        `작품의 숫자 ID, 순서 번호를 포함하지 않음, 예: <span class="blue">62751951</span>。`,
+        `Числовой ID работы, без порядкового номера, например <span class="blue">62751951</span>.`,
     ],
     _命名标记p_num: [
-        '图片在作品内的序号，如 <span class="blue">0</span>、<span class="blue">1</span>、<span class="blue">2</span> …… 每个作品都会重新计数。',
-        '圖片在作品內的序號，例如：<span class="blue">0</span>、<span class="blue">1</span>、<span class="blue">2</span>……每個作品都將重新計數。',
-        'The serial number of the image in the work, such as <span class="blue">0</span>, <span class="blue">1</span>, <span class="blue">2</span> ... Each work will be recounted.',
-        '<span class="blue">0</span>、<span class="blue">1</span>、<span class="blue">2</span> など、作品の画像のシリアル番号。各ピースは再集計されます。',
-        '작품 안에 있는 번호. 예: <span class="blue">0</span>, <span class="blue">1</span>, <span class="blue">2</span> …… 작품마다 다시 세어봅니다.',
-        'Порядковый номер изображения в работе, например, <span class="blue">0</span>, <span class="blue">1</span>, <span class="blue">2</span> .... Каждое произведение будет пересказано',
+        `图片在作品内的序号，例如 <span class="blue">0</span>、<span class="blue">1</span>、<span class="blue">2</span> …… 每个作品都会重新计数。小说作品没有这个属性，下载器会忽略它。`,
+        `圖片在作品內的序號，例如 <span class="blue">0</span>、<span class="blue">1</span>、<span class="blue">2</span> …… 每個作品都會重新計數。小說作品沒有這個屬性，下載器會忽略它。`,
+        `The sequence number of the image within the work, for example <span class="blue">0</span>, <span class="blue">1</span>, <span class="blue">2</span> ... Each work will recount. Novel works do not have this property, and the downloader will ignore it.`,
+        `作品内の画像のシーケンス番号、例：<span class="blue">0</span>、<span class="blue">1</span>、<span class="blue">2</span> …… 各作品で再カウントされます。小説作品にはこの属性がなく、ダウンロードツールはそれを無視します。`,
+        `작품 내 이미지의 순서 번호, 예: <span class="blue">0</span>、<span class="blue">1</span>、<span class="blue">2</span> …… 각 작품마다 다시 카운트됩니다. 소설 작품에는 이 속성이 없으며, 다운로더는 이를 무시합니다.`,
+        `Серийный номер изображения в работе, например <span class="blue">0</span>, <span class="blue">1</span>, <span class="blue">2</span> ... Каждая работа пересчитывается. У романов нет этого свойства, и загрузчик игнорирует его。`,
     ],
     _命名标记tags_trans: [
         '作品的标签列表，附带翻译后的标签（如果有）',
@@ -26286,12 +26474,12 @@ Zip 파일이 원본 파일입니다.`,
         'Время, когда содержание работы было изменено в последний раз. Например, <span class="blue">2019-08-30</span>.',
     ],
     _命名标记rank: [
-        '作品在排行榜中的排名。如 <span class="blue">#1</span>、<span class="blue">#2</span> …… 只能在排行榜页面中使用。',
-        '作品在排行榜中的排名。例如：<span class="blue">#1</span>、<span class="blue">#2</span>……只能在排行榜頁面中使用。',
-        'The ranking of the work in the ranking pages. Such as <span class="blue">#1</span>, <span class="blue">#2</span> ... Can only be used in ranking pages.',
-        '作品のランキング。例え　<span class="blue">#1</span>、<span class="blue">#2</span> …… ランキングページのみで使用できます。',
-        '작품의 랭킹. 예: <span class="blue">#1</span>, <span class="blue">#2</span> …… 랭킹 페이지에서만 사용할 수 있습니다.',
-        'Рейтинг работы на страницах рейтинга. Например, <span class="blue">#1</span>, <span class="blue">#2</span> ... Может использоваться только на страницах ранжирования.',
+        `作品在排行榜中的排名。如 <span class="blue">#1</span>、<span class="blue">#2</span> …… 只能在排行榜页面中使用，在其他页面里会被忽略。`,
+        `作品在排行榜中的排名。如 <span class="blue">#1</span>、<span class="blue">#2</span> …… 只能在排行榜頁面中使用，在其他頁面裡會被忽略。`,
+        `The ranking of the work in the leaderboard. Such as <span class="blue">#1</span>, <span class="blue">#2</span> ... Can only be used on the leaderboard page, and will be ignored on other pages.`,
+        `作品のランキングボードでの順位。例：<span class="blue">#1</span>、<span class="blue">#2</span> …… ランキングボードページでのみ使用可能で、他のページでは無視されます。`,
+        `작품의 랭킹 보드 순위. 예: <span class="blue">#1</span>、<span class="blue">#2</span> …… 랭킹 보드 페이지에서만 사용할 수 있으며, 다른 페이지에서는 무시됩니다。`,
+        `Рейтинг работы в лидерборде. Например <span class="blue">#1</span>, <span class="blue">#2</span> ... Можно использовать только на странице лидерборда, на других страницах будет игнорироваться。`,
     ],
     _命名标记type: [
         '作品类型，分为：<span class="blue">Illustration</span>, <span class="blue">Manga</span>, <span class="blue">Ugoira</span>, <span class="blue">Novel</span>',
@@ -26302,12 +26490,12 @@ Zip 파일이 원본 파일입니다.`,
         'Тип работы, разделенный на：<span class="blue">Illustration</span>, <span class="blue">Manga</span>, <span class="blue">Ugoira</span>, <span class="blue">Novel</span>',
     ],
     _命名标记AI: [
-        '如果作品是由 AI 生成的，则输出 <span class="blue">AI</span>',
-        '如果作品是由 AI 生成的，則輸出 <span class="blue">AI</span>',
-        'If the work is generated by AI, output <span class="blue">AI</span>',
-        '作品がAIで生成された場合、<span class="blue">AI</span>を出力',
-        '작업이 AI로 생성된 경우 <span class="blue">AI</span> 출력',
-        'Если работа создана с помощью ИИ, выведите <span class="blue">AI</span>',
+        `如果作品是由 AI 生成的，则输出 <span class="blue">AI</span>，否则忽略它。`,
+        `如果作品是由 AI 生成的，則輸出 <span class="blue">AI</span>，否則忽略它。`,
+        `If the work is AI-generated, output <span class="blue">AI</span>; otherwise, ignore it.`,
+        `作品がAI生成の場合、<span class="blue">AI</span>を出力します。それ以外の場合はそれを無視します。`,
+        `작품이 AI 생성이라면 <span class="blue">AI</span>를 출력하며, 그렇지 않으면 이를 무시합니다。`,
+        `Если работа сгенерирована ИИ, выведите <span class="blue">AI</span>; в противном случае игнорируйте её。`,
     ],
     _命名标记提醒: [
         `你可以使用多个标记，并且可以在标记之间添加自定义文字。例如：pixiv/{id}-title {title}-user {user}<br>
@@ -26330,12 +26518,12 @@ Zip 파일이 원본 파일입니다.`,
     Чтобы предотвратить дублирование имен файлов, правило именования должно содержать {id} или {id_num}{p_num}.`,
     ],
     _有些标记并不总是可用的提醒: [
-        '有些标记并不总是可用，有时它们可能什么都不输出。',
-        '有些標記並不總是可用，有時它們可能什麼都不輸出。',
-        'Some tags are not always available, and sometimes they may output nothing.',
-        '一部のタグは常に使用できるとは限らず、何も出力しない場合もあります。',
-        '일부 태그는 항상 사용할 수 있는 것은 아니며 때로는 아무 것도 출력하지 않을 수도 있습니다.',
-        'Некоторые теги не всегда доступны, а иногда могут ничего не выводить.',
+        `有些标记并不总是可用，有时它们会是空字符串，下载器会忽略它们。`,
+        `有些標記並不總是可用，有時它們會是空字符串，下載器會忽略它們。`,
+        `Some tags are not always available, and sometimes they will be empty strings, which the downloader will ignore.`,
+        `一部のタグは常に利用可能ではなく、時には空文字列になり、ダウンロードツールはそれらを無視します。`,
+        `일부 태그는 항상 사용 가능하지 않으며, 때때로 빈 문자열이 되어 다운로더가 이를 무시합니다.`,
+        `Некоторые теги не всегда доступны, иногда они будут пустыми строками, и загрузчик их игнорирует。`,
     ],
     _命名规则一定要包含id: [
         '为了防止文件名重复，命名规则里一定要包含 {id} 或者 {id_num}{p_num}',
@@ -26346,12 +26534,12 @@ Zip 파일이 원본 파일입니다.`,
         'Чтобы предотвратить дублирование имен файлов, {id} или {id_num}{p_num} должны быть включены в правила именования.',
     ],
     _文件夹标记PTag: [
-        '如果页面里的作品属于同一个标签，则输出这个标签。',
-        '如果頁面裡的作品屬於同一個標籤，則輸出這個標籤。',
-        'If the works on the page belong to the same tag, then output this tag.',
-        'ページ上の作品が同じタグに属している場合は、このタグを出力します。',
-        '페이지의 작품이 같은 태그에 속하는 경우 이 태그를 출력합니다.',
-        'Если работы на странице относятся к одному и тому же тегу, то выводить этот тег.',
+        `如果页面里的作品属于同一个标签，下载器会输出这个标签，否则忽略它。通常当你处于这些页面里时有值：搜索某个标签、在用户主页里查看某个标签分类下的作品、在自己的收藏里查看某个标签分类下的作品。`,
+        `如果頁面裡的作品屬於同一個標籤，下載器會輸出這個標籤，否則忽略它。通常當你處於這些頁面裡時有值：搜尋某個標籤、在用戶主頁裡查看某個標籤分類下的作品、在自己的收藏裡查看某個標籤分類下的作品。`,
+        `If the works on the page belong to the same tag, the downloader will output this tag; otherwise, ignore it. It usually has a value when you are on these pages: searching for a certain tag, viewing works under a certain tag category on the user page, viewing works under a certain tag category in your own bookmarks.`,
+        `ページ内の作品が同じタグに属する場合、ダウンロードツールはこのタグを出力します。それ以外の場合はそれを無視します。通常、これらのページにいる場合に値があります：特定のタグを検索する場合、ユーザーページで特定のタグカテゴリの下の作品を表示する場合、自分のブックマークで特定のタグカテゴリの下の作品を表示する場合。`,
+        `페이지의 작품이 동일한 태그에 속하면 다운로더가 이 태그를 출력합니다. 그렇지 않으면 이를 무시합니다. 일반적으로 이러한 페이지에 있을 때 값이 있습니다: 특정 태그 검색 시, 사용자 페이지에서 특정 태그 카테고리 아래 작품 보기, 자신의 북마크에서 특정 태그 카테고리 아래 작품 보기。`,
+        `Если работы на странице принадлежат одному и тому же тегу, загрузчик выведет этот тег; в противном случае игнорируйте его. Обычно имеет значение, когда вы находитесь на этих страницах: при поиске определенного тега, просмотре работ под определенной категорией тега на странице пользователя, просмотре работ под определенной категорией тега в своих закладках。`,
     ],
     _命名标记seriesTitle: [
         '系列标题。',
@@ -26370,12 +26558,12 @@ Zip 파일이 원본 파일입니다.`,
         'Номер работы в серии, например, <span class="blue">#1</span> <span class="blue">#2</span>.',
     ],
     _命名标记seriesId: [
-        '系列 ID。',
-        '系列 ID。',
-        'Series ID.',
-        'シリーズ ID。',
-        '시리즈 ID.',
-        'Идентификатор серии.',
+        `系列 ID，是数字。`,
+        `系列 ID，是數字。`,
+        `Series ID, it is a number.`,
+        `シリーズ ID、数値です。`,
+        `시리즈 ID, 숫자입니다。`,
+        `ID серии, это число。`,
     ],
     _当作品属于一个系列时可用: [
         '当作品属于一个系列时可用。',
@@ -32253,6 +32441,158 @@ To prevent duplicate filenames, it is recommended to always add {series_id}.`,
 Вы можете использовать несколько тегов и добавлять пользовательский текст. Например: novel series/title {series_title} id {series_id}<br>
 Чтобы предотвратить дублирование имен файлов, рекомендуется всегда добавлять {series_id}.`,
     ],
+    _系列小说的命名标记_series_title: [
+        `系列标题`,
+        `系列標題`,
+        `Series title`,
+        `シリーズタイトル`,
+        `시리즈 제목`,
+        `Название серии`,
+    ],
+    _系列小说的命名标记_series_id: [
+        `系列 ID，是数字。`,
+        `系列 ID，是數字。`,
+        `Series ID, it is a number.`,
+        `シリーズ ID、数値です。`,
+        `시리즈 ID, 숫자입니다。`,
+        `ID серии, это число。`,
+    ],
+    _系列小说的命名标记_user: [
+        `用户名（作者的名字）`,
+        `用戶名（作者的名字）`,
+        `Username (author's name)`,
+        `ユーザー名（作者の名前）`,
+        `사용자 이름 (작가의 이름)`,
+        `Имя пользователя (имя автора)`,
+    ],
+    _系列小说的命名标记_user_id: [
+        `用户（作者）的 ID，是数字`,
+        `用戶（作者）的 ID，是數字`,
+        `User (Author) ID, Numeric`,
+        `ユーザー（作者）の ID、数値`,
+        `사용자 (작가) ID, 숫자`,
+        `ID пользователя (автора), числовой`,
+    ],
+    _系列小说的命名标记_part: [
+        `如果小说的体积比较大，下载器可能会把它分割成多个文件，此时 {part} 是这个文件的编号，如 <span class="blue">1</span>、<span class="blue">2</span>、<span class="blue">3</span>…… 如果这个小说没有被分割，{part} 会被忽略。`,
+        `如果小說的體積比較大，下載器可能會把它分割成多個文件，此時 {part} 是這個文件的編號，如 <span class="blue">1</span>、<span class="blue">2</span>、<span class="blue">3</span>…… 如果這個小說沒有被分割，{part} 會被忽略。`,
+        `If the novel's size is relatively large, the downloader may split it into multiple files. In this case, {part} is the number of this file, such as <span class="blue">1</span>, <span class="blue">2</span>, <span class="blue">3</span>... If this novel is not split, {part} will be ignored.`,
+        `小説のサイズが比較的大きい場合、ダウンロードツールはそれを複数のファイルに分割する可能性があります。この場合、{part} はこのファイルの番号です（例: <span class="blue">1</span>、<span class="blue">2</span>、<span class="blue">3</span>...）。この小説が分割されていない場合、{part} は無視されます。`,
+        `소설의 크기가 비교적 크면 다운로더가 여러 파일로 분할할 수 있습니다. 이 경우 {part}는 이 파일의 번호로, <span class="blue">1</span>、<span class="blue">2</span>、<span class="blue">3</span>...과 같습니다. 이 소설이 분할되지 않은 경우, {part}는 무시됩니다.`,
+        `Если объем романа относительно велик, загрузчик может разделить его на несколько файлов. В этом случае {part} — это номер этого файла, например <span class="blue">1</span>, <span class="blue">2</span>, <span class="blue">3</span>... Если роман не разделен, {part} будет игнорироваться.`,
+    ],
+    _系列小说的命名标记_ext: [
+        `小说的保存格式，可能是 <span class="blue">txt</span> 或 <span class="blue">epub</span>`,
+        `小說的保存格式，可能是 <span class="blue">txt</span> 或 <span class="blue">epub</span>`,
+        `The save format for novels may be <span class="blue">txt</span> or <span class="blue">epub</span>`,
+        `小説の保存形式は <span class="blue">txt</span> または <span class="blue">epub</span> です`,
+        `소설의 저장 형식은 <span class="blue">txt</span> 또는 <span class="blue">epub</span>일 수 있습니다`,
+        `Формат сохранения романа может быть <span class="blue">txt</span> или <span class="blue">epub</span>`,
+    ],
+    _系列小说的命名标记_age: [
+        `这个系列的年龄限制，分为：<span class="blue">All Ages</span>、<span class="blue">R-18</span>、<span class="blue">R-18G</span>`,
+        `這個系列的年齡限制，分為：<span class="blue">All Ages</span>、<span class="blue">R-18</span>、<span class="blue">R-18G</span>`,
+        `The age restriction of this series is divided into: <span class="blue">All Ages</span>, <span class="blue">R-18</span>, <span class="blue">R-18G</span>`,
+        `このシリーズの年齢制限は、<span class="blue">All Ages</span>、<span class="blue">R-18</span>、<span class="blue">R-18G</span>に分かれます`,
+        `이 시리즈의 연령 제한은 <span class="blue">All Ages</span>、<span class="blue">R-18</span>、<span class="blue">R-18G</span>으로 나뉩니다`,
+        `Возрастное ограничение этой серии разделено на: <span class="blue">All Ages</span>, <span class="blue">R-18</span>, <span class="blue">R-18G</span>`,
+    ],
+    _系列小说的命名标记_age_r: [
+        `如果这个系列是限制级，则输出它的年龄限制，分为：<span class="blue">R-18</span>、<span class="blue">R-18G</span>，否则忽略这个标记。`,
+        `如果這個系列是限制級，則輸出它的年齡限制，分為：<span class="blue">R-18</span>、<span class="blue">R-18G</span>，否則忽略這個標記。`,
+        `If this series is restricted, output its age restriction, divided into: <span class="blue">R-18</span>, <span class="blue">R-18G</span>; otherwise, ignore this tag.`,
+        `このシリーズが制限級の場合、その年齢制限を出力：<span class="blue">R-18</span>、<span class="blue">R-18G</span>。それ以外の場合はこのタグを無視します。`,
+        `이 시리즈가 제한 등급이면 그 연령 제한을 출력：<span class="blue">R-18</span>、<span class="blue">R-18G</span>。그렇지 않으면 이 태그를 무시합니다。`,
+        `Если эта серия ограничена, выведите её возрастное ограничение, разделённое на: <span class="blue">R-18</span>, <span class="blue">R-18G</span>; в противном случае игнорируйте этот тег。`,
+    ],
+    _系列小说的命名标记_AI: [
+        `如果这个系列是 AI 生成的，则输出 <span class="blue">AI</span>，否则忽略这个标记。`,
+        `如果這個系列是 AI 生成的，則輸出 <span class="blue">AI</span>，否則忽略這個標記。`,
+        `If this series is AI-generated, output <span class="blue">AI</span>; otherwise, ignore this tag.`,
+        `このシリーズがAI生成の場合、<span class="blue">AI</span>を出力します。それ以外の場合はこのタグを無視します。`,
+        `이 시리즈가 AI 생성이라면 <span class="blue">AI</span>를 출력하며, 그렇지 않으면 이 태그를 무시합니다。`,
+        `Если эта серия сгенерирована ИИ, выведите <span class="blue">AI</span>; в противном случае игнорируйте этот тег。`,
+    ],
+    _系列小说的命名标记_lang: [
+        `这个系列的语言代码，例如 <span class="blue">zh-cn</span>、<span class="blue">ja</span>、<span class="blue">en</span> 等。注意：这并不总是准确的，因为有些作者没有设置正确的语言。`,
+        `這個系列的語言代碼，例如 <span class="blue">zh-cn</span>、<span class="blue">ja</span>、<span class="blue">en</span> 等。注意：這並不總是準確的，因為有些作者沒有設置正確的語言。`,
+        `The language code of this series, for example <span class="blue">zh-cn</span>, <span class="blue">ja</span>, <span class="blue">en</span>, etc. Note: This is not always accurate, because some authors have not set the correct language.`,
+        `このシリーズの言語コード、例：<span class="blue">zh-cn</span>、<span class="blue">ja</span>、<span class="blue">en</span> など。注意：これは常に正確ではなく、一部の作者が正しい言語を設定していないためです。`,
+        `이 시리즈의 언어 코드, 예: <span class="blue">zh-cn</span>、<span class="blue">ja</span>、<span class="blue">en</span> 등. 주의: 이는 항상 정확하지 않으며, 일부 작가가 올바른 언어를 설정하지 않았기 때문입니다.`,
+        `Код языка этой серии, например <span class="blue">zh-cn</span>, <span class="blue">ja</span>, <span class="blue">en</span> и т.д. Примечание: Это не всегда точно, поскольку некоторые авторы не установили правильный язык.`,
+    ],
+    _系列小说的命名标记_total: [
+        `这个系列里一共含有多少篇小说，是数字。`,
+        `這個系列裡一共含有多少篇小說，是數字。`,
+        `How many novels this series contains in total, it is a number.`,
+        `このシリーズに含まれる小説の総数は数字です。`,
+        `이 시리즈에 포함된 소설의 총 수는 숫자입니다。`,
+        `Общее количество романов в этой серии, это число.`,
+    ],
+    _系列小说的命名标记_char_count: [
+        `这个系列里所有小说的总字数，是数字。`,
+        `這個系列裡所有小說的總字數，是數字。`,
+        `The total word count of all novels in this series, it is a number.`,
+        `このシリーズ内のすべての小説の総文字数、数値です。`,
+        `이 시리즈의 모든 소설의 총 글자 수, 숫자입니다。`,
+        `Общее количество слов во всех романах этой серии, это число。`,
+    ],
+    _系列小说的命名标记_create_date: [
+        `这个系列的创建时间，例如 <span class="blue">2025-01-01</span>。`,
+        `這個系列的創建時間，例如 <span class="blue">2025-01-01</span>。`,
+        `The creation time of this series, for example <span class="blue">2025-01-01</span>.`,
+        `このシリーズの作成日時、例：<span class="blue">2025-01-01</span>。`,
+        `이 시리즈의 생성 시간, 예: <span class="blue">2025-01-01</span>。`,
+        `Время создания этой серии, например <span class="blue">2025-01-01</span>.`,
+    ],
+    _系列小说的命名标记_last_date: [
+        `这个系列里最新的一篇小说是何时添加的，例如 <span class="blue">2025-10-01</span>。`,
+        `這個系列裡最新的一篇小說是何時添加的，例如 <span class="blue">2025-10-01</span>。`,
+        `The date when the latest novel in this series was added, for example <span class="blue">2025-10-01</span>.`,
+        `このシリーズの最新の小説が追加された日付、例：<span class="blue">2025-10-01</span>。`,
+        `이 시리즈의 최신 소설이 추가된 날짜, 예: <span class="blue">2025-10-01</span>。`,
+        `Дата добавления последней новеллы в этой серии, например <span class="blue">2025-10-01</span>.`,
+    ],
+    _系列小说的命名标记_task_date: [
+        `下载器开始合并这个系列小说时的时间，例如 <span class="blue">2025-11-25</span>。`,
+        `下載器開始合併這個系列小說時的時間，例如 <span class="blue">2025-11-25</span>。`,
+        `The time when the downloader starts merging this novel series, for example <span class="blue">2025-11-25</span>.`,
+        `ダウンロードツールがこのシリーズ小説のマージを開始した時間、例：<span class="blue">2025-11-25</span>。`,
+        `다운로더가 이 시리즈 소설 병합을 시작한 시간, 예: <span class="blue">2025-11-25</span>。`,
+        `Время, когда загрузчик начинает объединение этой серии романов, например <span class="blue">2025-11-25</span>.`,
+    ],
+    _系列小说的命名标记_first_id: [
+        `这个系列里第一篇小说的 ID，是数字。`,
+        `這個系列裡第一篇小說的 ID，是數字。`,
+        `The ID of the first novel in this series, it is a number.`,
+        `このシリーズの最初の小説の ID、数値です。`,
+        `이 시리즈의 첫 번째 소설의 ID, 숫자입니다。`,
+        `ID первого романа в этой серии, это число。`,
+    ],
+    _系列小说的命名标记_latest_id: [
+        `这个系列里最后一篇小说的 ID，是数字。`,
+        `這個系列裡最後一篇小說的 ID，是數字。`,
+        `The ID of the last novel in this series, it is a number.`,
+        `このシリーズの最後の小説の ID、数値です。`,
+        `이 시리즈의 마지막 소설의 ID, 숫자입니다。`,
+        `ID последнего романа в этой серии, это число。`,
+    ],
+    _系列小说的命名标记_tags: [
+        `这个系列小说的标签列表。注意这是系列的标签，而非系列里每一篇小说的标签。`,
+        `這個系列小說的標籤列表。注意這是系列的標籤，而非系列裡每一篇小說的標籤。`,
+        `The tag list of this novel series. Note that these are the series' tags, not the tags of each novel in the series.`,
+        `このシリーズ小説のタグリスト。これはシリーズのタグであり、シリーズ内の各小説のタグではありません。`,
+        `이 시리즈 소설의 태그 목록. 이는 시리즈의 태그이며, 시리즈 내 각 소설의 태그가 아닙니다.`,
+        `Список тегов этой серии романов. Обратите внимание, что это теги серии, а не теги каждого романа в серии.`,
+    ],
+    _系列小说的命名标记_page_title: [
+        `当前页面的标题`,
+        `當前頁面的標題`,
+        `Title of the current page`,
+        `現在のページのタイトル`,
+        `현재 페이지의 제목`,
+        `Заголовок текущей страницы`,
+    ],
     _版本更新内容1820: [
         `📖 优化了保存小说时的内容
 <br><br>
@@ -36368,7 +36708,7 @@ const formHtml = `
       <span class="blue name">{id_num}</span>
       <span data-xztext="_命名标记id_num"></span>
       <br>
-      <span class="blue name">{p_num}</span>
+      * <span class="blue name">{p_num}</span>
       <span data-xztext="_命名标记p_num"></span>
     </p>
     <p class="option" data-no="50">
@@ -36767,61 +37107,64 @@ const formHtml = `
       <span data-xztext="_提示点击下方的标记就可以把它复制到剪贴板"></span>
       <br>
       <span class="blue name">{series_title}</span>
-      <span data-xztext="_命名标记id"></span>
+      <span data-xztext="_系列小说的命名标记_series_title"></span>
       <br>
       <span class="blue name">{series_id}</span>
-      <span data-xztext="_命名标记id"></span>
+      <span data-xztext="_系列小说的命名标记_series_id"></span>
       <br>
       <span class="blue name">{user}</span>
-      <span data-xztext="_命名标记id"></span>
+      <span data-xztext="_系列小说的命名标记_user"></span>
       <br>
       <span class="blue name">{user_id}</span>
-      <span data-xztext="_命名标记id"></span>
+      <span data-xztext="_系列小说的命名标记_user_id"></span>
       <br>
-      <span class="blue name">{part}</span>
-      <span data-xztext="_命名标记id"></span>
+      * <span class="blue name">{part}</span>
+      <span data-xztext="_系列小说的命名标记_part"></span>
       <br>
       <span class="blue name">{ext}</span>
-      <span data-xztext="_命名标记id"></span>
+      <span data-xztext="_系列小说的命名标记_ext"></span>
       <br>
       <span class="blue name">{age}</span>
-      <span data-xztext="_命名标记id"></span>
+      <span data-xztext="_系列小说的命名标记_age"></span>
+      <br>
+      * <span class="blue name">{age_r}</span>
+      <span data-xztext="_系列小说的命名标记_age_r"></span>
       <br>
       * <span class="blue name">{AI}</span>
-      <span data-xztext="_命名标记id"></span>
+      <span data-xztext="_系列小说的命名标记_AI"></span>
       <br>
       <span class="blue name">{lang}</span>
-      <span data-xztext="_命名标记id"></span>
+      <span data-xztext="_系列小说的命名标记_lang"></span>
       <br>
       <span class="blue name">{total}</span>
-      <span data-xztext="_命名标记id"></span>
+      <span data-xztext="_系列小说的命名标记_total"></span>
       <br>
       <span class="blue name">{char_count}</span>
-      <span data-xztext="_命名标记id"></span>
+      <span data-xztext="_系列小说的命名标记_char_count"></span>
       <br>
       <span class="blue name">{create_date}</span>
-      <span data-xztext="_命名标记id"></span>
+      <span data-xztext="_系列小说的命名标记_create_date"></span>
       <br>
       <span class="blue name">{last_date}</span>
-      <span data-xztext="_命名标记id"></span>
+      <span data-xztext="_系列小说的命名标记_last_date"></span>
       <br>
       <span class="blue name">{task_date}</span>
-      <span data-xztext="_命名标记id"></span>
+      <span data-xztext="_系列小说的命名标记_task_date"></span>
       <br>
       <span class="blue name">{first_id}</span>
-      <span data-xztext="_命名标记id"></span>
+      <span data-xztext="_系列小说的命名标记_first_id"></span>
       <br>
       <span class="blue name">{latest_id}</span>
-      <span data-xztext="_命名标记id"></span>
+      <span data-xztext="_系列小说的命名标记_latest_id"></span>
       <br>
       <span class="blue name">{tags}</span>
-      <span data-xztext="_命名标记id"></span>
+      <span data-xztext="_系列小说的命名标记_tags"></span>
       <br>
-      <span class="blue name">{page_tag}</span>
-      <span data-xztext="_命名标记id"></span>
+      * <span class="blue name">{page_tag}</span>
+      <span data-xztext="_文件夹标记PTag"></span>
       <br>
       <span class="blue name">{page_title}</span>
-      <span data-xztext="_命名标记id"></span>
+      <span data-xztext="_系列小说的命名标记_page_title"></span>
     </p>
     <p class="option" data-no="27">
       <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(27)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_在小说里保存元数据提示">
@@ -37973,6 +38316,12 @@ class Options {
             // 2025-11-17
             time: 1763337600000,
         },
+        {
+            // 合并系列小说时的命名规则
+            id: 91,
+            // 2025-11-24
+            time: 1763942400000,
+        },
     ];
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__.EVT.list.settingChange, (ev) => {
@@ -38030,7 +38379,7 @@ class Options {
                 23, 24, 26, 27, 28, 30, 31, 33, 34, 35, 36, 37, 38, 39, 40, 42, 43, 44,
                 46, 47, 48, 49, 50, 51, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65,
                 66, 67, 68, 69, 70, 71, 72, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84,
-                85, 86, 87, 88, 89,
+                85, 86, 87, 88, 89, 90, 91,
             ]);
         }
     }
@@ -38718,7 +39067,7 @@ class Settings {
         rememberTheLastSaveLocation: false,
         autoMergeNovel: false,
         skipNovelsInSeriesWhenAutoMerge: true,
-        seriesNovelNameRule: 'pixiv/novel series/{page_tag}/{series_title}-{series_id}-{user}-{user_id}-{tags}.{ext}',
+        seriesNovelNameRule: 'novel series/{page_tag}/{series_title}-{series_id}-{user}-{part}-{tags}.{ext}',
     };
     allSettingKeys = Object.keys(this.defaultSettings);
     // 值为浮点数的选项

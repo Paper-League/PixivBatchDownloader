@@ -556,8 +556,8 @@ abstract class InitPageBase {
 
   // 抓取完毕
   protected crawlFinished() {
-    // 当下载器没有处于慢速抓取模式时，会使用 10 个并发请求
-    // 此时如果第一个请求触发了停止抓取 states.stopCrawl，这 10 个都会进入这里
+    // 当下载器没有处于慢速抓取模式时，会使用并发请求（例如同时发送 3 个请求）
+    // 此时如果第一个请求触发了停止抓取 states.stopCrawl，这些并发请求都会进入这里
     // 所以我设置了个一次性的标记，防止重复执行这里的代码
     if (this.crawlFinishBecauseStopCrawl) {
       return

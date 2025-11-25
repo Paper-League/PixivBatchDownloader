@@ -1646,6 +1646,8 @@ webextension_polyfill__WEBPACK_IMPORTED_MODULE_1___default().runtime.onMessage.a
     }
     // console.log(msg)
     const tabId = sender.tab.id;
+    // 当存在同名文件时，默认覆写，但前台也可以指定处理方式
+    const conflictAction = msg.conflictAction || 'overwrite';
     // 下载作品的文件
     if (msg.msg === 'save_work_file') {
         // 当处于初始状态时，或者变量被回收了，就从存储中读取数据储存在变量中
@@ -1673,7 +1675,7 @@ webextension_polyfill__WEBPACK_IMPORTED_MODULE_1___default().runtime.onMessage.a
                 .download({
                 url: _url,
                 filename: msg.fileName,
-                conflictAction: 'overwrite',
+                conflictAction,
                 saveAs: false,
             })
                 .then((id) => {
@@ -1687,6 +1689,31 @@ webextension_polyfill__WEBPACK_IMPORTED_MODULE_1___default().runtime.onMessage.a
                 };
             });
         }
+    }
+    // 有些文件本身不在抓取结果 store.result 里，所以也不会出现在下载进度条上
+    // 对于这些文件直接下载，不需要返回下载结果
+    if (msg.msg === 'save_description_file' ||
+        msg.msg === 'save_novel_cover_file' ||
+        msg.msg === 'save_novel_embedded_image' ||
+        msg.msg === 'save_novel_series_file') {
+        const _url = await getFileURL(msg);
+        webextension_polyfill__WEBPACK_IMPORTED_MODULE_1___default().downloads
+            .download({
+            url: _url,
+            filename: msg.fileName,
+            conflictAction,
+            saveAs: false,
+        })
+            .then((id) => {
+            dlData[id] = {
+                blobURLFront: msg.blobURL,
+                blobURLBack: _url.startsWith('blob:') ? _url : '',
+                id: msg.id,
+                tabId: tabId,
+                uuid: false,
+                noReply: true,
+            };
+        });
     }
     // 使用 a.download 来下载文件时，不调用 downloads API，并且直接返回下载成功的模拟数据
     if (msg.msg === 'save_work_file_a_download') {
@@ -1702,31 +1729,6 @@ webextension_polyfill__WEBPACK_IMPORTED_MODULE_1___default().runtime.onMessage.a
             err: '',
         };
         webextension_polyfill__WEBPACK_IMPORTED_MODULE_1___default().tabs.sendMessage(tabId, data);
-    }
-    // 有些文件属于某个抓取结果的附加项，本身不在抓取结果 store.result 里，所以也没有它的进度条
-    // 对于这些文件直接下载，不需要返回下载结果
-    if (msg.msg === 'save_description_file' ||
-        msg.msg === 'save_novel_cover_file' ||
-        msg.msg === 'save_novel_embedded_image' ||
-        msg.msg === 'save_novel_series_file') {
-        const _url = await getFileURL(msg);
-        webextension_polyfill__WEBPACK_IMPORTED_MODULE_1___default().downloads
-            .download({
-            url: _url,
-            filename: msg.fileName,
-            conflictAction: 'overwrite',
-            saveAs: false,
-        })
-            .then((id) => {
-            dlData[id] = {
-                blobURLFront: msg.blobURL,
-                blobURLBack: _url.startsWith('blob:') ? _url : '',
-                id: msg.id,
-                tabId: tabId,
-                uuid: false,
-                noReply: true,
-            };
-        });
     }
     if (msg.msg === 'clearDownloadsTempData') {
         if (sender.tab?.id) {
