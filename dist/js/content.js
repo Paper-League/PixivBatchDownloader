@@ -11718,6 +11718,13 @@ class WorkToolBar {
         if (!this.toolbar) {
             return;
         }
+        // 查找“批量投稿至X”的按钮，如果有这个按钮，则说明是自己的作品页面
+        const batchPostBtn = this.toolbar.querySelector('.gtm-manga-replytree-modal-open');
+        if (batchPostBtn) {
+            // 是自己的作品页面，不处理
+            window.clearInterval(this.timer);
+            return;
+        }
         // 获取心形收藏按钮的 div
         const total = this.toolbar.childElementCount;
         // 心形收藏按钮是倒数第二个（从左往右数第二个）
