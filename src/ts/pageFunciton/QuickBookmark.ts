@@ -155,7 +155,7 @@ class QuickBookmark {
   private createBtn() {
     this.btn = document.createElement('button')
     this.btn.id = this.btnId
-    this.btn.textContent = '✩'
+    this.btn.textContent = '✩R-18'
     this.btn.addEventListener('click', () => {
       if (this.isBookmarked) {
         this.delBookmark()
@@ -199,9 +199,9 @@ class QuickBookmark {
     const id = this.isNovel ? Tools.getNovelId() : Tools.getIllustId()
 
     // 移动端不自动点赞和设置点赞按钮的颜色，因为切换作品后元素没有重新生成，样式会依旧存在
-    if (!Config.mobile) {
-      this.like(type, id, likeBtn)
-    }
+    // if (!Config.mobile) {
+    //   this.like(type, id, likeBtn)
+    // }
 
     if (this.isBookmarked) {
       return
@@ -214,11 +214,7 @@ class QuickBookmark {
     // 然后再由下载器发送收藏请求
     // 因为下载器的收藏按钮具有添加标签、非公开收藏等功能，所以要在后面执行，覆盖掉 Pixiv 原生收藏的效果
     window.setTimeout(async () => {
-      const status = await bookmark.add(
-        id,
-        type,
-        Tools.extractTags(this.workData!)
-      )
+      const status = await bookmark.add(id, type, ['R-18'], true)
 
       if (status === 403) {
         return

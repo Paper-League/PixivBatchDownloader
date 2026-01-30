@@ -3218,9 +3218,9 @@ This setting is also used when you use the Downloader to bookmark works in batch
 Эта настройка также используется при использовании Загрузчика для добавления закладок в пакетном режиме.`,
   ],
   _下载器的收藏按钮默认会添加作品的标签: [
-    '点击 <span class="blue">✩</span> 按钮时，下载器会收藏这个作品并且附带它的标签。',
-    '點選 <span class="blue">✩</span> 按鈕時，下載器會收藏這個作品並且附帶它的標籤。',
-    'When the <span class="blue">✩</span> button is clicked, the downloader bookmarks this work and attaches its tag.',
+    '点击 <span class="blue">✩</span> 按钮时，下载器会收藏这个作品并且附带R-18标签。',
+    '點選 <span class="blue">✩</span> 按鈕時，下載器會收藏這個作品並且附帶R-18標籤。',
+    'When the <span class="blue">✩</span> button is clicked, the downloader bookmarks this work and attaches R-18 tag.',
     '<span class="blue">✩</span> ボタンをクリックすると、ダウンローダはこの作品をブックマークし、タグを付けます。',
     '<span class="blue">✩</span> 버튼을 클릭하면 다운로더는 이 작품을 북마크하고 태그를 붙입니다.',
     'При нажатии кнопки <span class="blue">✩</span> загрузчик добавляет эту работу в закладки и прикрепляет свой тег.',
