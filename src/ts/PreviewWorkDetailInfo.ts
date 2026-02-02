@@ -135,9 +135,16 @@ class PreviewWorkDetailInfo {
       aiHTML = '<span class="ai">AI</span>'
     }
 
+    // 添加“原创”标记
+    let originHTML = ''
+    if (workData.body.isOriginal) {
+      const originalMark = Tools.getOriginalMark()
+      originHTML = `<span class="origin">${originalMark}</span>`
+    }
+
     wrap.innerHTML = `
         <div class="content">
-          <p class="flags">${r18HTML} ${aiHTML}</p>
+          <p class="flags">${r18HTML} ${aiHTML} ${originHTML}</p>
           <p class="title">${workData.body.title}</p>
           <p class="desc">${workData.body.description}</p>
           <p class="tags">${tagsHTML.join('')}</p>

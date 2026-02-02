@@ -971,6 +971,50 @@ class Tools {
     return ''
   }
 
+  static readonly originalMark: Map<string, string> = new Map([
+    ['zh-cn', '原创'],
+    ['zh-tw', '原創'],
+    ['en', 'Original'],
+    ['ja', 'オリジナル'],
+    ['ko', '오리지널'],
+    ['ru', 'Оригинал'],
+    ['th', 'ออริจินัล'],
+    ['ms', 'Asli'],
+  ])
+
+  static getOriginalMark() {
+    return this.originalMark.get(lang.htmlLangType) || 'オリジナル'
+  }
+
+  /** 向标签列表前面添加传入的标签 */
+  // 目前用来添加“原创”标记和“AI生成”标记
+  // 当具有多个标记时，遵从 Pixiv 页面显示的顺序，依次是：R-18 AI生成 原创
+  // 测试用例：
+  // https://www.pixiv.net/artworks/140494669
+  // https://www.pixiv.net/novel/show.php?id=27131021
+  // 所以 R-18 或 R-18G 标签总是保持第一位，其他要插入的标签需要排在它后面
+  // 至于“AI生成”和“原创”标签的顺序，则依赖调用顺序来控制。先添加“原创”，再添加“AI生成”，就能保持正确的顺序
+  // 但在某些情况下，顺序可能依然会错乱，例如：
+  // 作品前两个标签是“R-18”和“AI生成”，那么“原创”会被插入到第二位，“AI生成”则变成第三位。
+  // 目前我没有处理这种边界情况
+  static unshiftTag(tags: string[], tag: string) {
+    if (!tags.includes(tag)) {
+      // 查找 R-18 或 R-18G 标签的位置
+      const r18Index = tags.findIndex(
+        (t) => t.toLowerCase() === 'r-18' || t.toLowerCase() === 'r-18g'
+      )
+      // 如果找到了 R-18 或 R-18G 标签，则把新标签插入到它后面
+      if (r18Index !== -1) {
+        tags.splice(r18Index + 1, 0, tag)
+      } else {
+        // 否则插入到最前面
+        tags.unshift(tag)
+      }
+    }
+
+    return tags
+  }
+
   static checkUserLogin() {
     // 如果有“登录”的超链接，则是未登录状态
     // 在桌面版和移动版网页里都有效

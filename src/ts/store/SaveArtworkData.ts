@@ -20,6 +20,19 @@ class SaveArtworkData {
     const tagsWithTransl: string[] = Tools.extractTags(data, 'both') // 保存 tag 列表，附带翻译后的 tag
     const tagsTranslOnly: string[] = Tools.extractTags(data, 'transl') // 保存翻译后的 tag 列表
 
+    // 添加“原创”对应的标签
+    // 对 Pixiv 行为的说明：
+    // 只有当 isOriginal 为 true 时，Pixiv 才会认为这是一个原创作品，并且会在标签列表最前面显示加粗的“原创”标签（具体文字会根据页面显示语言变化）
+    // 如果 isOriginal 为 false，那么即使 tags 里有“オリジナル”标签，Pixiv 也不会把这个作品当作原创作品处理
+    // PS：如果两个条件都满足，此时 tag 里的“オリジナル”标签不会显示出来，因为已经有加粗显示的“原创”标签了
+    // 为了与 Pixiv 的行为保持一致（在标签列表前面显示“原创”标记），下载器也需要进行相同的处理
+    if (data.body.isOriginal) {
+      const originalMark = Tools.getOriginalMark()
+      Tools.unshiftTag(tags, originalMark)
+      Tools.unshiftTag(tagsWithTransl, originalMark)
+      Tools.unshiftTag(tagsTranslOnly, originalMark)
+    }
+
     // 判断是不是 AI 生成的作品
     let aiType = body.aiType
     if (aiType !== 2) {
@@ -28,11 +41,12 @@ class SaveArtworkData {
       }
     }
 
+    // 添加“AI生成”对应的标签
     const aiMarkString = Tools.getAIGeneratedMark(aiType)
     if (aiMarkString) {
-      tags.unshift(aiMarkString)
-      tagsWithTransl.unshift(aiMarkString)
-      tagsTranslOnly.unshift(aiMarkString)
+      Tools.unshiftTag(tags, aiMarkString)
+      Tools.unshiftTag(tagsWithTransl, aiMarkString)
+      Tools.unshiftTag(tagsTranslOnly, aiMarkString)
     }
 
     const filterOpt: FilterOption = {

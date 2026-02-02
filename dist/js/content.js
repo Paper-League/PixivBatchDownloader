@@ -3251,9 +3251,9 @@ class CopyWorkInfo {
         const AITag = '#' + aiMarkString;
         if (aiMarkString) {
             if (tags.includes(AITag) === false) {
-                tags.unshift(AITag);
-                tagsWithTransl.unshift(AITag);
-                tagsTranslOnly.unshift(AITag);
+                _Tools__WEBPACK_IMPORTED_MODULE_8__.Tools.unshiftTag(tags, AITag);
+                _Tools__WEBPACK_IMPORTED_MODULE_8__.Tools.unshiftTag(tagsWithTransl, AITag);
+                _Tools__WEBPACK_IMPORTED_MODULE_8__.Tools.unshiftTag(tagsTranslOnly, AITag);
             }
         }
         const AI = aiType === 2 || tags.includes(AITag);
@@ -7769,9 +7769,15 @@ class PreviewWorkDetailInfo {
         if (aiType === 2) {
             aiHTML = '<span class="ai">AI</span>';
         }
+        // 添加“原创”标记
+        let originHTML = '';
+        if (workData.body.isOriginal) {
+            const originalMark = _Tools__WEBPACK_IMPORTED_MODULE_3__.Tools.getOriginalMark();
+            originHTML = `<span class="origin">${originalMark}</span>`;
+        }
         wrap.innerHTML = `
         <div class="content">
-          <p class="flags">${r18HTML} ${aiHTML}</p>
+          <p class="flags">${r18HTML} ${aiHTML} ${originHTML}</p>
           <p class="title">${workData.body.title}</p>
           <p class="desc">${workData.body.description}</p>
           <p class="tags">${tagsHTML.join('')}</p>
@@ -11373,6 +11379,45 @@ class Tools {
             return this.AIMark.get(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.htmlLangType) || 'AI-generated';
         }
         return '';
+    }
+    static originalMark = new Map([
+        ['zh-cn', '原创'],
+        ['zh-tw', '原創'],
+        ['en', 'Original'],
+        ['ja', 'オリジナル'],
+        ['ko', '오리지널'],
+        ['ru', 'Оригинал'],
+        ['th', 'ออริจินัล'],
+        ['ms', 'Asli'],
+    ]);
+    static getOriginalMark() {
+        return this.originalMark.get(_Language__WEBPACK_IMPORTED_MODULE_1__.lang.htmlLangType) || 'オリジナル';
+    }
+    /** 向标签列表前面添加传入的标签 */
+    // 目前用来添加“原创”标记和“AI生成”标记
+    // 当具有多个标记时，遵从 Pixiv 页面显示的顺序，依次是：R-18 AI生成 原创
+    // 测试用例：
+    // https://www.pixiv.net/artworks/140494669
+    // https://www.pixiv.net/novel/show.php?id=27131021
+    // 所以 R-18 或 R-18G 标签总是保持第一位，其他要插入的标签需要排在它后面
+    // 至于“AI生成”和“原创”标签的顺序，则依赖调用顺序来控制。先添加“原创”，再添加“AI生成”，就能保持正确的顺序
+    // 但在某些情况下，顺序可能依然会错乱，例如：
+    // 作品前两个标签是“R-18”和“AI生成”，那么“原创”会被插入到第二位，“AI生成”则变成第三位。
+    // 目前我没有处理这种边界情况
+    static unshiftTag(tags, tag) {
+        if (!tags.includes(tag)) {
+            // 查找 R-18 或 R-18G 标签的位置
+            const r18Index = tags.findIndex((t) => t.toLowerCase() === 'r-18' || t.toLowerCase() === 'r-18g');
+            // 如果找到了 R-18 或 R-18G 标签，则把新标签插入到它后面
+            if (r18Index !== -1) {
+                tags.splice(r18Index + 1, 0, tag);
+            }
+            else {
+                // 否则插入到最前面
+                tags.unshift(tag);
+            }
+        }
+        return tags;
     }
     static checkUserLogin() {
         // 如果有“登录”的超链接，则是未登录状态
@@ -22292,12 +22337,30 @@ class MergeNovel {
                     continue;
                 }
             }
+            const tags = _Tools__WEBPACK_IMPORTED_MODULE_4__.Tools.extractTags(data);
+            // 添加“原创”对应的标签
+            if (data.body.isOriginal) {
+                const originalMark = _Tools__WEBPACK_IMPORTED_MODULE_4__.Tools.getOriginalMark();
+                _Tools__WEBPACK_IMPORTED_MODULE_4__.Tools.unshiftTag(tags, originalMark);
+            }
+            // 判断是不是 AI 生成的作品
+            let aiType = data.body.aiType;
+            if (aiType !== 2) {
+                if (_Tools__WEBPACK_IMPORTED_MODULE_4__.Tools.checkAIFromTags(tags)) {
+                    aiType = 2;
+                }
+            }
+            // 添加“AI生成”对应的标签
+            const aiMarkString = _Tools__WEBPACK_IMPORTED_MODULE_4__.Tools.getAIGeneratedMark(aiType);
+            if (aiMarkString) {
+                _Tools__WEBPACK_IMPORTED_MODULE_4__.Tools.unshiftTag(tags, aiMarkString);
+            }
             const novelData = {
                 id: data.body.id,
                 no: data.body.seriesNavData.order,
                 updateDate: _utils_DateFormat__WEBPACK_IMPORTED_MODULE_12__.DateFormat.format(data.body.uploadDate),
                 title: _utils_Utils__WEBPACK_IMPORTED_MODULE_1__.Utils.replaceUnsafeStr(data.body.title),
-                tags: _Tools__WEBPACK_IMPORTED_MODULE_4__.Tools.extractTags(data),
+                tags,
                 description: _utils_Utils__WEBPACK_IMPORTED_MODULE_1__.Utils.htmlToText(_utils_Utils__WEBPACK_IMPORTED_MODULE_1__.Utils.htmlDecode(data.body.description)),
                 content: _Tools__WEBPACK_IMPORTED_MODULE_4__.Tools.replaceNovelContentFlag(data.body.content),
                 coverUrl: data.body.coverUrl,
@@ -40342,6 +40405,18 @@ class SaveArtworkData {
         const tags = _Tools__WEBPACK_IMPORTED_MODULE_4__.Tools.extractTags(data); // tag 列表
         const tagsWithTransl = _Tools__WEBPACK_IMPORTED_MODULE_4__.Tools.extractTags(data, 'both'); // 保存 tag 列表，附带翻译后的 tag
         const tagsTranslOnly = _Tools__WEBPACK_IMPORTED_MODULE_4__.Tools.extractTags(data, 'transl'); // 保存翻译后的 tag 列表
+        // 添加“原创”对应的标签
+        // 对 Pixiv 行为的说明：
+        // 只有当 isOriginal 为 true 时，Pixiv 才会认为这是一个原创作品，并且会在标签列表最前面显示加粗的“原创”标签（具体文字会根据页面显示语言变化）
+        // 如果 isOriginal 为 false，那么即使 tags 里有“オリジナル”标签，Pixiv 也不会把这个作品当作原创作品处理
+        // PS：如果两个条件都满足，此时 tag 里的“オリジナル”标签不会显示出来，因为已经有加粗显示的“原创”标签了
+        // 为了与 Pixiv 的行为保持一致（在标签列表前面显示“原创”标记），下载器也需要进行相同的处理
+        if (data.body.isOriginal) {
+            const originalMark = _Tools__WEBPACK_IMPORTED_MODULE_4__.Tools.getOriginalMark();
+            _Tools__WEBPACK_IMPORTED_MODULE_4__.Tools.unshiftTag(tags, originalMark);
+            _Tools__WEBPACK_IMPORTED_MODULE_4__.Tools.unshiftTag(tagsWithTransl, originalMark);
+            _Tools__WEBPACK_IMPORTED_MODULE_4__.Tools.unshiftTag(tagsTranslOnly, originalMark);
+        }
         // 判断是不是 AI 生成的作品
         let aiType = body.aiType;
         if (aiType !== 2) {
@@ -40349,11 +40424,12 @@ class SaveArtworkData {
                 aiType = 2;
             }
         }
+        // 添加“AI生成”对应的标签
         const aiMarkString = _Tools__WEBPACK_IMPORTED_MODULE_4__.Tools.getAIGeneratedMark(aiType);
         if (aiMarkString) {
-            tags.unshift(aiMarkString);
-            tagsWithTransl.unshift(aiMarkString);
-            tagsTranslOnly.unshift(aiMarkString);
+            _Tools__WEBPACK_IMPORTED_MODULE_4__.Tools.unshiftTag(tags, aiMarkString);
+            _Tools__WEBPACK_IMPORTED_MODULE_4__.Tools.unshiftTag(tagsWithTransl, aiMarkString);
+            _Tools__WEBPACK_IMPORTED_MODULE_4__.Tools.unshiftTag(tagsTranslOnly, aiMarkString);
         }
         const filterOpt = {
             aiType,
@@ -40531,6 +40607,11 @@ class SaveNovelData {
         const bmk = body.bookmarkCount; // 收藏数
         const tags = _Tools__WEBPACK_IMPORTED_MODULE_3__.Tools.extractTags(data); // tag 列表
         // 小说的标签没有进行翻译，所以没有翻译后的标签
+        // 添加“原创”对应的标签
+        if (data.body.isOriginal) {
+            const originalMark = _Tools__WEBPACK_IMPORTED_MODULE_3__.Tools.getOriginalMark();
+            _Tools__WEBPACK_IMPORTED_MODULE_3__.Tools.unshiftTag(tags, originalMark);
+        }
         // 判断是不是 AI 生成的作品
         let aiType = body.aiType;
         if (aiType !== 2) {
@@ -40538,9 +40619,10 @@ class SaveNovelData {
                 aiType = 2;
             }
         }
+        // 添加“AI生成”对应的标签
         const aiMarkString = _Tools__WEBPACK_IMPORTED_MODULE_3__.Tools.getAIGeneratedMark(aiType);
         if (aiMarkString) {
-            tags.unshift(aiMarkString);
+            _Tools__WEBPACK_IMPORTED_MODULE_3__.Tools.unshiftTag(tags, aiMarkString);
         }
         const filterOpt = {
             aiType,

@@ -2473,6 +2473,9 @@ iframe[name='expandedFooter'] {
 .xz_PreviewWorkDetailPanel .content .flags .ai {
   background: #b036f6;
 }
+.xz_PreviewWorkDetailPanel .content .flags .origin {
+  background: #29b3f3;
+}
 .xz_PreviewWorkDetailPanel .content .title,
 .xz_PreviewWorkDetailPanel .content .desc.tags {
   line-height: 22px;

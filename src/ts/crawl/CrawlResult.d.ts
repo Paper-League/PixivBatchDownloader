@@ -73,7 +73,7 @@ export interface ArtworkData {
       isLocked: boolean
       /**作品的标签列表 */
       tags: {
-        /**标签名字 */
+        /**标签名字。是日文标签（原标签），内容不会根据页面的显示语言变化 */
         tag: string
         /**这个标签是否被锁定（被锁定的就不能修改） */
         locked: boolean
@@ -83,17 +83,12 @@ export interface ArtworkData {
         userId: string
         /**罗马音，现在这个字段或许已经被移除了 */
         romaji?: string
-        /**这个标签的翻译 */
+        /**保存翻译后的标签。有时没有这个属性，表示原标签没有对应的翻译标签 */
         translation?: {
-          /**翻译后的文字。
-           * 
-           * 注意翻译后的文字并不总是英文。
-           * 
+          /**
            根据用户设置的 pixiv 页面语言的不同（如中文、日文、韩语、英文等），en 会返回对应语言的翻译。
 
-           所以用户语言不同时，en 可能不同。
-
-           也可能同一个标签在某些语言时会有 translation 字段，另一些语言时没有 translation 字段。
+           在不同的显示语言里，en 的内容会相应变化。
            */
           en: string
         }

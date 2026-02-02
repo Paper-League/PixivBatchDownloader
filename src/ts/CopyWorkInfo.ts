@@ -234,9 +234,9 @@ class CopyWorkInfo {
     const AITag = '#' + aiMarkString
     if (aiMarkString) {
       if (tags.includes(AITag) === false) {
-        tags.unshift(AITag)
-        tagsWithTransl.unshift(AITag)
-        tagsTranslOnly.unshift(AITag)
+        Tools.unshiftTag(tags, AITag)
+        Tools.unshiftTag(tagsWithTransl, AITag)
+        Tools.unshiftTag(tagsTranslOnly, AITag)
       }
     }
     const AI = aiType === 2 || tags.includes(AITag)

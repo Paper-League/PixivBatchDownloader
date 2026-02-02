@@ -533,12 +533,34 @@ class MergeNovel {
         }
       }
 
+      const tags: string[] = Tools.extractTags(data)
+
+      // 添加“原创”对应的标签
+      if (data.body.isOriginal) {
+        const originalMark = Tools.getOriginalMark()
+        Tools.unshiftTag(tags, originalMark)
+      }
+
+      // 判断是不是 AI 生成的作品
+      let aiType = data.body.aiType
+      if (aiType !== 2) {
+        if (Tools.checkAIFromTags(tags)) {
+          aiType = 2
+        }
+      }
+
+      // 添加“AI生成”对应的标签
+      const aiMarkString = Tools.getAIGeneratedMark(aiType)
+      if (aiMarkString) {
+        Tools.unshiftTag(tags, aiMarkString)
+      }
+
       const novelData: NovelSummary = {
         id: data.body.id,
         no: data.body.seriesNavData!.order,
         updateDate: DateFormat.format(data.body.uploadDate),
         title: Utils.replaceUnsafeStr(data.body.title),
-        tags: Tools.extractTags(data),
+        tags,
         description: Utils.htmlToText(Utils.htmlDecode(data.body.description)),
         content: Tools.replaceNovelContentFlag(data.body.content),
         coverUrl: data.body.coverUrl,
