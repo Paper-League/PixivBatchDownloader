@@ -12730,7 +12730,7 @@ class InitPageBase {
     }
     // 获取 id 列表，由各个子类具体定义
     getIdList() { }
-    /** 检查该用户是否被屏蔽了.如果被屏蔽，则不抓取它的作品，避免发送不必要的抓取请求 */
+    /** 检查该用户是否被屏蔽了。如果被屏蔽，则不抓取他的作品，以避免发送不必要的抓取请求 */
     async checkUserId(userId) {
         return await _filter_Filter__WEBPACK_IMPORTED_MODULE_21__.filter.check({
             userId,
@@ -23419,7 +23419,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-// 为每个作品创建一个 txt 文件，保存这个作品的元数据
+// 为每个作品创建一个单独的文件，保存这个作品的元数据
 class SaveWorkMeta {
     constructor() {
         this.bindEvents();
@@ -23473,6 +23473,9 @@ class SaveWorkMeta {
             !_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.saveMetaType3) {
             return;
         }
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.saveMetaFormatTXT && !_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.saveMetaFormatJSON) {
+            return;
+        }
         if (this.savedIds.includes(id)) {
             return;
         }
@@ -23486,7 +23489,28 @@ class SaveWorkMeta {
         if (this.checkNeedSave(data.type) === false) {
             return;
         }
-        // 添加文件内容
+        this.savedIds.push(id);
+        // 生成文件名
+        // 元数据文件需要和它对应的图片/小说文件的路径相同，文件名相似，这样它们才能在资源管理器里排在一起，便于查看
+        // 生成这个数据的路径和文件名
+        const _fileName = _FileName__WEBPACK_IMPORTED_MODULE_2__.fileName.createFileName(data);
+        // 取出后缀名之前的部分
+        const index = _fileName.lastIndexOf('.');
+        let part1 = _fileName.substring(0, index);
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.zeroPadding) {
+            // 把 id 字符串换成数字 id，这是为了去除 id 后面可能存在的序号，如 p0
+            // 但如果用户启用了在序号前面填充 0，则不替换 id，因为文件名里的 id 后面可能带多个 0，如 p000，用 idNum 去替换的话替换不了后面两个 0
+            part1 = part1.replace(data.id, data.idNum.toString());
+        }
+        // 拼接出元数据文件的文件名，不包含后缀名
+        const metaFileName = `${part1}-meta`;
+        this.saveTXT(data, metaFileName);
+        this.saveJSON(data, metaFileName);
+    }
+    async saveTXT(data, metaFileName) {
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.saveMetaFormatTXT) {
+            return;
+        }
         const fileContent = [];
         fileContent.push(this.addMeta('ID', data.idNum.toString()));
         fileContent.push(this.addMeta('URL', this.getWorkURL(data)));
@@ -23507,26 +23531,19 @@ class SaveWorkMeta {
         }
         fileContent.push(this.addMeta('Bookmark', data.bmk.toString()));
         fileContent.push(this.addMeta('Date', data.date));
-        // 生成文件
+        // 保存文件
         const blob = new Blob(fileContent, {
             type: 'text/plain',
         });
-        // 生成文件名
-        // 元数据文件需要和它对应的图片/小说文件的路径相同，文件名相似，这样它们才能在资源管理器里排在一起，便于查看
-        // 生成这个数据的路径和文件名
-        const _fileName = _FileName__WEBPACK_IMPORTED_MODULE_2__.fileName.createFileName(data);
-        // 取出后缀名之前的部分
-        const index = _fileName.lastIndexOf('.');
-        let part1 = _fileName.substring(0, index);
-        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.zeroPadding) {
-            // 把 id 字符串换成数字 id，这是为了去除 id 后面可能存在的序号，如 p0
-            // 但如果用户启用了在序号前面填充 0，则不替换 id，因为文件名里的 id 后面可能带多个 0，如 p000，用 idNum 去替换的话替换不了后面两个 0
-            part1 = part1.replace(data.id, data.idNum.toString());
+        _SendDownload__WEBPACK_IMPORTED_MODULE_6__.SendDownload.noReply(blob, metaFileName + '.txt');
+    }
+    async saveJSON(data, metaFileName) {
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_3__.settings.saveMetaFormatJSON) {
+            return;
         }
-        // 拼接出元数据文件的文件名
-        const metaFileName = `${part1}-meta.txt`;
-        await _SendDownload__WEBPACK_IMPORTED_MODULE_6__.SendDownload.noReply(blob, metaFileName);
-        this.savedIds.push(id);
+        // 保存文件
+        const blob = _utils_Utils__WEBPACK_IMPORTED_MODULE_4__.Utils.json2Blob(data);
+        _SendDownload__WEBPACK_IMPORTED_MODULE_6__.SendDownload.noReply(blob, metaFileName + '.json');
     }
 }
 new SaveWorkMeta();
@@ -29815,12 +29832,30 @@ Novel folder name: Novel`,
         'Сохранить <span class="key">метаданные</span> работы',
     ],
     _保存作品的元数据说明: [
-        '为每个作品生成一个 TXT 文件，保存它的元数据。',
-        '為每個作品生成一個 TXT 檔案，儲存它的元資料。',
-        'Generates a TXT file for each work, storing its metadata.',
-        '各作品のメタデータを保存する TXT ファイルを生成し、',
-        '각 작품에 대한 TXT 파일을 생성하여 해당 메타데이터를 저장합니다.',
-        'Создает TXT-файл для каждой работы, сохраняя ее метаданные.',
+        `下载器可以为每个作品生成一个同名文件（但扩展名不同），保存它的元数据。<br>
+你可以选择为哪些类型的作品生成元数据文件，并且可以选择 TXT 格式或（和）JSON 格式。<br>
+TXT 格式易于阅读，但只包含比较常用的数据。<br>
+JSON 格式是下载器的内部数据，保存了更多的数据。`,
+        `下載器可以為每個作品生成一個同名檔案（但副檔名不同），儲存它的元數據。<br>
+你可以選擇為哪些類型的作品生成元數據檔案，並且可以選擇 TXT 格式或（和）JSON 格式。<br>
+TXT 格式易於閱讀，但只包含比較常用的資料。<br>
+JSON 格式是下載器的內部資料，儲存了更多的資料。`,
+        `The downloader can generate a file with the same name (but different extension) for each work to save its metadata.<br>
+You can choose which types of works to generate metadata files for, and you can choose TXT format or (and) JSON format.<br>
+TXT format is easy to read but only contains relatively common data.<br>
+JSON format is the downloader's internal data and saves more information.`,
+        `ダウンロードツールは、各作品に対して同名のファイル（拡張子は異なる）を生成し、そのメタデータを保存できます。<br>
+どのタイプの作品に対してメタデータファイルを生成するかを選択でき、TXT形式または（および）JSON形式を選択できます。<br>
+TXT形式は読みやすいですが、比較的よく使われるデータのみを含みます。<br>
+JSON形式はダウンロードツールの内部データで、より多くの情報を保存します。`,
+        `다운로더는 각 작품에 대해 동일한 이름의 파일(확장자만 다름)을 생성하여 메타데이터를 저장할 수 있습니다.<br>
+어떤 유형의 작품에 대해 메타데이터 파일을 생성할지 선택할 수 있으며, TXT 형식 또는 (및) JSON 형식을 선택할 수 있습니다.<br>
+TXT 형식은 읽기 쉽지만 비교적 일반적인 데이터만 포함합니다.<br>
+JSON 형식은 다운로더의 내부 데이터로, 더 많은 정보를 저장합니다.`,
+        `Загрузчик может создать для каждого произведения файл с тем же именем (но с другим расширением) для сохранения его метаданных.<br>
+Вы можете выбрать, для каких типов произведений генерировать файлы метаданных, а также выбрать формат TXT или (и) JSON.<br>
+Формат TXT удобен для чтения, но содержит только наиболее часто используемые данные.<br>
+Формат JSON — это внутренние данные загрузчика, сохраняющие гораздо больше информации.`,
     ],
     _在不同的页面类型中使用不同的命名规则: [
         '在不同的页面类型中使用<span class="key">不同</span>的命名规则',
@@ -37268,7 +37303,7 @@ const formHtml = `
         <span data-xztext="_抓取结果"></span>
         <span>&gt;</span>
         <input type="text" name="autoExportResultNumber" class="setinput_style1 blue" value="1" style="width:30px;min-width: 30px;">
-        <span>&nbsp;</span>
+        <span class="verticalSplit"></span>
         <span class="settingNameStyle" data-xztext="_文件格式"> </span>
         <input type="checkbox" name="autoExportResultCSV" id="autoExportResultCSV" class="need_beautify checkbox_common" checked>
         <span class="beautify_checkbox" tabindex="0"></span>
@@ -37609,6 +37644,14 @@ const formHtml = `
       <input type="checkbox" name="saveMetaType3" id="setSaveMetaType3" class="need_beautify checkbox_common">
       <span class="beautify_checkbox" tabindex="0"></span>
       <label for="setSaveMetaType3" data-xztext="_小说"></label>
+      <span class="verticalSplit"></span>
+      <span class="settingNameStyle" data-xztext="_文件格式"> </span>
+      <input type="checkbox" name="saveMetaFormatTXT" id="saveMetaFormatTXT" class="need_beautify checkbox_common" checked>
+      <span class="beautify_checkbox" tabindex="0"></span>
+      <label for="saveMetaFormatTXT"> TXT </label>
+      <input type="checkbox" name="saveMetaFormatJSON" id="saveMetaFormatJSON" class="need_beautify checkbox_common" checked>
+      <span class="beautify_checkbox" tabindex="0"></span>
+      <label for="saveMetaFormatJSON"> JSON </label>
     </p>
     <p class="option" data-no="89">
       <a href="${_Wiki__WEBPACK_IMPORTED_MODULE_1__.wiki.link(89)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_保存作品简介的说明">
@@ -38174,6 +38217,8 @@ class FormSettings {
             'saveMetaType1',
             'saveMetaType2',
             'saveMetaType3',
+            'saveMetaFormatTXT',
+            'saveMetaFormatJSON',
             'setNameRuleForEachPageType',
             'showAdvancedSettings',
             'showNotificationAfterDownloadComplete',
@@ -39388,6 +39433,8 @@ class Settings {
         saveMetaType1: false,
         saveMetaType2: false,
         saveMetaType3: false,
+        saveMetaFormatTXT: true,
+        saveMetaFormatJSON: false,
         setNameRuleForEachPageType: false,
         nameRuleForEachPageType: {
             [_PageType__WEBPACK_IMPORTED_MODULE_9__.PageName.Unsupported]: _Config__WEBPACK_IMPORTED_MODULE_5__.Config.defaultNameRule,
@@ -40923,7 +40970,7 @@ class Store {
             this.downloadOnlyPart[workID] = indexList;
         }
     }
-    fileDataDefault = {
+    resultDefault = {
         aiType: 0,
         idNum: 0,
         id: '',
@@ -40973,9 +41020,7 @@ class Store {
             useList.push(data.idNum);
         }
         // 添加该作品的元数据
-        const workData = Object.assign({}, this.fileDataDefault, data);
-        // 注意：由于 Object.assign 不是深拷贝，所以不可以修改 result 的引用类型数据，否则会影响到源对象
-        // 可以修改基础类型的数据
+        const workData = Object.assign({}, this.resultDefault, data);
         if (workData.type === 0 || workData.type === 1) {
             workData.id = workData.idNum + `_p0`;
         }
@@ -58380,7 +58425,7 @@ class Utils {
             }, 50);
         });
     }
-    /**JSON 转换成 Blob 对象。如果数据量可能比较大，则不应该使用这个方法 */
+    /**JSON 转换成 Blob 对象，附带格式化。如果数据量可能比较大，则不应该使用这个方法 */
     static json2Blob(data) {
         const str = JSON.stringify(data, null, 2);
         const blob = new Blob([str], { type: 'application/json' });

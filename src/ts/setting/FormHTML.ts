@@ -603,7 +603,7 @@ export const formHtml = `
         <span data-xztext="_抓取结果"></span>
         <span>&gt;</span>
         <input type="text" name="autoExportResultNumber" class="setinput_style1 blue" value="1" style="width:30px;min-width: 30px;">
-        <span>&nbsp;</span>
+        <span class="verticalSplit"></span>
         <span class="settingNameStyle" data-xztext="_文件格式"> </span>
         <input type="checkbox" name="autoExportResultCSV" id="autoExportResultCSV" class="need_beautify checkbox_common" checked>
         <span class="beautify_checkbox" tabindex="0"></span>
@@ -944,6 +944,14 @@ export const formHtml = `
       <input type="checkbox" name="saveMetaType3" id="setSaveMetaType3" class="need_beautify checkbox_common">
       <span class="beautify_checkbox" tabindex="0"></span>
       <label for="setSaveMetaType3" data-xztext="_小说"></label>
+      <span class="verticalSplit"></span>
+      <span class="settingNameStyle" data-xztext="_文件格式"> </span>
+      <input type="checkbox" name="saveMetaFormatTXT" id="saveMetaFormatTXT" class="need_beautify checkbox_common" checked>
+      <span class="beautify_checkbox" tabindex="0"></span>
+      <label for="saveMetaFormatTXT"> TXT </label>
+      <input type="checkbox" name="saveMetaFormatJSON" id="saveMetaFormatJSON" class="need_beautify checkbox_common" checked>
+      <span class="beautify_checkbox" tabindex="0"></span>
+      <label for="saveMetaFormatJSON"> JSON </label>
     </p>
     <p class="option" data-no="89">
       <a href="${wiki.link(89)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_保存作品简介的说明">

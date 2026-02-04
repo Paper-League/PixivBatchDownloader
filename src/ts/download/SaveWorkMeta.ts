@@ -8,7 +8,7 @@ import { Utils } from '../utils/Utils'
 import { Tools } from '../Tools'
 import { SendDownload } from './SendDownload'
 
-// 为每个作品创建一个 txt 文件，保存这个作品的元数据
+// 为每个作品创建一个单独的文件，保存这个作品的元数据
 class SaveWorkMeta {
   constructor() {
     this.bindEvents()
@@ -74,6 +74,10 @@ class SaveWorkMeta {
       return
     }
 
+    if (!settings.saveMetaFormatTXT && !settings.saveMetaFormatJSON) {
+      return
+    }
+
     if (this.savedIds.includes(id)) {
       return
     }
@@ -90,8 +94,34 @@ class SaveWorkMeta {
     if (this.checkNeedSave(data.type) === false) {
       return
     }
+    this.savedIds.push(id)
 
-    // 添加文件内容
+    // 生成文件名
+    // 元数据文件需要和它对应的图片/小说文件的路径相同，文件名相似，这样它们才能在资源管理器里排在一起，便于查看
+
+    // 生成这个数据的路径和文件名
+    const _fileName = fileName.createFileName(data)
+    // 取出后缀名之前的部分
+    const index = _fileName.lastIndexOf('.')
+    let part1 = _fileName.substring(0, index)
+
+    if (!settings.zeroPadding) {
+      // 把 id 字符串换成数字 id，这是为了去除 id 后面可能存在的序号，如 p0
+      // 但如果用户启用了在序号前面填充 0，则不替换 id，因为文件名里的 id 后面可能带多个 0，如 p000，用 idNum 去替换的话替换不了后面两个 0
+      part1 = part1.replace(data.id, data.idNum.toString())
+    }
+    // 拼接出元数据文件的文件名，不包含后缀名
+    const metaFileName = `${part1}-meta`
+
+    this.saveTXT(data, metaFileName)
+    this.saveJSON(data, metaFileName)
+  }
+
+  private async saveTXT(data: Result, metaFileName: string) {
+    if (!settings.saveMetaFormatTXT) {
+      return
+    }
+
     const fileContent: string[] = []
     fileContent.push(this.addMeta('ID', data.idNum.toString()))
     fileContent.push(this.addMeta('URL', this.getWorkURL(data)))
@@ -125,29 +155,21 @@ class SaveWorkMeta {
     fileContent.push(this.addMeta('Bookmark', data.bmk.toString()))
     fileContent.push(this.addMeta('Date', data.date))
 
-    // 生成文件
+    // 保存文件
     const blob = new Blob(fileContent, {
       type: 'text/plain',
     })
+    SendDownload.noReply(blob, metaFileName + '.txt')
+  }
 
-    // 生成文件名
-    // 元数据文件需要和它对应的图片/小说文件的路径相同，文件名相似，这样它们才能在资源管理器里排在一起，便于查看
-
-    // 生成这个数据的路径和文件名
-    const _fileName = fileName.createFileName(data)
-    // 取出后缀名之前的部分
-    const index = _fileName.lastIndexOf('.')
-    let part1 = _fileName.substring(0, index)
-
-    if (!settings.zeroPadding) {
-      // 把 id 字符串换成数字 id，这是为了去除 id 后面可能存在的序号，如 p0
-      // 但如果用户启用了在序号前面填充 0，则不替换 id，因为文件名里的 id 后面可能带多个 0，如 p000，用 idNum 去替换的话替换不了后面两个 0
-      part1 = part1.replace(data.id, data.idNum.toString())
+  private async saveJSON(data: Result, metaFileName: string) {
+    if (!settings.saveMetaFormatJSON) {
+      return
     }
-    // 拼接出元数据文件的文件名
-    const metaFileName = `${part1}-meta.txt`
-    await SendDownload.noReply(blob, metaFileName)
-    this.savedIds.push(id)
+
+    // 保存文件
+    const blob = Utils.json2Blob(data)
+    SendDownload.noReply(blob, metaFileName + '.json')
   }
 }
 

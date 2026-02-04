@@ -209,6 +209,8 @@ interface XzSetting {
   saveMetaType1: boolean
   saveMetaType2: boolean
   saveMetaType3: boolean
+  saveMetaFormatTXT: boolean
+  saveMetaFormatJSON: boolean
   /** 为每个页面类型设置不同的命名规则的开关 */
   setNameRuleForEachPageType: boolean
   /** 每个页面类型所使用的命名规则 */
@@ -646,6 +648,8 @@ class Settings {
     saveMetaType1: false,
     saveMetaType2: false,
     saveMetaType3: false,
+    saveMetaFormatTXT: true,
+    saveMetaFormatJSON: false,
     setNameRuleForEachPageType: false,
     nameRuleForEachPageType: {
       [PageName.Unsupported]: Config.defaultNameRule,
