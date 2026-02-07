@@ -1634,6 +1634,12 @@ body.mobile #quickCrawlBtn {
   opacity: 1;
   pointer-events: initial;
 }
+.contest .logWrap {
+  z-index: 1000;
+}
+.contest .logBtn {
+  z-index: 1001;
+}
 .theme-dark.logWrap {
   background: #222;
   color: #fff;

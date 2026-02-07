@@ -26,6 +26,7 @@ import {
   NovelInsertIllusts,
   RankingNovelData,
   DashboardData,
+  ContestData,
 } from './crawl/CrawlResult'
 
 import {
@@ -598,6 +599,21 @@ class API {
         return resolve(error.status || 0)
       }
     })
+  }
+
+  /** 获取比赛里的应募作品列表，每次 1 页（最对 50 个作品） */
+  static async getContestWorksData(
+    type: 'illust' | 'novel',
+    name: string,
+    p: number,
+    order: 'date_d' | 'date' | 'popular_d' = 'date_d'
+  ): Promise<ContestData> {
+    let typePath = ''
+    if (type === 'novel') {
+      typePath = 'novel/'
+    }
+    const url = `https://www.pixiv.net/ajax/${typePath}contest/${name}/entries?order=${order}&p=${p}`
+    return this.fetch(url)
   }
 }
 

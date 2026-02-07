@@ -256,6 +256,10 @@ class Tools {
       return match[1]
     }
 
+    // 还有些其他情况，例如在比赛页面里，对应的 script 标签在 body 里，而且使用了双引号：
+    // user_id: "11111111",
+    // 由于在比赛页面里并不需要获取自己的 ID 来使用，所以这里就不写了
+
     const element = document.querySelector('#qualtrics_user-id')
     if (element) {
       const text = element.textContent

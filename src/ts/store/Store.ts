@@ -10,6 +10,7 @@ class Store {
     this.bindEvents()
   }
 
+  /** 在某些页面类型里，可能没有获取到用户 ID，所以有可能是空字符串 */
   public loggedUserID = ''
 
   public idList: IDData[] = [] // 储存从列表中抓取到的作品的 id

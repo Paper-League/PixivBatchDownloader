@@ -1900,3 +1900,21 @@ interface DashboardNovelThumbnail {
   visibilityScope: number
   language: string
 }
+
+/** 比赛里的应募作品列表，插画和小说都使用这个类型 */
+export interface ContestData {
+  error: boolean
+  message: string
+  body: {
+    /** 不知道什么作用，我现在只看到了空数组 */
+    additional_entries: []
+    /** 这一页（50 个）作品的 html 代码，直接添加到页面上 */
+    html: string
+    /** 不清楚何时使用，目前我只看到了 null */
+    muted_tag: null
+    /** 下一页的 API 的 URL。如果当前已经是最后一页，则为 null */
+    next_url: null | string
+    /** 投稿总数量 */
+    total: number
+  }
+}

@@ -49,6 +49,10 @@ class HighlightFollowingUsers {
         }
 
         if (msg.msg === 'updateFollowingData') {
+          if (!store.loggedUserID) {
+            return
+          }
+
           this.getList().then((list) => {
             console.log(lang.transl('_已更新关注用户列表'))
             toast.success(lang.transl('_已更新关注用户列表'), {

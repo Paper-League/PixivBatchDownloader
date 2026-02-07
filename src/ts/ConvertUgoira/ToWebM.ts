@@ -2,6 +2,7 @@ import { EVT } from '../EVT'
 import { UgoiraInfo } from '../crawl/CrawlResult'
 
 declare const Mediabunny: any
+// https://github.com/Vanilagy/mediabunny
 
 class ToWebM {
   public async convert(

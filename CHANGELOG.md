@@ -2,6 +2,46 @@
 
 ## next
 
+### ✨支持了比赛页面
+
+现在下载器支持了比赛页面，你可以下载比赛页面里的作品，并使用一些增强功能，如预览作品。
+
+---------
+
+比赛页面的主页：
+https://www.pixiv.net/contest/
+
+每个比赛有一个或两个页面：有些比赛分为了插画和小说两个页面，有些则只有插画。例如：
+- 插画（已结束）：https://www.pixiv.net/contest/autumnconcert
+- 小说（已结束）：https://www.pixiv.net/novel/contest/autumnconcert
+- 插画（已结束，有奖项）：https://www.pixiv.net/contest/gf2
+
+按照进度可以分为进行中和已结束。
+- 进行中（插画）：https://www.pixiv.net/contest/animatebookcover
+- 进行中（小说）：https://www.pixiv.net/novel/contest/kakizome2026
+- 已结束（插画）：https://www.pixiv.net/contest/autumnconcert
+- 已结束（小说）：https://www.pixiv.net/novel/contest/uroko2025
+
+每个页面里的作品除了应募作品，还可能有获奖作品，所以需要做两个抓取按钮来分别抓取它们。
+
+### 🔧合并系列小说时，分割小说的阈值从 100 MB 提高到 200 MB
+
+### 🚀更换了把动图转换为 WebM 的库，大幅加快转换速度
+
+把库从 Whammy 换成了 [Mediabunny](https://github.com/Vanilagy/mediabunny)，感谢 [hospotho](https://github.com/hospotho)：
+https://github.com/xuejianxianzun/PixivBatchDownloader/pull/569
+
+优点：
+- 转换速度很快，耗时只是 Whammy 的 1/3 或更少
+- 转换时不会冻结页面，用户可以正常操作页面
+- 转换之后，占用的内存释放的很快而且彻底
+
+小问题：
+- 由于我使用了最高质量，所以生成的视频体积通常会增加一些，可能多 1/3 左右。可以接受。
+- 由于 Mediabunny 编码视频时的 color range 是 limited，所以色彩表现可能不是那么完美。尝试设置为 full 但是没有成功。考虑到动图压缩包里的图片都被 pixiv 转换过，所以没必要追求那么还原。
+
+补充说明：投稿动图时，不管用户上传的是 jpg 还是 png 图片，都会被 pixiv 转换，生成新的 jpg 图片。只不过它的压缩等级比较高，有时候转换后的 jpg 图片体积比原图还大。
+
 ### ✨新功能：导出“我的作品”数据到 CSV 文件
 
 “我的作品”数据指的是仪表盘的数据：

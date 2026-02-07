@@ -62,6 +62,8 @@ enum PageName {
   DiscoverUsers,
   /** 数据分析（我的作品） */
   Dashboard,
+  /** 比赛页面 */
+  Contest,
 }
 
 // 获取页面类型
@@ -87,38 +89,37 @@ class PageType {
 
   private getType(): PageName {
     const url = window.location.href
-    const pathname = window.location.pathname
+    const path = window.location.pathname
 
     if (
       window.location.hostname === 'www.pixiv.net' &&
-      ['/', '/en/', '/illustration', '/manga', '/novel'].includes(pathname)
+      ['/', '/en/', '/illustration', '/manga', '/novel'].includes(path)
     ) {
       return PageName.Home
     } else if (
-      (pathname.startsWith('/artworks') ||
-        pathname.startsWith('/en/artworks')) &&
+      (path.startsWith('/artworks') || path.startsWith('/en/artworks')) &&
       /\/artworks\/\d{1,10}/.test(url)
     ) {
       return PageName.Artwork
     } else if (/\/users\/\d+/.test(url) && !url.includes('/bookmarks')) {
       if (
-        pathname.includes('/following') ||
-        pathname.includes('/mypixiv') ||
-        pathname.includes('/followers')
+        path.includes('/following') ||
+        path.includes('/mypixiv') ||
+        path.includes('/followers')
       ) {
         return PageName.Following
       } else {
         return PageName.UserHome
       }
-    } else if (pathname.includes('/bookmarks/')) {
+    } else if (path.includes('/bookmarks/')) {
       return PageName.Bookmark
     } else if (url.includes('/tags/')) {
-      return pathname.endsWith('/novels')
+      return path.endsWith('/novels')
         ? PageName.NovelSearch
         : PageName.ArtworkSearch
-    } else if (pathname === '/ranking_area.php' && location.search !== '') {
+    } else if (path === '/ranking_area.php' && location.search !== '') {
       return PageName.AreaRanking
-    } else if (pathname === '/ranking.php') {
+    } else if (path === '/ranking.php') {
       return PageName.ArtworkRanking
     } else if (
       url.includes('https://www.pixivision.net') &&
@@ -128,7 +129,7 @@ class PageType {
     } else if (
       (url.includes('/bookmark_add.php?id=') ||
         url.includes('/bookmark_detail.php?illust_id=')) &&
-      !pathname.includes('/novel')
+      !path.includes('/novel')
     ) {
       return PageName.BookmarkDetail
     } else if (
@@ -137,39 +138,43 @@ class PageType {
       url.includes('/mypixiv_new_illust.php')
     ) {
       return PageName.NewArtworkBookmark
-    } else if (
-      pathname === '/discovery' ||
-      pathname.startsWith('/novel/discovery')
-    ) {
+    } else if (path === '/discovery' || path.startsWith('/novel/discovery')) {
       return PageName.Discover
-    } else if (pathname === '/discovery/users') {
+    } else if (path === '/discovery/users') {
       return PageName.DiscoverUsers
     } else if (
       url.includes('/new_illust.php') ||
       url.includes('/new_illust_r18.php')
     ) {
       return PageName.NewArtwork
-    } else if (pathname === '/novel/show.php') {
+    } else if (path === '/novel/show.php') {
       return PageName.Novel
-    } else if (pathname.startsWith('/novel/series/')) {
+    } else if (path.startsWith('/novel/series/')) {
       return PageName.NovelSeries
-    } else if (pathname === '/novel/ranking.php') {
+    } else if (path === '/novel/ranking.php') {
       return PageName.NovelRanking
     } else if (
-      pathname.startsWith('/novel/bookmark_new') ||
-      pathname.startsWith('/novel/mypixiv_new.php')
+      path.startsWith('/novel/bookmark_new') ||
+      path.startsWith('/novel/mypixiv_new.php')
     ) {
       return PageName.NewNovelBookmark
-    } else if (pathname.startsWith('/novel/new')) {
+    } else if (path.startsWith('/novel/new')) {
       return PageName.NewNovel
-    } else if (pathname.startsWith('/user/') && pathname.includes('/series/')) {
+    } else if (path.startsWith('/user/') && path.includes('/series/')) {
       return PageName.ArtworkSeries
-    } else if (pathname.startsWith('/request')) {
+    } else if (path.startsWith('/request')) {
       return PageName.Request
-    } else if (pathname.includes('/unlisted')) {
+    } else if (path.includes('/unlisted')) {
       return PageName.Unlisted
-    } else if (pathname.includes('/dashboard')) {
+    } else if (path.includes('/dashboard')) {
       return PageName.Dashboard
+      // 匹配 contest 页面，但排除主页（因为主页是目录列表，无法使用下载器的功能）
+    } else if (
+      (path.startsWith('/contest/') || path.startsWith('/novel/contest/')) &&
+      !path.endsWith('/contest/') &&
+      !path.endsWith('.php')
+    ) {
+      return PageName.Contest
     } else {
       // 没有匹配到可用的页面类型
       return PageName.Unsupported
@@ -294,6 +299,10 @@ class PageType {
       {
         type: PageName.Dashboard,
         url: 'https://www.pixiv.net/dashboard/works',
+      },
+      {
+        type: PageName.Contest,
+        url: 'https://www.pixiv.net/contest/gf2',
       },
     ]
 
