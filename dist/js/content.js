@@ -10121,7 +10121,7 @@ class ShowWhatIsNew {
     constructor() {
         this.bindEvents();
     }
-    flag = '18.2.0';
+    flag = '18.3.0';
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__.EVT.list.settingInitialized, () => {
             // 在 settingInitialized 事件触发后生成消息，如果时间较早，可能会被翻译成错误的语言
@@ -10129,7 +10129,7 @@ class ShowWhatIsNew {
       <span>${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_扩展程序升到x版本', this.flag)}</span>
       <br>
       <br>
-      <span>${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_修复bug')}</span>
+      <span>${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_版本更新说明18_3_0')}</span>
       <br>
       <br>
       <span>${_Language__WEBPACK_IMPORTED_MODULE_0__.lang.transl('_优化用户体验')}</span>
@@ -34311,6 +34311,134 @@ To prevent duplicate filenames, it is recommended to always add {series_id}.`,
         `수상 작품을 찾을 수 없습니다. 대회가 아직 종료되지 않았기 때문일 수 있습니다.`,
         `Не найдено ни одной победившей работы, возможно, потому что конкурс ещё не завершён.`,
     ],
+    _版本更新说明18_3_0: [
+        `<strong>🚀更换了把动图转换为 WebM 的库，大幅提升转换速度</strong>
+<br>
+感谢 <a href="https://github.com/hospotho" target="_blank">hospotho</a>
+<br>
+<br>
+<strong>✨鼠标光标移动到小说缩略图上时，下载器会显示快速下载按钮，点击即可下载这个小说或系列</strong>
+<br>
+<br>
+<strong>✨支持了比赛页面</strong>
+<br>
+<br>
+<strong>✨在“我的作品”页面里，可以导出作品数据到 CSV 文件</strong>
+<br>
+<br>
+<strong>✨在保存作品的元数据时，除了之前的 TXT 格式，还可以选择保存为 JSON 格式</strong>
+<br>
+<br>
+<strong>🐞Pixiv 最近修改了搜索页面，影响了下载器的一些功能，现已修复</strong>
+<br>
+<br>
+<strong>🐞修复了一些其他 BUG</strong>`,
+        `<strong>🚀更換了將動圖轉換為 WebM 的庫，大幅提升轉換速度</strong>
+<br>
+感謝 <a href="https://github.com/hospotho" target="_blank">hospotho</a>
+<br>
+<br>
+<strong>✨滑鼠游標移到小說縮圖上時，下載器會顯示快速下載按鈕，點擊即可下載此小說或系列</strong>
+<br>
+<br>
+<strong>✨支援了比賽頁面</strong>
+<br>
+<br>
+<strong>✨在「我的作品」頁面裡，可以將作品資料匯出為 CSV 檔案</strong>
+<br>
+<br>
+<strong>✨在儲存作品元數據時，除了之前的 TXT 格式，還可以選擇儲存為 JSON 格式</strong>
+<br>
+<br>
+<strong>🐞Pixiv 最近修改了搜尋頁面，影響了下載器的一些功能，現已修復</strong>
+<br>
+<br>
+<strong>🐞修復了一些其他 BUG</strong>`,
+        `<strong>🚀Switched to a new library for converting Ugoira to WebM, significantly improving conversion speed</strong>
+<br>
+Thanks to <a href="https://github.com/hospotho" target="_blank">hospotho</a>
+<br>
+<br>
+<strong>✨When hovering the mouse cursor over a novel thumbnail, the downloader shows a quick download button; click to download the novel or series</strong>
+<br>
+<br>
+<strong>✨Added support for contest pages</strong>
+<br>
+<br>
+<strong>✨On the "My Works" page, you can now export work data to a CSV file</strong>
+<br>
+<br>
+<strong>✨When saving work metadata, in addition to the previous TXT format, you can now choose to save in JSON format</strong>
+<br>
+<br>
+<strong>🐞Pixiv recently changed the search page, which affected some downloader features; this has now been fixed</strong>
+<br>
+<br>
+<strong>🐞Fixed some other bugs</strong>`,
+        `<strong>🚀Ugoira を WebM に変換するライブラリを変更し、変換速度を大幅に向上</strong>
+<br>
+<a href="https://github.com/hospotho" target="_blank">hospotho</a> に感謝
+<br>
+<br>
+<strong>✨小説のサムネイルにマウスカーソルを合わせると、ダウンロードツールがクイックダウンロードボタンを表示し、クリックでその小説またはシリーズをダウンロード可能</strong>
+<br>
+<br>
+<strong>✨コンテストページに対応しました</strong>
+<br>
+<br>
+<strong>✨「私の作品」ページで、作品データを CSV ファイルにエクスポート可能</strong>
+<br>
+<br>
+<strong>✨作品のメタデータを保存する際、従来の TXT 形式に加えて JSON 形式も選択可能</strong>
+<br>
+<br>
+<strong>🐞Pixiv が最近検索ページを変更したためダウンロードツールの一部の機能に影響が出ていましたが、修正済み</strong>
+<br>
+<br>
+<strong>🐞その他のいくつかのバグを修正</strong>`,
+        `<strong>🚀Ugoira를 WebM으로 변환하는 라이브러리를 변경하여 변환 속도를 대폭 향상</strong>
+<br>
+<a href="https://github.com/hospotho" target="_blank">hospotho</a>에게 감사
+<br>
+<br>
+<strong>✨소설 썸네일 위에 마우스 커서를 올리면 다운로더가 빠른 다운로드 버튼을 표시하며, 클릭하면 해당 소설 또는 시리즈를 다운로드할 수 있습니다</strong>
+<br>
+<br>
+<strong>✨콘테스트 페이지 지원 추가</strong>
+<br>
+<br>
+<strong>✨"내 작품" 페이지에서 작품 데이터를 CSV 파일로 내보내기 가능</strong>
+<br>
+<br>
+<strong>✨작품 메타데이터 저장 시 기존 TXT 형식 외에 JSON 형식도 선택 가능</strong>
+<br>
+<br>
+<strong>🐞Pixiv가 최근 검색 페이지를 변경하여 다운로더의 일부 기능에 영향을 주었으나 이제 수정 완료</strong>
+<br>
+<br>
+<strong>🐞기타 여러 버그 수정</strong>`,
+        `<strong>🚀Заменили библиотеку для конвертации Ugoira в WebM, значительно увеличив скорость конвертации</strong>
+<br>
+Спасибо <a href="https://github.com/hospotho" target="_blank">hospotho</a>
+<br>
+<br>
+<strong>✨При наведении курсора мыши на миниатюру романа загрузчик показывает кнопку быстрой загрузки; клик — и роман или серия скачивается</strong>
+<br>
+<br>
+<strong>✨Добавлена поддержка страниц конкурсов</strong>
+<br>
+<br>
+<strong>✨На странице «Мои работы» теперь можно экспортировать данные работ в CSV-файл</strong>
+<br>
+<br>
+<strong>✨При сохранении метаданных работы, помимо прежнего TXT-формата, теперь можно выбрать сохранение в формате JSON</strong>
+<br>
+<br>
+<strong>🐞Pixiv недавно изменил страницу поиска, что повлияло на некоторые функции загрузчика; теперь исправлено</strong>
+<br>
+<br>
+<strong>🐞Исправлены некоторые другие баги</strong>`,
+    ],
 };
 
 // prompt
@@ -41204,6 +41332,8 @@ class Wiki {
             'clearUgoiraWork',
             'manuallyDeleteWork',
             'exportDashboardData',
+            'crawlApplicationWork',
+            'crawlWinningWork',
         ],
         'Buttons-Download': [
             'importCrawlResults',

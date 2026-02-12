@@ -161,6 +161,8 @@ class Wiki {
       'clearUgoiraWork',
       'manuallyDeleteWork',
       'exportDashboardData',
+      'crawlApplicationWork',
+      'crawlWinningWork',
     ],
     'Buttons-Download': [
       'importCrawlResults',
