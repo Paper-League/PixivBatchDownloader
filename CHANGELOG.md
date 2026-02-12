@@ -46,6 +46,8 @@ https://www.pixiv.net/search/users?s_mode=s_usr&nick=%E5%8E%9F%E7%A5%9E&i=1&comm
 
 现在下载器支持了比赛页面，你可以下载比赛页面里的作品，并使用一些增强功能，如预览作品。
 
+每个页面里的作品除了应募作品，还可能有获奖作品，所以我添加了两个按钮来分别抓取它们。
+
 PS：我没有为比赛页面添加“显示更大的缩略图”功能，因为我感觉必要性不大，所以懒得做了。原因有：
 - 底部的应募作品本身的显示尺寸就比较大（比在作者主页里的默认尺寸大）
 - 图片是作为背景图片显示的，但“显示更大的缩略图”以前处理的都是 img 标签
@@ -65,8 +67,6 @@ https://www.pixiv.net/contest/
 - 进行中（小说）：https://www.pixiv.net/novel/contest/kakizome2026
 - 已结束（插画）：https://www.pixiv.net/contest/autumnconcert
 - 已结束（小说）：https://www.pixiv.net/novel/contest/uroko2025
-
-每个页面里的作品除了应募作品，还可能有获奖作品，所以需要做两个抓取按钮来分别抓取它们。
 
 ### 🚀更换了把动图转换为 WebM 的库，大幅加快转换速度
 
@@ -98,7 +98,7 @@ https://www.pixiv.net/dashboard/works
 
 之前下载器在保存作品的元数据时，只会保存为 TXT 格式，现在我添加了 JSON 格式的选择（默认未选中）。
 
-JSON 格式的内容是下载器的内部数据（抓取结果），包含了更多信息。
+JSON 格式的内容是下载器的内部数据（该作品的抓取结果），包含了更多信息。
 
 ### ✨新功能：过滤搜索页面的作品
 
