@@ -184,7 +184,7 @@ class Utils {
     return window.location.host.endsWith('.pixiv.net')
   }
 
-  // 从 url 中获取指定的查询字段的值
+  /** 从 url 中获取指定的查询字段的值 */
   // 注意：返回值经过 encodeURIComponent 编码！
   static getURLSearchField(url: string, query: string) {
     const result = new URL(url).searchParams.get(query)
@@ -304,7 +304,7 @@ class Utils {
     })
   }
 
-  /**JSON 转换成 Blob 对象。如果数据量可能比较大，则不应该使用这个方法 */
+  /**JSON 转换成 Blob 对象，附带格式化。如果数据量可能比较大，则不应该使用这个方法 */
   static json2Blob(data: any) {
     const str = JSON.stringify(data, null, 2)
     const blob = new Blob([str], { type: 'application/json' })
@@ -545,6 +545,25 @@ class Utils {
   /** 检测字符串是否全部为 ASCII 字符 */
   static isAscii(str: string) {
     return /^[\x00-\x7F]*$/.test(str)
+  }
+
+  /** 为数字字符串添加千位分隔符 */
+  static formatNumber(number: number | string): string {
+    if (typeof number !== 'string') {
+      number = number.toString()
+    }
+
+    const length = number.length
+    let array = []
+    // 倒序处理字符串，从末尾到开头逐字添加到数组里，并每隔 3 位添加一个逗号
+    // 如果第一个数字正好是一个千位，则不添加逗号，否则会导致最前面多出一个不该出现的逗号
+    for (let i = 1; i <= length; i++) {
+      array.push(number[length - i])
+      if (i % 3 === 0 && i !== length) {
+        array.push(',')
+      }
+    }
+    return array.reverse().join('')
   }
 }
 

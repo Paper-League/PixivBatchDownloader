@@ -10,6 +10,7 @@ class Store {
     this.bindEvents()
   }
 
+  /** 在某些页面类型里，可能没有获取到用户 ID，所以有可能是空字符串 */
   public loggedUserID = ''
 
   public idList: IDData[] = [] // 储存从列表中抓取到的作品的 id
@@ -70,7 +71,7 @@ class Store {
     }
   }
 
-  private readonly fileDataDefault: Result = {
+  private readonly resultDefault: Result = {
     aiType: 0,
     idNum: 0,
     id: '',
@@ -122,9 +123,7 @@ class Store {
     }
 
     // 添加该作品的元数据
-    const workData = Object.assign({}, this.fileDataDefault, data)
-    // 注意：由于 Object.assign 不是深拷贝，所以不可以修改 result 的引用类型数据，否则会影响到源对象
-    // 可以修改基础类型的数据
+    const workData = Object.assign({}, this.resultDefault, data)
 
     if (workData.type === 0 || workData.type === 1) {
       workData.id = workData.idNum + `_p0`

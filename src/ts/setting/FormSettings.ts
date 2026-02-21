@@ -88,6 +88,8 @@ class FormSettings {
       'saveMetaType1',
       'saveMetaType2',
       'saveMetaType3',
+      'saveMetaFormatTXT',
+      'saveMetaFormatJSON',
       'setNameRuleForEachPageType',
       'showAdvancedSettings',
       'showNotificationAfterDownloadComplete',
@@ -138,6 +140,7 @@ class FormSettings {
       'rememberTheLastSaveLocation',
       'autoMergeNovel',
       'skipNovelsInSeriesWhenAutoMerge',
+      'filterSearchResults',
     ],
     text: [
       'firstFewImages',

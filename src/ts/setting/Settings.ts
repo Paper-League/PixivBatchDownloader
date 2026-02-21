@@ -87,6 +87,8 @@ type CrawlNumberConfig = {
   tip: string
 }
 
+type PageEntry = [PageName, any]
+
 // 注意：设置里不能使用 Map，因为把设置保存在 chrome.storage 里时会序列化
 // 如果使用 Map，会被转换为 `Object {}`，导致错误
 interface XzSetting {
@@ -207,6 +209,8 @@ interface XzSetting {
   saveMetaType1: boolean
   saveMetaType2: boolean
   saveMetaType3: boolean
+  saveMetaFormatTXT: boolean
+  saveMetaFormatJSON: boolean
   /** 为每个页面类型设置不同的命名规则的开关 */
   setNameRuleForEachPageType: boolean
   /** 每个页面类型所使用的命名规则 */
@@ -311,6 +315,7 @@ interface XzSetting {
   /** 自动合并系列小说时，如果一篇小说属于某个系列，则不下载它（因为合并后的小说里会包含这篇小说，所以没必要重复下载） */
   skipNovelsInSeriesWhenAutoMerge: boolean
   seriesNovelNameRule: string
+  filterSearchResults: boolean
 }
 
 type SettingKeys = keyof XzSetting
@@ -522,7 +527,31 @@ class Settings {
         min: 0,
         max: 0,
         value: 0,
-        tip: '23',
+        tip: '',
+      },
+      [PageName.Dashboard]: {
+        work: false,
+        page: false,
+        min: 0,
+        max: 0,
+        value: 0,
+        tip: '',
+      },
+      [PageName.Contest]: {
+        work: false,
+        page: true,
+        min: 1,
+        max: -1,
+        value: -1,
+        tip: '_负1或者大于0',
+      },
+      [PageName.SearchUsers]: {
+        work: false,
+        page: false,
+        min: 0,
+        max: 0,
+        value: 0,
+        tip: '',
       },
     },
     firstFewImagesSwitch: false,
@@ -548,8 +577,8 @@ class Settings {
     notNeedTag: [],
     autoStartDownload: true,
     downloadThread: 3,
-    userSetName: 'pixiv/{user}-{user_id}/{id}-{title}',
-    namingRuleList: [],
+    userSetName: Config.defaultNameRule,
+    namingRuleList: [Config.defaultNameRule],
     workDir: false,
     workDirFileNumber: 1,
     workDirNameRule: '{id_num}',
@@ -635,37 +664,42 @@ class Settings {
     saveMetaType1: false,
     saveMetaType2: false,
     saveMetaType3: false,
+    saveMetaFormatTXT: true,
+    saveMetaFormatJSON: false,
     setNameRuleForEachPageType: false,
     nameRuleForEachPageType: {
-      [PageName.Unsupported]: 'pixiv/{user}-{user_id}/{id}-{title}',
-      [PageName.Home]: 'pixiv/{user}-{user_id}/{id}-{title}',
-      [PageName.Artwork]: 'pixiv/{user}-{user_id}/{id}-{title}',
-      [PageName.UserHome]: 'pixiv/{user}-{user_id}/{id}-{title}',
+      [PageName.Unsupported]: Config.defaultNameRule,
+      [PageName.Home]: Config.defaultNameRule,
+      [PageName.Artwork]: Config.defaultNameRule,
+      [PageName.UserHome]: Config.defaultNameRule,
       [PageName.BookmarkLegacy]:
         'pixiv/{page_tag}/{user}-{user_id}/{id}-{title}',
       [PageName.Bookmark]: 'pixiv/{page_tag}/{user}-{user_id}/{id}-{title}',
       [PageName.ArtworkSearch]:
         'pixiv/{page_tag}/{user}-{user_id}/{id}-{title}',
-      [PageName.AreaRanking]: 'pixiv/{user}-{user_id}/{id}-{title}',
+      [PageName.AreaRanking]: Config.defaultNameRule,
       [PageName.ArtworkRanking]: 'pixiv/{page_title}/{rank}-{id}-{title}',
       [PageName.Pixivision]: 'pixivision/{page_title}/{id}',
-      [PageName.BookmarkDetail]: 'pixiv/{user}-{user_id}/{id}-{title}',
-      [PageName.NewArtworkBookmark]: 'pixiv/{user}-{user_id}/{id}-{title}',
-      [PageName.Discover]: 'pixiv/{user}-{user_id}/{id}-{title}',
-      [PageName.NewArtwork]: 'pixiv/{user}-{user_id}/{id}-{title}',
-      [PageName.Novel]: 'pixiv/{user}-{user_id}/{id}-{title}',
+      [PageName.BookmarkDetail]: Config.defaultNameRule,
+      [PageName.NewArtworkBookmark]: Config.defaultNameRule,
+      [PageName.Discover]: Config.defaultNameRule,
+      [PageName.NewArtwork]: Config.defaultNameRule,
+      [PageName.Novel]: Config.defaultNameRule,
       [PageName.NovelSeries]:
         'pixiv/{user}-{user_id}/{series_title}/{series_order}-{title}-{id}',
       [PageName.NovelSearch]: 'pixiv/{page_tag}/{user}-{user_id}/{id}-{title}',
       [PageName.NovelRanking]: 'pixiv/{page_title}/{rank}-{id}-{title}',
-      [PageName.NewNovelBookmark]: 'pixiv/{user}-{user_id}/{id}-{title}',
-      [PageName.NewNovel]: 'pixiv/{user}-{user_id}/{id}-{title}',
+      [PageName.NewNovelBookmark]: Config.defaultNameRule,
+      [PageName.NewNovel]: Config.defaultNameRule,
       [PageName.ArtworkSeries]:
         'pixiv/{user}-{user_id}/{series_title}/{series_order}-{title}-{id}',
-      [PageName.Following]: 'pixiv/{user}-{user_id}/{id}-{title}',
-      [PageName.Request]: 'pixiv/{user}-{user_id}/{id}-{title}',
-      [PageName.Unlisted]: 'pixiv/{user}-{user_id}/{id}-{title}',
-      [PageName.DiscoverUsers]: 'pixiv/{user}-{user_id}/{id}-{title}',
+      [PageName.Following]: Config.defaultNameRule,
+      [PageName.Request]: Config.defaultNameRule,
+      [PageName.Unlisted]: Config.defaultNameRule,
+      [PageName.DiscoverUsers]: Config.defaultNameRule,
+      [PageName.Dashboard]: Config.defaultNameRule,
+      [PageName.Contest]: 'pixiv/{page_title}/{user}-{user_id}/{id}-{title}',
+      [PageName.SearchUsers]: Config.defaultNameRule,
     },
     showAdvancedSettings: false,
     showNotificationAfterDownloadComplete: false,
@@ -754,6 +788,7 @@ class Settings {
     skipNovelsInSeriesWhenAutoMerge: true,
     seriesNovelNameRule:
       'novel series/{page_tag}/{series_title}-{series_id}-{user}-{part}-{tags}.{ext}',
+    filterSearchResults: false,
   }
 
   private allSettingKeys = Object.keys(this.defaultSettings)
@@ -850,6 +885,19 @@ class Settings {
           restoreData = JSON.parse(savedSettings)
         }
       }
+
+      // 当一些 key 为 PageName 的配置里增加了新配置时，由于已保存的设置里没有对应（新的页面类型）的配置，所以需要把新的配置添加到已保存的设置里
+      const keys = ['crawlNumber', 'nameRuleForEachPageType'] as const
+      for (const key of keys) {
+        for (const [pageTypeNo, cfg] of Object.entries(
+          this.defaultSettings[key]
+        ) as unknown as PageEntry[]) {
+          if (restoreData[key][pageTypeNo] === undefined) {
+            restoreData[key][pageTypeNo] = cfg
+          }
+        }
+      }
+
       this.assignSettings(restoreData)
       EVT.fire('settingInitialized')
     })
@@ -1046,10 +1094,15 @@ class Settings {
       value = (value as string).replace('{id}', '{id_num}')
     }
 
+    // namingRuleList 之前默认是空数组，后来默认包含了默认的命名规则，所以这里做个兼容处理
+    if (key === 'namingRuleList' && (value as string[]).length === 0) {
+      value = [Config.defaultNameRule]
+    }
+
     // 更改设置
     ;(this.settings[key] as any) = value
 
-    // 当修改某些设置时，顺便修改以来它的设置
+    // 当修改某些设置时，顺便修改依赖它的设置
     if (key === 'widthTag') {
       this.settings.widthTagBoolean = value === 'yes'
     }

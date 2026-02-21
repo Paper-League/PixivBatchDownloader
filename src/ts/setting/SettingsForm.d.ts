@@ -96,6 +96,8 @@ export interface SettingsForm extends HTMLFormElement {
   saveMetaType1: HTMLInputElement
   saveMetaType2: HTMLInputElement
   saveMetaType3: HTMLInputElement
+  saveMetaFormatTXT: HTMLInputElement
+  saveMetaFormatJSON: HTMLInputElement
   setNameRuleForEachPageType: HTMLInputElement
   showAdvancedSettings: HTMLInputElement
   showNotificationAfterDownloadComplete: HTMLInputElement
@@ -165,4 +167,5 @@ export interface SettingsForm extends HTMLFormElement {
   autoMergeNovel: HTMLInputElement
   skipNovelsInSeriesWhenAutoMerge: HTMLInputElement
   seriesNovelNameRule: HTMLInputElement
+  filterSearchResults: HTMLInputElement
 }

@@ -15,6 +15,7 @@ import { crawlLatestFewWorks } from '../crawl/CrawlLatestFewWorks'
 import { exportFollowingList } from '../pageFunciton/ExportFollowingList'
 import { batchFollowUser } from '../pageFunciton/BatchFollowUser'
 import { filterInactiveUsers } from '../pageFunciton/FilterInactiveUsers'
+import { IDData } from '../store/StoreType'
 
 // 页面子类型：我的关注 | 我的好 P 友 | 我的粉丝
 type PageType = 'following' | 'mypixiv' | 'followers'
@@ -92,15 +93,16 @@ class InitFollowingPage extends InitPageBase {
       batchFollowUser.start()
     })
 
-    Tools.addBtn(
-      'crawlBtns',
-      Colors.bgWarning,
-      '_筛选不活跃的用户',
-      '',
-      'filterInactiveUsers'
-    ).addEventListener('click', async () => {
-      filterInactiveUsers.start()
-    })
+    // 在公开版本里隐藏此功能
+    // Tools.addBtn(
+    //   'crawlBtns',
+    //   Colors.bgWarning,
+    //   '_筛选不活跃的用户',
+    //   '',
+    //   'filterInactiveUsers'
+    // ).addEventListener('click', async () => {
+    //   filterInactiveUsers.start()
+    // })
   }
 
   protected getWantPage() {
@@ -229,10 +231,14 @@ class InitFollowingPage extends InitPageBase {
       return this.getIdListFinished()
     }
 
-    let idList = []
+    let idList: IDData[] = []
     try {
-      idList = await API.getUserWorksByType(this.userList[this.index])
-      idList = crawlLatestFewWorks.filter(idList)
+      const userId = this.userList[this.index]
+      const checkUser = await this.checkUserId(userId)
+      if (checkUser) {
+        idList = await API.getUserWorksByType(userId)
+        idList = crawlLatestFewWorks.filter(idList)
+      }
     } catch {
       this.getIdList()
       return

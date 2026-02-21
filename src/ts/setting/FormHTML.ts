@@ -1,7 +1,7 @@
 import { Config } from '../Config'
 import { wiki } from './Wiki'
 
-// 设置项编号从 0 开始，现在最大是 91
+// 设置项编号从 0 开始，现在最大是 92
 export const formHtml = `
 <form class="settingForm">
   <div class="tabsContnet">
@@ -320,7 +320,7 @@ export const formHtml = `
   <div class="tabsContnet">
     <p class="option" data-no="13">
       <a href="${wiki.link(13)}" target="_blank" class="settingNameStyle" data-xztext="_命名规则"></a>
-      <input type="text" name="userSetName" class="setinput_style1 blue fileNameRule" value="pixiv/{user}-{user_id}/{id}-{title}">
+      <input type="text" name="userSetName" class="setinput_style1 blue fileNameRule" value="${Config.defaultNameRule}">
       &nbsp;
       <select name="fileNameSelect" class="beautify_scrollbar">
         <option value="default">…</option>
@@ -433,7 +433,7 @@ export const formHtml = `
       <span class="blue name">{task_date}</span>
       <span data-xztext="_命名标记taskDate"></span>
       <br>
-      <span class="blue name">{px}</span>
+      * <span class="blue name">{px}</span>
       <span data-xztext="_命名标记px"></span>
       <br>
       * <span class="blue name">{series_title}</span>
@@ -603,7 +603,7 @@ export const formHtml = `
         <span data-xztext="_抓取结果"></span>
         <span>&gt;</span>
         <input type="text" name="autoExportResultNumber" class="setinput_style1 blue" value="1" style="width:30px;min-width: 30px;">
-        <span>&nbsp;</span>
+        <span class="verticalSplit"></span>
         <span class="settingNameStyle" data-xztext="_文件格式"> </span>
         <input type="checkbox" name="autoExportResultCSV" id="autoExportResultCSV" class="need_beautify checkbox_common" checked>
         <span class="beautify_checkbox" tabindex="0"></span>
@@ -944,6 +944,14 @@ export const formHtml = `
       <input type="checkbox" name="saveMetaType3" id="setSaveMetaType3" class="need_beautify checkbox_common">
       <span class="beautify_checkbox" tabindex="0"></span>
       <label for="setSaveMetaType3" data-xztext="_小说"></label>
+      <span class="verticalSplit"></span>
+      <span class="settingNameStyle" data-xztext="_文件格式"> </span>
+      <input type="checkbox" name="saveMetaFormatTXT" id="saveMetaFormatTXT" class="need_beautify checkbox_common" checked>
+      <span class="beautify_checkbox" tabindex="0"></span>
+      <label for="saveMetaFormatTXT"> TXT </label>
+      <input type="checkbox" name="saveMetaFormatJSON" id="saveMetaFormatJSON" class="need_beautify checkbox_common" checked>
+      <span class="beautify_checkbox" tabindex="0"></span>
+      <label for="saveMetaFormatJSON"> JSON </label>
     </p>
     <p class="option" data-no="89">
       <a href="${wiki.link(89)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_保存作品简介的说明">
@@ -971,15 +979,15 @@ export const formHtml = `
       <input type="radio" name="imageSize" id="imageSize2" class="need_beautify radio" value="regular">
       <span class="beautify_radio" tabindex="0"></span>
       <label for="imageSize2" data-xztext="_普通"></label>
-      <span class="gray1">(1200px)</span>
+      <label for="imageSize2" class="gray1">(1200px)</label>
       <input type="radio" name="imageSize" id="imageSize3" class="need_beautify radio" value="small">
       <span class="beautify_radio" tabindex="0"></span>
       <label for="imageSize3" data-xztext="_小图"></label>
-      <span class="gray1">(540px)</span>
+      <label for="imageSize3" class="gray1">(540px)</label>
       <input type="radio" name="imageSize" id="imageSize4" class="need_beautify radio" value="thumb">
       <span class="beautify_radio" tabindex="0"></span>
       <label for="imageSize4" data-xztext="_方形缩略图"></label>
-      <span class="gray1">(250px)</span>
+      <label for="imageSize4" class="gray1">(250px)</label>
     </p>
     <p class="option" data-no="25">
       <a href="${wiki.link(25)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_文件体积限制的说明">
@@ -1227,6 +1235,14 @@ export const formHtml = `
       <input type="checkbox" name="showFastSearchArea" class="need_beautify checkbox_switch" checked>
       <span class="beautify_switch" tabindex="0"></span>
     </p>
+    <p class="option" data-no="92">
+      <a href="${wiki.link(92)}" target="_blank" class="settingNameStyle">
+        <span data-xztext="_过滤搜索页面的作品"></span>
+      </a>
+      <input type="checkbox" name="filterSearchResults" class="need_beautify checkbox_switch">
+      <span class="beautify_switch" tabindex="0"></span>
+      <button type="button" class="gray1 textButton" id="showFilterSearchResultsTip" data-xztext="_帮助"></button>
+    </p>
     <p class="option" data-no="88">
       <a href="${wiki.link(88)}" target="_blank" class="has_tip settingNameStyle" data-xztip="_在搜索页面里移除已关注用户的作品的说明">
         <span data-xztext="_在搜索页面里移除已关注用户的作品"></span>
@@ -1241,6 +1257,7 @@ export const formHtml = `
         <span class="gray1"> ? </span>
       </a>
       <input type="checkbox" name="previewResult" class="need_beautify checkbox_switch" checked>
+      <span class="beautify_switch" tabindex="0"></span>
       <span class="subOptionWrap" data-show="previewResult">
         <span class="settingNameStyle" data-xztext="_上限"></span>
         <input type="text" name="previewResultLimit" class="setinput_style1 blue" value="1000" style="width:80px;min-width: 80px;">

@@ -602,6 +602,14 @@ And so on.
     '이 페이지부터 {} 페이지 다운로드',
     'Начать загрузку с страниц этой {} страницы',
   ],
+  _下载x页_每页最多含有50个作品: [
+    `下载 {} 页（每页最多含有 50 个作品）`,
+    `下載 {} 頁（每頁最多含有 50 個作品）`,
+    `Download {} pages (up to 50 works per page)`,
+    `{} ページをダウンロード（1ページあたり最大50作品）`,
+    `{} 페이지 다운로드 (페이지당 최대 50개 작품)`,
+    `Скачать {} страниц (максимум 50 работ на страницу)`,
+  ],
   _从本页开始下载x个: [
     '从本页开始下载 {} 个作品',
     '從本頁開始下載 {} 個作品',
@@ -652,7 +660,7 @@ And so on.
     '일러스트',
     'Иллюстрации',
   ],
-  _漫画: ['漫画', '漫畫', 'Manga', '漫画', '만화', 'Манга'],
+  _漫画: ['漫画', '漫畫', 'Manga', 'マンガ', '만화', 'Манга'],
   _动图: [
     '动图',
     '動圖',
@@ -661,7 +669,7 @@ And so on.
     '움직이는 일러스트',
     'Ugoira(гиф)',
   ],
-  _小说: ['小说', '小說', 'Novel', '小説', '소설', 'Новеллы'],
+  _小说: ['小说', '小說', 'Novels', '小説', '소설', 'Новеллы'],
   _动图保存格式: [
     '<span class="key">动图</span>保存格式',
     '<span class="key">動圖</span>儲存格式',
@@ -869,6 +877,14 @@ Zip 파일이 원본 파일입니다.`,
     '現在の作業はまだ完了していません、完了するまでお待ちください',
     '현재 작업이 아직 완료되지 않았습니다, 완료될 때까지 기다려주세요.',
     'Текущее задание еще не выполнено',
+  ],
+  _下载器正忙忽略本次操作: [
+    `下载器正忙，忽略本次操作`,
+    `下載器正忙，忽略本次操作`,
+    `Downloader is busy, ignoring this operation`,
+    `ダウンロードツールがビジー状態です。この操作を無視します`,
+    `다운로더가 바빠서 이번 작업을 무시합니다`,
+    `Загрузчик занят, текущая операция игнорируется`,
   ],
   _列表抓取完成开始获取作品页: [
     '当前列表中有{}张作品，开始获取作品信息',
@@ -1202,12 +1218,12 @@ Zip 파일이 원본 파일입니다.`,
     'ID Юзера (Число)',
   ],
   _命名标记px: [
-    '宽度和高度。例如：<span class="blue">600x900</span>',
-    '寬度和高度。例如：<span class="blue">600x900</span>',
-    'Width and height, e.g. <span class="blue">600x900</span>',
-    '幅と高さ。例：<span class="blue">600x900</span>',
-    '너비와 높이. 예: <span class="blue">600x900</span>',
-    'Ширина и высота, напр. <span class="blue">600x900</span>',
+    '宽度和高度。例如：<span class="blue">600x900</span>。小说作品没有这个属性，下载器会忽略它。',
+    '寬度和高度。例如：<span class="blue">600x900</span>。小說作品沒有這個屬性，下載器會忽略它。',
+    'Width and height, e.g. <span class="blue">600x900</span>. Novel works do not have this property, and the downloader will ignore it.',
+    '幅と高さ。例：<span class="blue">600x900</span>。小説作品にはこの属性がなく、ダウンロードツールはそれを無視します。',
+    '너비와 높이. 예: <span class="blue">600x900</span>. 소설 작품에는 이 속성이 없으며, 다운로더는 이를 무시합니다.',
+    'Ширина и высота, напр. <span class="blue">600x900</span>. У романов нет этого свойства, и загрузчик игнорирует его.',
   ],
   _命名标记bmk: [
     'Bookmark count，作品的收藏数。把它放在最前面可以让文件按收藏数排序。',
@@ -1279,7 +1295,7 @@ Zip 파일이 원본 파일입니다.`,
     `The sequence number of the image within the work, for example <span class="blue">0</span>, <span class="blue">1</span>, <span class="blue">2</span> ... Each work will recount. Novel works do not have this property, and the downloader will ignore it.`,
     `作品内の画像のシーケンス番号、例：<span class="blue">0</span>、<span class="blue">1</span>、<span class="blue">2</span> …… 各作品で再カウントされます。小説作品にはこの属性がなく、ダウンロードツールはそれを無視します。`,
     `작품 내 이미지의 순서 번호, 예: <span class="blue">0</span>、<span class="blue">1</span>、<span class="blue">2</span> …… 각 작품마다 다시 카운트됩니다. 소설 작품에는 이 속성이 없으며, 다운로더는 이를 무시합니다.`,
-    `Серийный номер изображения в работе, например <span class="blue">0</span>, <span class="blue">1</span>, <span class="blue">2</span> ... Каждая работа пересчитывается. У романов нет этого свойства, и загрузчик игнорирует его。`,
+    `Серийный номер изображения в работе, например <span class="blue">0</span>, <span class="blue">1</span>, <span class="blue">2</span> ... Каждая работа пересчитывается. У романов нет этого свойства, и загрузчик игнорирует его.`,
   ],
   _命名标记tags_trans: [
     '作品的标签列表，附带翻译后的标签（如果有）',
@@ -2269,6 +2285,14 @@ So the file name set by the Downloader is lost, and the file name becomes the la
     '使用可能なデータはない',
     '사용 가능한 데이터가 없습니다',
     'Нет данных',
+  ],
+  _没有找到可下载的作品: [
+    `没有找到可下载的作品`,
+    `沒有找到可下載的作品`,
+    `No works available for download were found`,
+    `ダウンロード可能な作品が見つかりませんでした`,
+    `다운로드 가능한 작품을 찾을 수 없습니다`,
+    `Не найдено работ, доступных для скачивания`,
   ],
   _预览搜索结果: [
     '<span class="key">预览</span>搜索页面的筛选结果',
@@ -3263,7 +3287,7 @@ This setting is also used when you use the Downloader to bookmark works in batch
     `Работы этих пользователей не будут загружаться. Необходимо ввести идентификатор пользователя.<br>
     Если имеется несколько идентификаторов пользователя, используйте разделение запятыми (,).`,
   ],
-  _全部: ['全部', '全部', 'All', '全部', '전부', 'Все'],
+  _全部: ['全部', '全部', 'All', 'すべて', '전부', 'Все'],
   _任一: ['任一', '任一', 'One', '何れか', '하나만', 'Один'],
   _颜色主题: [
     '颜色<span class="key">主题</span>',
@@ -4002,12 +4026,30 @@ Novel folder name: Novel`,
     'Сохранить <span class="key">метаданные</span> работы',
   ],
   _保存作品的元数据说明: [
-    '为每个作品生成一个 TXT 文件，保存它的元数据。',
-    '為每個作品生成一個 TXT 檔案，儲存它的元資料。',
-    'Generates a TXT file for each work, storing its metadata.',
-    '各作品のメタデータを保存する TXT ファイルを生成し、',
-    '각 작품에 대한 TXT 파일을 생성하여 해당 메타데이터를 저장합니다.',
-    'Создает TXT-файл для каждой работы, сохраняя ее метаданные.',
+    `下载器可以为每个作品生成一个同名文件（但扩展名不同），保存它的元数据。<br>
+你可以选择为哪些类型的作品生成元数据文件，并且可以选择 TXT 格式或（和）JSON 格式。<br>
+TXT 格式易于阅读，但只包含比较常用的数据。<br>
+JSON 格式是下载器的内部数据，保存了更多的数据。`,
+    `下載器可以為每個作品生成一個同名檔案（但副檔名不同），儲存它的元數據。<br>
+你可以選擇為哪些類型的作品生成元數據檔案，並且可以選擇 TXT 格式或（和）JSON 格式。<br>
+TXT 格式易於閱讀，但只包含比較常用的資料。<br>
+JSON 格式是下載器的內部資料，儲存了更多的資料。`,
+    `The downloader can generate a file with the same name (but different extension) for each work to save its metadata.<br>
+You can choose which types of works to generate metadata files for, and you can choose TXT format or (and) JSON format.<br>
+TXT format is easy to read but only contains relatively common data.<br>
+JSON format is the downloader's internal data and saves more information.`,
+    `ダウンロードツールは、各作品に対して同名のファイル（拡張子は異なる）を生成し、そのメタデータを保存できます。<br>
+どのタイプの作品に対してメタデータファイルを生成するかを選択でき、TXT形式または（および）JSON形式を選択できます。<br>
+TXT形式は読みやすいですが、比較的よく使われるデータのみを含みます。<br>
+JSON形式はダウンロードツールの内部データで、より多くの情報を保存します。`,
+    `다운로더는 각 작품에 대해 동일한 이름의 파일(확장자만 다름)을 생성하여 메타데이터를 저장할 수 있습니다.<br>
+어떤 유형의 작품에 대해 메타데이터 파일을 생성할지 선택할 수 있으며, TXT 형식 또는 (및) JSON 형식을 선택할 수 있습니다.<br>
+TXT 형식은 읽기 쉽지만 비교적 일반적인 데이터만 포함합니다.<br>
+JSON 형식은 다운로더의 내부 데이터로, 더 많은 정보를 저장합니다.`,
+    `Загрузчик может создать для каждого произведения файл с тем же именем (но с другим расширением) для сохранения его метаданных.<br>
+Вы можете выбрать, для каких типов произведений генерировать файлы метаданных, а также выбрать формат TXT или (и) JSON.<br>
+Формат TXT удобен для чтения, но содержит только наиболее часто используемые данные.<br>
+Формат JSON — это внутренние данные загрузчика, сохраняющие гораздо больше информации.`,
   ],
   _在不同的页面类型中使用不同的命名规则: [
     '在不同的页面类型中使用<span class="key">不同</span>的命名规则',
@@ -4627,12 +4669,18 @@ Novel folder name: Novel`,
     'Загрузчик временно пропустит его и попробует скачать снова после завершения загрузки других файлов.',
   ],
   _作品总数为0: [
-    '作品总数为 0，Pixiv 可能拒绝了此次抓取。请稍后重试。',
-    '作品總數為 0，Pixiv 可能拒絕了此次抓取。請稍後重試。',
-    'The total number of works is 0, Pixiv may have refused this crawl. Please try again later.',
-    '作品の総数は 0 です。 Pixivがこのクロールを拒否した可能性があります。 後でもう一度やり直してください。',
-    '총 작품 수가 0개입니다, Pixiv가 이번 긁어오기를 거부한 것으로 보입니다. 잠시 후에 다시 시도해주세요.',
-    'Общее количество работ равно 0, возможно, Pixiv блокирует сканирование. Пожалуйста, повторите попытку позже.',
+    `作品总数为 0。请检查页面上显示的作品总数是否为 0。<br>
+如果页面上显示的作品数量大于 0，可能是 Pixiv 拒绝了此次抓取，你可以等待几分钟后重试。`,
+    `作品總數為 0。請檢查頁面上顯示的作品總數是否為 0。<br>
+如果頁面上顯示的作品數量大於 0，可能是 Pixiv 拒絕了此次抓取，你可以等待幾分鐘後重試。`,
+    `Total number of works is 0. Please check if the total number of works displayed on the page is 0.<br>
+If the number of works shown on the page is greater than 0, it may be that Pixiv rejected this crawl attempt. You can wait a few minutes and try again.`,
+    `作品総数が 0 です。ページに表示されている作品総数が 0 かどうか確認してください。<br>
+ページに表示されている作品数が 0 より大きい場合、Pixiv が今回のクロールを拒否した可能性があります。数分待ってから再試行してください。`,
+    `작품 총 수가 0입니다. 페이지에 표시된 작품 총 수가 0인지 확인해 주세요.<br>
+페이지에 표시된 작품 수가 0보다 크다면 Pixiv가 이번 크롤링을 거부한 것일 수 있습니다. 몇 분 후에 다시 시도해 보세요.`,
+    `Общее количество работ равно 0. Пожалуйста, проверьте, действительно ли на странице отображается общее количество работ равное 0.<br>
+Если на странице показано больше 0 работ, возможно, Pixiv отклонил эту попытку краулинга. Подождите несколько минут и попробуйте снова.`,
   ],
   _优化预览作品功能: [
     '优化“预览作品”功能',
@@ -7432,207 +7480,310 @@ To prevent duplicate filenames, it is recommended to always add {series_id}.`,
     `현재 페이지의 제목`,
     `Заголовок текущей страницы`,
   ],
-  _QQ修复了粘贴问题的提醒: [
-    `📋 对使用下载器的“复制功能”的用户的提醒：<br> QQ 之前的版本存在 Bug，无法粘贴下载器复制的图文混合内容（text/html）。最近（11月5日）QQ 的新版本修复了此问题，请及时更新。`,
-    `📋 對使用下載器的「複製功能」的用戶的提醒：<br> QQ 之前的版本存在 Bug，無法貼上下載器複製的圖文混合內容（text/html）。最近（11月5日）QQ 的新版本修復了此問題，請及時更新。`,
-    `📋 Reminder for users using the downloader's "copy function":<br> Previous versions of QQ had a bug that prevented pasting the mixed image-text content (text/html) copied by the downloader. The latest version of QQ (November 5th) has fixed this issue, please update promptly.`,
-    `📋 ダウンロードツールの「コピー機能」を使用するユーザーへのリマインダー：<br> QQ の以前のバージョンにはバグがあり、ダウンロードツールでコピーした画像とテキストの混合コンテンツ（text/html）を貼り付けできませんでした。最近（11月5日）の QQ の新バージョンでこの問題が修正されました。速やかに更新してください。`,
-    `📋 다운로더의 "복사 기능"을 사용하는 사용자에게 알림:<br> QQ 이전 버전에는 버그가 있어 다운로더가 복사한 이미지-텍스트 혼합 콘텐츠(text/html)를 붙여넣을 수 없습니다. 최근(11월 5일) QQ 새 버전에서 이 문제가 수정되었습니다. 즉시 업데이트하세요.`,
-    `📋 Напоминание для пользователей, использующих функцию "копирования" загрузчика:<br> В предыдущих версиях QQ была ошибка, из-за которой нельзя было вставить смешанный контент с изображениями и текстом (text/html), скопированный загрузчиком. В последней версии QQ (5 ноября) эта проблема исправлена, пожалуйста, обновите timely.`,
+  _过滤搜索页面的作品: [
+    `<span class="key">过滤</span>搜索页面的作品`,
+    `<span class="key">過濾</span>搜尋頁面的作品`,
+    `<span class="key">Filter</span> works on the search page`,
+    `<span class="key">フィルタリング</span>検索ページの作品`,
+    `<span class="key">필터링</span> 검색 페이지의 작품`,
+    `<span class="key">Фильтрация</span> работ на странице поиска`,
   ],
-  _版本更新内容1820: [
-    `<strong>📚 新功能：自动合并系列小说</strong>
+  _过滤搜索页面的作品的说明: [
+    `当你启用此功能后，下载器会在搜索页面里拦截 Pixiv 的请求，在作品显示之前就应用过滤器，移除不符合条件的作品。这样，只有符合条件的作品会显示出来。
+    <br>
+    <br>
+    <strong>注意事项：</strong>
+    <br>
+    - 当你启用此功能、以及修改过滤条件后，页面上显示的作品不会变化，这是正常的，因为它们已经显示出来了。这个功能是通过拦截请求实现的，所以之后发起的请求才会应用你的修改，所以你在翻页、刷新时可以看到修改的效果。
+    <br>
+    - 由于作品列表的数据里不包含收藏数量，所以下载器不能使用收藏数量来过滤作品。收藏数量条件会被忽略。
+    <br>
+    - 启用此功能时，请谨慎使用“图片色彩”过滤器。如果只选择了一种颜色（也就是需要判断图片的色彩），下载器需要加载所有作品的缩略图来判断颜色，这会产生大量请求，而且也会花费比较多的时间（过滤可能需要超过 2 秒钟）。`,
+    `當你啟用此功能後，下載器會在搜尋頁面裡攔截 Pixiv 的請求，在作品顯示之前就應用過濾器，移除不符合條件的作品。這樣，只有符合條件的作品會顯示出來。
+    <br>
+    <br>
+    <strong>注意事項：</strong>
+    <br>
+    - 當你啟用此功能、以及修改過濾條件後，頁面上顯示的作品不會變化，這是正常的，因為它們已經顯示出來了。這個功能是通過攔截請求實現的，所以之後發起的請求才會應用你的修改，所以你在翻頁、刷新時可以看到修改的效果。
+    <br>
+    - 由於作品列表的資料裡不包含收藏數量，所以下載器不能使用收藏數量來過濾作品。收藏數量條件會被忽略。
+    <br>
+    - 啟用此功能時，請謹慎使用「圖片色彩」過濾器。如果只選擇了一種顏色（也就是需要判斷圖片的色彩），下載器需要載入所有作品的縮略圖來判斷顏色，這會產生大量請求，而且也會花費比較多的時間（過濾可能需要超過 2 秒鐘）。`,
+    `After you enable this feature, the downloader will intercept Pixiv's requests on the search page and apply the filter before the works are displayed, removing works that do not meet the conditions. This way, only works that meet the conditions will be displayed.
+    <br>
+    <br>
+    <strong>Notes:</strong>
+    <br>
+    - After you enable this feature or modify the filter conditions, the works displayed on the page will not change; this is normal because they have already been displayed. This feature is implemented by intercepting requests, so subsequent requests will apply your changes. Therefore, you can see the effect of the changes when you turn the page or refresh.
+    <br>
+    - Since the work list data does not include the bookmark count, the downloader cannot use the bookmark count to filter works. The bookmark count condition will be ignored.
+    <br>
+    - When enabling this feature, please use the "Image Color" filter with caution. If only one color is selected (which means judging the color of the image), the downloader needs to load thumbnails of all works to determine the color, which will generate a large number of requests and also take more time (filtering may take more than 2 seconds).`,
+    `この機能を有効にすると、ダウンロードツールは検索ページでPixivのリクエストを傍受し、作品が表示される前にフィルターを適用して条件に合わない作品を削除します。これにより、条件に合った作品のみが表示されます。
+    <br>
+    <br>
+    <strong>注意事項：</strong>
+    <br>
+    - この機能を有効にしたり、フィルター条件を変更した後、ページに表示されている作品は変更されません。これは正常です。なぜなら、それらはすでに表示されているからです。この機能はリクエストの傍受によって実装されているため、後続のリクエストにのみ変更が適用されます。したがって、ページをめくるか更新すると変更の効果が見られます。
+    <br>
+    - 作品リストのデータにブックマーク数を含まないため、ダウンロードツールはブックマーク数で作品をフィルタリングできません。ブックマーク数の条件は無視されます。
+    <br>
+    - この機能を有効にする際は、「画像色」フィルターを慎重に使用してください。1つの色のみを選択した場合（画像の色を判断する必要がある場合）、ダウンロードツールはすべての作品のサムネイルをロードして色を判断する必要があります。これにより大量のリクエストが発生し、時間もかかります（フィルタリングに2秒以上かかる可能性があります）。`,
+    `이 기능을 활성화한 후, 다운로더는 검색 페이지에서 Pixiv의 요청을 차단하고 작품이 표시되기 전에 필터를 적용하여 조건을 충족하지 않는 작품을 제거합니다. 이렇게 하면 조건을 충족하는 작품만 표시됩니다.
+    <br>
+    <br>
+    <strong>주의사항:</strong>
+    <br>
+    - 이 기능을 활성화하거나 필터 조건을 수정한 후 페이지에 표시된 작품은 변경되지 않습니다. 이는 정상입니다. 왜냐하면 이미 표시되었기 때문입니다. 이 기능은 요청 차단을 통해 구현되므로 후속 요청에만 변경 사항이 적용됩니다. 따라서 페이지를 넘기거나 새로고침할 때 변경 효과를 볼 수 있습니다.
+    <br>
+    - 작품 목록 데이터에 북마크 수가 포함되지 않으므로 다운로더는 북마크 수를 사용하여 작품을 필터링할 수 없습니다. 북마크 수 조건은 무시됩니다.
+    <br>
+    - 이 기능을 활성화할 때 "이미지 색상" 필터를 신중하게 사용하십시오. 한 가지 색상만 선택한 경우(이미지의 색상을 판단해야 하는 경우), 다운로더는 모든 작품의 썸네일을 로드하여 색상을 판단해야 하며, 이는 대량의 요청을 생성하고 더 많은 시간을 소비합니다(필터링에 2초 이상 걸릴 수 있습니다).`,
+    `После активации этой функции загрузчик будет перехватывать запросы Pixiv на странице поиска и применять фильтр до отображения работ, удаляя те, которые не соответствуют условиям. Таким образом, будут отображаться только работы, соответствующие условиям.
+    <br>
+    <br>
+    <strong>Примечания:</strong>
+    <br>
+    - После активации этой функции или изменения условий фильтрации отображаемые на странице работы не изменятся; это нормально, поскольку они уже отображены. Эта функция реализована путем перехвата запросов, поэтому изменения применяются только к последующим запросам. Поэтому вы увидите эффект изменений при перелистывании страниц или обновлении.
+    <br>
+    - Поскольку данные списка работ не включают количество закладок, загрузчик не может использовать количество закладок для фильтрации работ. Условие по количеству закладок будет игнорироваться.
+    <br>
+    - При активации этой функции используйте фильтр "Цвет изображения" с осторожностью. Если выбран только один цвет (т.е. требуется определить цвет изображения), загрузчику нужно загрузить миниатюры всех работ для определения цвета, что сгенерирует большое количество запросов и займет больше времени (фильтрация может занять более 2 секунд).`,
+  ],
+  _导出作品数据CSV: [
+    `导出作品数据（CSV）`,
+    `匯出作品資料（CSV）`,
+    `Export work data (CSV)`,
+    `作品データをエクスポート（CSV）`,
+    `작품 데이터 내보내기 (CSV)`,
+    `Экспорт данных работы (CSV)`,
+  ],
+  _类型: [`类型`, `類型`, `Type`, `タイプ`, `유형`, `Тип`],
+  _标题: ['标题', '標題', 'Title', 'タイトル', '타이틀', `Заголовок`],
+  _赞: ['赞！', '讚！', 'Likes', 'いいね！', '좋아요!', `Лайк!`],
+  _浏览量: ['浏览量', '瀏覽量', 'Views', '閲覧数', '열람 횟수', `Просмотры`],
+  _评论: ['评论', '留言', 'Comments', 'コメント', '댓글', `Комментарий`],
+  _日期: ['日期', '日期', 'Date', '日付', '날짜', `Дата`],
+  _评级: ['评级', '分級', 'Rating', 'レーティング', '연령 등급', 'Рейтинг'],
+  _张数: ['张数', '張數', 'Pages', '枚数', '매수', `Количество страниц`],
+  _排名: ['排名', '排名', 'Ranking', 'ランキング順位', '랭킹 순위', `Рейтинг`],
+  _响应关联作品: [
+    '响应关联作品',
+    '響應關聯作品',
+    'Image Response',
+    'イメージレスポンス',
+    '이미지 리스폰스',
+    `Ответ на связанные работы`,
+  ],
+  _添加插图: [
+    '添加插图',
+    '使用插圖',
+    'Illustration usage counter',
+    '挿絵使用',
+    '삽화 사용',
+    `Добавленные иллюстрации`,
+  ],
+  _文字数: [
+    '文字数',
+    '文字數',
+    'Characters',
+    '文字数',
+    '글자수',
+    `Количество символов`,
+  ],
+  _单词数: ['单词数', '詞彙數', 'Words', '単語数', '단어수', `Количество слов`],
+  _数据分析: [
+    '数据分析',
+    '創作儀表板',
+    'Dashboard',
+    'ダッシュボード',
+    '대쉬보드',
+    `Дашборд`,
+  ],
+  _标签: ['标签', '標籤', 'Tags', 'タグ', '태그', 'Теги'],
+  _应募作品: [
+    '应募作品',
+    '參加作品',
+    'applications',
+    '応募作品',
+    '응모 작품',
+    `Работы конкурса`,
+  ],
+  _抓取应募作品: [
+    `抓取应募作品`,
+    `抓取應募作品`,
+    `Crawl application works`,
+    `応募作品をクロール`,
+    `응모 작품 크롤링`,
+    `Скраулить конкурсные работы`,
+  ],
+  _API返回了错误信息: [
+    `API 返回了错误信息：`,
+    `API 回傳了錯誤資訊：`,
+    `API returned an error message:`,
+    `API がエラー情報を返しました：`,
+    `API가 오류 메시지를 반환했습니다:`,
+    `API вернул сообщение об ошибке:`,
+  ],
+  _已抓取x页应募作品: [
+    `已抓取 {} 页应募作品`,
+    `已抓取 {} 頁應募作品`,
+    `Crawled {} pages of application works`,
+    `{} ページの応募作品をクロール済み`,
+    `{} 페이지의 응모 작품 크롤링 완료`,
+    `Скраулено {} страниц конкурсных работ`,
+  ],
+  _获奖作品: [
+    '获奖作品',
+    '獲獎作品',
+    'Winning Applications',
+    '受賞作品',
+    '수상 작품',
+    `Победившие работы`,
+  ],
+  _抓取获奖作品: [
+    `抓取获奖作品`,
+    `抓取獲獎作品`,
+    `Crawl winning works`,
+    `受賞作品をクロール`,
+    `수상 작품 크롤링`,
+    `Скраулить победившие работы`,
+  ],
+  _没有找到任何获奖作品_可能是因为比赛尚未结束: [
+    `没有找到任何获奖作品，可能是因为比赛尚未结束。`,
+    `沒有找到任何獲獎作品，可能是因為比賽尚未結束。`,
+    `No winning works found, possibly because the contest has not ended yet.`,
+    `受賞作品が見つかりませんでした。コンテストがまだ終了していない可能性があります。`,
+    `수상 작품을 찾을 수 없습니다. 대회가 아직 종료되지 않았기 때문일 수 있습니다.`,
+    `Не найдено ни одной победившей работы, возможно, потому что конкурс ещё не завершён.`,
+  ],
+  _版本更新说明18_3_0: [
+    `<strong>🚀更换了把动图转换为 WebM 的库，大幅提升转换速度</strong>
 <br>
-抓取作品时，如果一个小说属于某个系列，下载器可以自动抓取这个系列里的所有小说并且合并。
+感谢 <a href="https://github.com/hospotho" target="_blank">hospotho</a>
 <br>
-这个功能位于“更多”-“下载”分类里，默认未启用，你可以在有需要时启用。
 <br>
+<strong>✨鼠标光标移动到小说缩略图上时，下载器会显示快速下载按钮，点击即可下载这个小说或系列</strong>
 <br>
-<strong>✨ 新增设置：合并系列小说时的命名规则</strong>
 <br>
-你可以设置合并小说时生成的文件的名字。
+<strong>✨支持了比赛页面</strong>
 <br>
-这个设置位于“更多”-“下载”分类里。
 <br>
+<strong>✨在“我的作品”页面里，可以导出作品数据到 CSV 文件</strong>
 <br>
-<strong>✨ 新增命名标记 {age} {age_r}</strong>
 <br>
-<span class="blue">{age}</span> 作品的年龄限制，分为：<span class="blue">All Ages</span>、<span class="blue">R-18</span>、<span class="blue">R-18G</span>
+<strong>✨在保存作品的元数据时，除了之前的 TXT 格式，还可以选择保存为 JSON 格式</strong>
 <br>
-<span class="blue">{age_r}</span> 仅当作品为限制级时，输出它的年龄限制，分为：<span class="blue">R-18</span>、<span class="blue">R-18G</span>
 <br>
+<strong>🐞Pixiv 最近修改了搜索页面，影响了下载器的一些功能，现已修复</strong>
 <br>
-<strong>📖 优化了保存小说时的内容</strong>
 <br>
+<strong>🐞修复了一些其他 BUG</strong>`,
+    `<strong>🚀更換了將動圖轉換為 WebM 的庫，大幅提升轉換速度</strong>
 <br>
-<strong>🔧 动图保存为 APNG 格式时，文件的扩展名从 png 改成 apng</strong>
+感謝 <a href="https://github.com/hospotho" target="_blank">hospotho</a>
 <br>
-这样可以让静态图片和动图区别更明显，也有助于一些软件识别 apng 图片。
 <br>
+<strong>✨滑鼠游標移到小說縮圖上時，下載器會顯示快速下載按鈕，點擊即可下載此小說或系列</strong>
 <br>
-<strong>🔧 作品页面里的快速收藏按钮 (✩) 可以取消收藏了</strong>
 <br>
-如果该作品已经被收藏，点击该按钮 (✩) 可以取消收藏。`,
-    `<strong>📚 新功能：自動合併系列小說</strong>
+<strong>✨支援了比賽頁面</strong>
 <br>
-抓取作品時，如果一個小說屬於某個系列，下載器可以自動抓取這個系列裡的所有小說並且合併。
 <br>
-這個功能位於「更多」-「下載」分類裡，預設未啟用，你可以在有需要時啟用。
+<strong>✨在「我的作品」頁面裡，可以將作品資料匯出為 CSV 檔案</strong>
 <br>
 <br>
-<strong>✨ 新增設置：合併系列小說時的命名規則</strong>
+<strong>✨在儲存作品元數據時，除了之前的 TXT 格式，還可以選擇儲存為 JSON 格式</strong>
 <br>
-你可以設置合併小說時生成的檔案的名字。
 <br>
-這個設置位於「更多」-「下載」分類裡。
+<strong>🐞Pixiv 最近修改了搜尋頁面，影響了下載器的一些功能，現已修復</strong>
 <br>
 <br>
-<strong>✨ 新增命名標記 {age} {age_r}</strong>
+<strong>🐞修復了一些其他 BUG</strong>`,
+    `<strong>🚀Switched to a new library for converting Ugoira to WebM, significantly improving conversion speed</strong>
 <br>
-<span class="blue">{age}</span> 作品的年齡限制，分為：<span class="blue">All Ages</span>、<span class="blue">R-18</span>、<span class="blue">R-18G</span>
+Thanks to <a href="https://github.com/hospotho" target="_blank">hospotho</a>
 <br>
-<span class="blue">{age_r}</span> 僅當作品為限制級時，輸出它的年齡限制，分為：<span class="blue">R-18</span>、<span class="blue">R-18G</span>
 <br>
+<strong>✨When hovering the mouse cursor over a novel thumbnail, the downloader shows a quick download button; click to download the novel or series</strong>
 <br>
-<strong>📖 優化了保存小說時的內容</strong>
 <br>
+<strong>✨Added support for contest pages</strong>
 <br>
-<strong>🔧 動圖保存為 APNG 格式時，檔案的擴展名從 png 改成 apng</strong>
 <br>
-這樣可以讓靜態圖片和動圖區別更明顯，也有助於一些軟件識別 apng 圖片。
+<strong>✨On the "My Works" page, you can now export work data to a CSV file</strong>
 <br>
 <br>
-<strong>🔧 作品頁面裡的快速收藏按鈕 (✩) 可以取消收藏了</strong>
+<strong>✨When saving work metadata, in addition to the previous TXT format, you can now choose to save in JSON format</strong>
 <br>
-如果該作品已經被收藏，點擊該按鈕 (✩) 可以取消收藏。`,
-    `<strong>📚 New Feature: Auto-Merge Novel Series</strong>
 <br>
-When crawling works, if a novel belongs to a certain series, the downloader can automatically crawl all novels in that series and merge them.
+<strong>🐞Pixiv recently changed the search page, which affected some downloader features; this has now been fixed</strong>
 <br>
-This feature is located in the "More" - "Download" category, disabled by default, and you can enable it when needed.
 <br>
+<strong>🐞Fixed some other bugs</strong>`,
+    `<strong>🚀Ugoira を WebM に変換するライブラリを変更し、変換速度を大幅に向上</strong>
 <br>
-<strong>✨ New Setting: Naming Rule When Merging Novel Series</strong>
+<a href="https://github.com/hospotho" target="_blank">hospotho</a> に感謝
 <br>
-You can set the name of the file generated when merging novels.
 <br>
-This setting is located in the "More" - "Download" category.
+<strong>✨小説のサムネイルにマウスカーソルを合わせると、ダウンロードツールがクイックダウンロードボタンを表示し、クリックでその小説またはシリーズをダウンロード可能</strong>
 <br>
 <br>
-<strong>✨ New Naming Tags {age} {age_r}</strong>
+<strong>✨コンテストページに対応しました</strong>
 <br>
-<span class="blue">{age}</span> The age restriction of the work, divided into: <span class="blue">All Ages</span>, <span class="blue">R-18</span>, <span class="blue">R-18G</span>
 <br>
-<span class="blue">{age_r}</span> Output its age restriction only when the work is restricted, divided into: <span class="blue">R-18</span>, <span class="blue">R-18G</span>
+<strong>✨「私の作品」ページで、作品データを CSV ファイルにエクスポート可能</strong>
 <br>
 <br>
-<strong>📖 Optimized Content When Saving Novels</strong>
+<strong>✨作品のメタデータを保存する際、従来の TXT 形式に加えて JSON 形式も選択可能</strong>
 <br>
 <br>
-<strong>🔧 When Saving Ugoira as APNG Format, File Extension Changed from png to apng</strong>
+<strong>🐞Pixiv が最近検索ページを変更したためダウンロードツールの一部の機能に影響が出ていましたが、修正済み</strong>
 <br>
-This makes the distinction between static images and Ugoira more obvious and helps some software recognize apng images.
 <br>
+<strong>🐞その他のいくつかのバグを修正</strong>`,
+    `<strong>🚀Ugoira를 WebM으로 변환하는 라이브러리를 변경하여 변환 속도를 대폭 향상</strong>
 <br>
-<strong>🔧 Quick Bookmark Button (✩) on Work Pages Can Now Unbookmark</strong>
+<a href="https://github.com/hospotho" target="_blank">hospotho</a>에게 감사
 <br>
-If the work has already been bookmarked, clicking this button (✩) can unbookmark it.`,
-    `<strong>📚 新機能：シリーズ小説の自動マージ</strong>
 <br>
-作品をクロールする際、1つの小説が特定のシリーズに属する場合、ダウンロードツールはこのシリーズ内のすべての小説を自動的にクロールしてマージできます。
+<strong>✨소설 썸네일 위에 마우스 커서를 올리면 다운로더가 빠른 다운로드 버튼을 표시하며, 클릭하면 해당 소설 또는 시리즈를 다운로드할 수 있습니다</strong>
 <br>
-この機能は「その他」-「ダウンロード」カテゴリにあり、デフォルトで無効になっています。必要に応じて有効にできます。
 <br>
+<strong>✨콘테스트 페이지 지원 추가</strong>
 <br>
-<strong>✨ 新設定：シリーズ小説をマージする際の命名ルール</strong>
 <br>
-小説をマージする際に生成されるファイルの名前を設定できます。
+<strong>✨"내 작품" 페이지에서 작품 데이터를 CSV 파일로 내보내기 가능</strong>
 <br>
-この設定は「その他」-「ダウンロード」カテゴリにあります。
 <br>
+<strong>✨작품 메타데이터 저장 시 기존 TXT 형식 외에 JSON 형식도 선택 가능</strong>
 <br>
-<strong>✨ 新命名タグ {age} {age_r}</strong>
 <br>
-<span class="blue">{age}</span> 作品の年齢制限：<span class="blue">All Ages</span>、<span class="blue">R-18</span>、<span class="blue">R-18G</span> に分かれます
+<strong>🐞Pixiv가 최근 검색 페이지를 변경하여 다운로더의 일부 기능에 영향을 주었으나 이제 수정 완료</strong>
 <br>
-<span class="blue">{age_r}</span> 作品が制限級の場合のみ、その年齢制限を出力：<span class="blue">R-18</span>、<span class="blue">R-18G</span>
 <br>
+<strong>🐞기타 여러 버그 수정</strong>`,
+    `<strong>🚀Заменили библиотеку для конвертации Ugoira в WebM, значительно увеличив скорость конвертации</strong>
 <br>
-<strong>📖 小説保存時のコンテンツを最適化</strong>
+Спасибо <a href="https://github.com/hospotho" target="_blank">hospotho</a>
 <br>
 <br>
-<strong>🔧 Ugoira を APNG 形式で保存する場合、ファイル拡張子を png から apng に変更</strong>
+<strong>✨При наведении курсора мыши на миниатюру романа загрузчик показывает кнопку быстрой загрузки; клик — и роман или серия скачивается</strong>
 <br>
-これにより、静止画と Ugoira の区別がより明確になり、一部のソフトウェアが apng 画像を認識しやすくなります。
 <br>
+<strong>✨Добавлена поддержка страниц конкурсов</strong>
 <br>
-<strong>🔧 作品ページのクイックブックマークボタン (✩) でブックマーク解除が可能になりました</strong>
 <br>
-その作品がすでにブックマークされている場合、このボタン (✩) をクリックしてブックマークを解除できます。`,
-    `<strong>📚 새 기능: 시리즈 소설 자동 병합</strong>
+<strong>✨На странице «Мои работы» теперь можно экспортировать данные работ в CSV-файл</strong>
 <br>
-작품을 크롤링할 때, 한 소설이 특정 시리즈에 속하면 다운로더가 해당 시리즈의 모든 소설을 자동으로 크롤링하여 병합할 수 있습니다.
 <br>
-이 기능은 "더보기" - "다운로드" 카테고리에 있으며, 기본적으로 비활성화되어 있으며 필요 시 활성화할 수 있습니다.
+<strong>✨При сохранении метаданных работы, помимо прежнего TXT-формата, теперь можно выбрать сохранение в формате JSON</strong>
 <br>
 <br>
-<strong>✨ 새 설정: 시리즈 소설 병합 시 명명 규칙</strong>
+<strong>🐞Pixiv недавно изменил страницу поиска, что повлияло на некоторые функции загрузчика; теперь исправлено</strong>
 <br>
-소설을 병합할 때 생성되는 파일의 이름을 설정할 수 있습니다.
 <br>
-이 설정은 "더보기" - "다운로드" 카테고리에 있습니다.
-<br>
-<br>
-<strong>✨ 새 명명 태그 {age} {age_r}</strong>
-<br>
-<span class="blue">{age}</span> 작품의 연령 제한：<span class="blue">All Ages</span>、<span class="blue">R-18</span>、<span class="blue">R-18G</span> 으로 나뉩니다
-<br>
-<span class="blue">{age_r}</span> 작품이 제한 등급일 때만 그 연령 제한을 출력：<span class="blue">R-18</span>、<span class="blue">R-18G</span>
-<br>
-<br>
-<strong>📖 소설 저장 시 콘텐츠 최적화</strong>
-<br>
-<br>
-<strong>🔧 Ugoira 를 APNG 형식으로 저장할 때 파일 확장자를 png 에서 apng 로 변경</strong>
-<br>
-이렇게 하면 정적 이미지와 Ugoira 의 구분이 더 명확해지며, 일부 소프트웨어가 apng 이미지를 인식하는 데 도움이 됩니다.
-<br>
-<br>
-<strong>🔧 작품 페이지의 빠른 북마크 버튼 (✩) 으로 북마크 취소 가능</strong>
-<br>
-해당 작품이 이미 북마크된 경우 이 버튼 (✩) 을 클릭하여 북마크를 취소할 수 있습니다.`,
-    `<strong>📚 Новая функция: Автоматическое объединение серий романов</strong>
-<br>
-При крауле работ, если роман принадлежит определенной серии, загрузчик может автоматически краулить все романы в этой серии и объединять их.
-<br>
-Эта функция находится в категории "Больше" - "Загрузка", отключена по умолчанию, и вы можете включить её при необходимости.
-<br>
-<br>
-<strong>✨ Новая настройка: Правило именования при объединении серий романов</strong>
-<br>
-Вы можете установить имя файла, генерируемого при объединении романов.
-<br>
-Эта настройка находится в категории "Больше" - "Загрузка".
-<br>
-<br>
-<strong>✨ Новые теги именования {age} {age_r}</strong>
-<br>
-<span class="blue">{age}</span> Возрастное ограничение работы, разделено на: <span class="blue">All Ages</span>, <span class="blue">R-18</span>, <span class="blue">R-18G</span>
-<br>
-<span class="blue">{age_r}</span> Выводить возрастное ограничение только если работа ограничена, разделено на: <span class="blue">R-18</span>, <span class="blue">R-18G</span>
-<br>
-<br>
-<strong>📖 Оптимизировано содержимое при сохранении романов</strong>
-<br>
-<br>
-<strong>🔧 При сохранении Ugoira в формате APNG расширение файла изменено с png на apng</strong>
-<br>
-Это делает различие между статическими изображениями и Ugoira более очевидным и помогает некоторому ПО распознавать изображения apng.
-<br>
-<br>
-<strong>🔧 Кнопка быстрого добавления в закладки (✩) на страницах работ теперь может удалять из закладок</strong>
-<br>
-Если работа уже добавлена в закладки, нажатие на эту кнопку (✩) может удалить её из закладок.`,
+<strong>🐞Исправлены некоторые другие баги</strong>`,
   ],
 }
 

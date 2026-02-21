@@ -73,7 +73,7 @@ export interface ArtworkData {
       isLocked: boolean
       /**作品的标签列表 */
       tags: {
-        /**标签名字 */
+        /**标签名字。是日文标签（原标签），内容不会根据页面的显示语言变化 */
         tag: string
         /**这个标签是否被锁定（被锁定的就不能修改） */
         locked: boolean
@@ -83,17 +83,12 @@ export interface ArtworkData {
         userId: string
         /**罗马音，现在这个字段或许已经被移除了 */
         romaji?: string
-        /**这个标签的翻译 */
+        /**保存翻译后的标签。有时没有这个属性，表示原标签没有对应的翻译标签 */
         translation?: {
-          /**翻译后的文字。
-           * 
-           * 注意翻译后的文字并不总是英文。
-           * 
+          /**
            根据用户设置的 pixiv 页面语言的不同（如中文、日文、韩语、英文等），en 会返回对应语言的翻译。
 
-           所以用户语言不同时，en 可能不同。
-
-           也可能同一个标签在某些语言时会有 translation 字段，另一些语言时没有 translation 字段。
+           在不同的显示语言里，en 的内容会相应变化。
            */
           en: string
         }
@@ -740,7 +735,7 @@ interface DisplayA {
   /**储存排行榜里每篇小说的摘要数据。注意：不包含正文内容。
    * 目前在有些排行榜里返回的是数组，有些排行榜（新人）里返回的是类数组对象（但没有 length 属性）
    */
-  rank_a: NovelItem[] | { number: NovelItem }
+  rank_a: RankingNovelItem[] | { number: RankingNovelItem }
   /**这个排行榜的标记，例如 "daily"、"weekly" */
   mode: string
   /**也许是被屏蔽的作品的数量，通常为 0 */
@@ -777,7 +772,7 @@ interface DisplayA {
   ranking_header: RankingHeader
 }
 
-export interface NovelItem {
+export interface RankingNovelItem {
   /**这个小说在排行榜里的排名，如 '1'、'2'。根据排行榜不同，返回的数据类型也不同 */
   rank: string | number
   id: string
@@ -1737,5 +1732,189 @@ export interface LatestMessageData {
     ]
     /**获取后续消息的 URL，如果没有后续消息，则为 null */
     next_url: string | null
+  }
+}
+
+export interface DashboardData {
+  error: boolean
+  message: string
+  body: {
+    data: {
+      /** 保存着每个作品用于数据分析的部分数据，不是全部 */
+      works: DashboardWork[]
+      series: {
+        seriesId: string
+        seriesType: 'illust' | 'novel'
+      }[]
+      drafts: unknown[]
+      reservedWorks: unknown[]
+      fetchRanges: unknown[]
+    }
+    /** 当获取的是 illust 分类的数据时，这个数组里才可能有对象。如果获取的是 novel 的数据，则必定为空数组 */
+    illustSeries: {
+      id: string
+      userId: string
+      title: string
+      description: string
+      caption: string
+      total: number
+      content_order: null
+      url: string
+      coverImageSl: number
+      firstIllustId: string
+      latestIllustId: string
+      createDate: string
+      updateDate: string
+      watchCount: null
+      isWatched: boolean
+      isNotifying: boolean
+    }[]
+    /** 当获取的是 novel 分类的数据时，这个数组里才可能有对象。如果获取的是 illust 的数据，则必定为空数组 */
+    // 因为该对象包含的属性很多，所以我偷懒将其省略成了 {}
+    novelSeries: {}[]
+    requests: []
+    /** 当获取的是 illust 分类的数据时，值是对象。如果获取的是 novel 的数据，值是数组 */
+    tagTranslation:
+      | {
+          [key: string]: {
+            en?: string
+            ko?: string
+            zh?: string
+            zh_tw?: string
+            romaji?: string
+          }
+        }
+      | []
+    /** 保存着每个作品的部分详细数据。数据分析里展示的一些数据需要从这里获取 */
+    thumbnails: {
+      /** 当获取的是 illust 分类的数据时，这个数组里才可能有对象。如果获取的是 novel 的数据，则必定为空数组 */
+      illust: DashboardIllustThumbnail[]
+      /** 当获取的是 novel 分类的数据时，这个数组里才可能有对象。如果获取的是 illust 的数据，则必定为空数组 */
+      novel: DashboardNovelThumbnail[]
+      novelDraft: unknown[]
+      collection: unknown[]
+    }
+    users: []
+  }
+}
+
+interface DashboardWork {
+  workId: string
+  /** 作品类型，插画、漫画、动图都是 'illust'。小说是 'novel' */
+  workType: 'illust' | 'novel'
+  /** 浏览量 */
+  viewCount: number
+  /** 赞! */
+  ratingCount: number
+  /** 收藏 */
+  bookmarkCount: number
+  /** 评论 */
+  commentCount: number
+  /** 日期 */
+  createDate: string
+  /** 排名，如果没有排名则是 0 */
+  dailyRankingBestRank: number
+  /** 响应关联作品 */
+  imageResponseCount: number
+  /** 添加插图 */
+  quotedIllustCount: number
+  request: null
+  /** 评级：0 是 '待评级'，1 是全年龄，2 是限制级 */
+  contentRating: 0 | 1 | 2
+  // 文字数。仅当 workType 为 'novel' 时有这个属性
+  textLength?: number
+}
+
+interface DashboardIllustThumbnail {
+  aiType: 0 | 1 | 2
+  id: string
+  title: string
+  illustType: 0 | 1 | 2
+  restrict: 0 | 1 | 2
+  xRestrict: 0 | 1 | 2
+  sl: 0 | 2 | 4 | 6
+  url: string
+  description: string
+  tags: string[]
+  userId: string
+  userName: string
+  width: number
+  height: number
+  pageCount: number
+  isBookmarkable: boolean
+  bookmarkData: null
+  alt: string
+  titleCaptionTranslation: {
+    workTitle: null
+    workCaption: null
+  }
+  createDate: string
+  updateDate: string
+  isUnlisted: boolean
+  isMasked: boolean
+  visibilityScope: number
+  urls: {
+    '250x250': string
+    '360x360': string
+    '540x540': string
+    '1200x1200': string
+    '240mw': string
+  }
+  seriesId: string
+  seriesTitle: string
+  profileImageUrl: string
+}
+
+interface DashboardNovelThumbnail {
+  aiType: 0 | 1 | 2
+  id: string
+  title: string
+  /**小说的类别，'0' 为原创。似乎大部分都是 '0' */
+  genre: string
+  restrict: 0 | 1 | 2
+  xRestrict: 0 | 1 | 2
+  sl: 0 | 2 | 4 | 6
+  url: string
+  tags: string[]
+  userId: string
+  userName: string
+  profileImageUrl: string
+  textCount: number
+  wordCount: number
+  useWordCount: boolean
+  readingTime: number
+  description: string
+  isBookmarkable: boolean
+  bookmarkData: null
+  bookmarkCount: number
+  isOriginal: boolean
+  marker: null
+  titleCaptionTranslation: {
+    workTitle: null
+    workCaption: null
+  }
+  createDate: string
+  updateDate: string
+  isMasked: boolean
+  isUnlisted: boolean
+  visibilityScope: number
+  language: string
+}
+
+/** 比赛里的应募作品列表，插画和小说都使用这个类型 */
+export interface ContestData {
+  error: boolean
+  message: string
+  body: {
+    /** 不知道什么作用，我现在只看到了空数组 */
+    additional_entries: []
+    /** 这一页（50 个）作品的 html 代码，直接添加到页面上 */
+    html: string
+    /** 不清楚何时使用，目前我只看到了 null */
+    muted_tag: null
+    /** 下一页的 API 的 URL。如果当前已经是最后一页，则为 null */
+    next_url: null | string
+    /** 投稿总数量 */
+    total: number
   }
 }

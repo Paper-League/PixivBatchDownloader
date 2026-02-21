@@ -1634,6 +1634,12 @@ body.mobile #quickCrawlBtn {
   opacity: 1;
   pointer-events: initial;
 }
+.contest .logWrap {
+  z-index: 1000;
+}
+.contest .logBtn {
+  z-index: 1001;
+}
 .theme-dark.logWrap {
   background: #222;
   color: #fff;
@@ -2472,6 +2478,9 @@ iframe[name='expandedFooter'] {
 }
 .xz_PreviewWorkDetailPanel .content .flags .ai {
   background: #b036f6;
+}
+.xz_PreviewWorkDetailPanel .content .flags .origin {
+  background: #29b3f3;
 }
 .xz_PreviewWorkDetailPanel .content .title,
 .xz_PreviewWorkDetailPanel .content .desc.tags {

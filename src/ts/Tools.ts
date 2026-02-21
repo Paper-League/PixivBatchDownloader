@@ -96,6 +96,9 @@ class Tools {
     if (nowURL.pathname.includes('/tags/')) {
       return decodeURIComponent(nowURL.pathname.split('tags/')[1].split('/')[0])
     }
+    if (nowURL.pathname.startsWith('/search')) {
+      return decodeURIComponent(Utils.getURLSearchField(location.href, 'q'))
+    }
 
     // 默认情况，从查询字符串里获取，如下网址
     // https://www.pixiv.net/bookmark.php?tag=R-18
@@ -171,6 +174,41 @@ class Tools {
     } else {
       return this.getNovelId(a.href)
     }
+  }
+
+  /**从 DOM 元素中获取系列的 id **/
+  static findSeriesIdFromElement(
+    el: HTMLElement,
+    type: 'illusts' | 'novels' = 'illusts'
+  ): string {
+    if (!el) {
+      return ''
+    }
+    let a: HTMLAnchorElement
+    if (el.nodeName === 'A') {
+      a = el as HTMLAnchorElement
+    } else {
+      // 不区分是插画还是小说，因为它们的 id 都在 /series/ 后面
+      a = el.querySelector('a[href*="series/"]') as HTMLAnchorElement
+    }
+    if (!a) {
+      return ''
+    }
+
+    // 判断链接是插画/漫画系列还是小说系列
+    if (type === 'novels') {
+      // https://www.pixiv.net/novel/series/9114820
+      if (!a.href.includes('/novel/series/')) {
+        return ''
+      }
+    } else {
+      // https://www.pixiv.net/user/9460149/series/320377
+      if (!a.href.includes('/user/')) {
+        return ''
+      }
+    }
+    // 如果链接符合 type，则提取系列 id
+    return Utils.getURLPathField(a.href, 'series')
   }
 
   static readonly userIDRegExp = /\/users\/(\d+)/
@@ -255,6 +293,10 @@ class Tools {
     if (match && match.length > 1) {
       return match[1]
     }
+
+    // 还有些其他情况，例如在比赛页面里，对应的 script 标签在 body 里，而且使用了双引号：
+    // user_id: "11111111",
+    // 由于在比赛页面里并不需要获取自己的 ID 来使用，所以这里就不写了
 
     const element = document.querySelector('#qualtrics_user-id')
     if (element) {
@@ -935,6 +977,7 @@ class Tools {
     }
   }
 
+  /** 储存 Pixiv 每种显示语言里，“AI 生成”标记所使用的文字 */
   static readonly AIMark: Map<string, string> = new Map([
     ['zh-cn', 'AI生成'],
     ['zh-tw', 'AI生成'],
@@ -942,7 +985,22 @@ class Tools {
     ['ja', 'AI生成'],
     ['ko', 'AI 생성'],
     ['ru', 'сгенерированный ИИ'],
+    ['th', 'สร้างโดย AI'],
+    ['ms', 'Janaan AI'],
   ])
+
+  /** 检查标签列表中是否包含 AI 生成的标记 */
+  // 有些用户在上传 AI 作品时选择了非 AI 生成，但标签列表里可能有 AI 生成相关标签例如：
+  // https://www.pixiv.net/en/artworks/136175064
+  // 检查的字符是“AI生成”和“AI-Generated”
+  static checkAIFromTags(tags: string[]) {
+    return tags.some((tag) => {
+      const lowerTag = tag.toLowerCase()
+      return (
+        lowerTag.startsWith('ai生成') || lowerTag.startsWith('ai-generated')
+      )
+    })
+  }
 
   /**如果一个作品是 AI 生成的，则返回特定的字符串标记
    *
@@ -950,9 +1008,53 @@ class Tools {
    */
   static getAIGeneratedMark(aiType?: 0 | 1 | 2) {
     if (aiType === 2) {
-      return this.AIMark.get(lang.htmlLangType)
+      return this.AIMark.get(lang.htmlLangType) || 'AI-generated'
     }
     return ''
+  }
+
+  static readonly originalMark: Map<string, string> = new Map([
+    ['zh-cn', '原创'],
+    ['zh-tw', '原創'],
+    ['en', 'Original'],
+    ['ja', 'オリジナル'],
+    ['ko', '오리지널'],
+    ['ru', 'Оригинал'],
+    ['th', 'ออริจินัล'],
+    ['ms', 'Asli'],
+  ])
+
+  static getOriginalMark() {
+    return this.originalMark.get(lang.htmlLangType) || 'オリジナル'
+  }
+
+  /** 向标签列表前面添加传入的标签 */
+  // 目前用来添加“原创”标记和“AI生成”标记
+  // 当具有多个标记时，遵从 Pixiv 页面显示的顺序，依次是：R-18 AI生成 原创
+  // 测试用例：
+  // https://www.pixiv.net/artworks/140494669
+  // https://www.pixiv.net/novel/show.php?id=27131021
+  // 所以 R-18 或 R-18G 标签总是保持第一位，其他要插入的标签需要排在它后面
+  // 至于“AI生成”和“原创”标签的顺序，则依赖调用顺序来控制。先添加“原创”，再添加“AI生成”，就能保持正确的顺序
+  // 但在某些情况下，顺序可能依然会错乱，例如：
+  // 作品前两个标签是“R-18”和“AI生成”，那么“原创”会被插入到第二位，“AI生成”则变成第三位。
+  // 目前我没有处理这种边界情况
+  static unshiftTag(tags: string[], tag: string) {
+    if (!tags.includes(tag)) {
+      // 查找 R-18 或 R-18G 标签的位置
+      const r18Index = tags.findIndex(
+        (t) => t.toLowerCase() === 'r-18' || t.toLowerCase() === 'r-18g'
+      )
+      // 如果找到了 R-18 或 R-18G 标签，则把新标签插入到它后面
+      if (r18Index !== -1) {
+        tags.splice(r18Index + 1, 0, tag)
+      } else {
+        // 否则插入到最前面
+        tags.unshift(tag)
+      }
+    }
+
+    return tags
   }
 
   static checkUserLogin() {

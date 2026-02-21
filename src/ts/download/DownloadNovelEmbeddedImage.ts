@@ -14,6 +14,8 @@ type EmbeddedImages = null | {
 
 type NovelImageData = {
   /**图片的 id，可能会重复。id 重复时，它们的 p 不同 */
+  // 对于上传的图片，id 并没有对应的插画作品页面，也没有序号 p
+  // 对于引用自插画的图片，id 就是插画的 id。可能有 p，也可能没有
   id: string
   /**这个属性只在引用其他作品的图片时有值，表示这个图片是作品里的第几张图片（从 1 开始） */
   p: '' | string
@@ -68,10 +70,23 @@ class DownloadNovelEmbeddedImage {
       }
 
       let imageName = Utils.replaceSuffix(novelName, image.url!)
-      // 在文件名末尾加上内嵌图片的 id 和序号
+      // 之前是在文件名的末尾添加图片的 id，但是当文件名很长时，图片 id 甚至更前面的字符可能会被截断，从而产生重名文件
+      // 现在改为添加到 {id} 之后，这样减少了图片 id 被截断的可能性，因为 {id} 通常位于文件名的开头，不容易被截断
+      // 如果 {id} 位于文件名的结尾部分，依然可能会被截断。但这种情况比较少
       const array = imageName.split('.')
-      array[array.length - 2] =
-        array[array.length - 2] + '-' + image.flag_id_part
+      const fileName = array[array.length - 2]
+      // 在 fileName 里查找 novelId，如果找到了，就在它后面添加图片 id
+      const index = fileName.indexOf(novelId)
+      if (index !== -1) {
+        array[array.length - 2] =
+          fileName.slice(0, index + novelId.length) +
+          '-' +
+          image.flag_id_part +
+          fileName.slice(index + novelId.length)
+      } else {
+        // 没有找到 novelId，就跟以前一样，在文件名末尾添加图片 id
+        array[array.length - 2] = fileName + '-' + image.flag_id_part
+      }
       imageName = array.join('.')
 
       await SendDownload.noReply(blob, imageName)

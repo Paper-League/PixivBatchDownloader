@@ -220,17 +220,26 @@ class CopyWorkInfo {
       (str) => '#' + str
     )
 
+    // 判断是不是 AI 生成的作品
+    const tagsWithTransl2 = Tools.extractTags(data, 'both')
+    let aiType = body.aiType
+    if (aiType !== 2) {
+      if (Tools.checkAIFromTags(tagsWithTransl2)) {
+        aiType = 2
+      }
+    }
+
     // 如果作品是 AI 生成的，但是 Tags 里没有 AI 生成的标签，则添加
-    const aiMarkString = Tools.getAIGeneratedMark(body.aiType)
+    const aiMarkString = Tools.getAIGeneratedMark(aiType)
     const AITag = '#' + aiMarkString
     if (aiMarkString) {
       if (tags.includes(AITag) === false) {
-        tags.unshift(AITag)
-        tagsWithTransl.unshift(AITag)
-        tagsTranslOnly.unshift(AITag)
+        Tools.unshiftTag(tags, AITag)
+        Tools.unshiftTag(tagsWithTransl, AITag)
+        Tools.unshiftTag(tagsTranslOnly, AITag)
       }
     }
-    const AI = body.aiType === 2 || tags.includes(AITag)
+    const AI = aiType === 2 || tags.includes(AITag)
 
     const seriesNavData = body.seriesNavData
 

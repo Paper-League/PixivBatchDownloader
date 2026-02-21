@@ -25,6 +25,8 @@ import {
   NovelSeriesContentData,
   NovelInsertIllusts,
   RankingNovelData,
+  DashboardData,
+  ContestData,
 } from './crawl/CrawlResult'
 
 import {
@@ -364,39 +366,29 @@ class API {
     return this.fetch(url)
   }
 
+  static getSearchData(
+    word: string,
+    path: 'artworks' | 'illustrations' | 'manga',
+    p: number,
+    option: SearchOption
+  ): Promise<SearchData>
+
+  static getSearchData(
+    word: string,
+    path: 'novels',
+    p: number,
+    option: SearchOption
+  ): Promise<NovelSearchData>
+
   // 获取搜索数据
   static getSearchData(
     word: string,
-    type: string = 'artworks',
+    path = 'artworks',
     p: number = 1,
     option: SearchOption = {}
-  ): Promise<SearchData> {
-    // 基础的 url
-    let url = `https://www.pixiv.net/ajax/search/${type}/${encodeURIComponent(
-      word
-    )}?word=${encodeURIComponent(word)}&p=${p}`
-
-    // 把可选项添加到 url 里
-    let temp = new URL(url)
-    for (const [key, value] of Object.entries(option)) {
-      if (value) {
-        temp.searchParams.set(key, value)
-      }
-    }
-    url = temp.toString()
-
-    return this.fetch(url)
-  }
-
-  static getNovelSearchData(
-    word: string,
-    p: number = 1,
-    option: SearchOption = {}
-  ): Promise<NovelSearchData> {
-    // 基础的 url
-    let url = `https://www.pixiv.net/ajax/search/novels/${encodeURIComponent(
-      word
-    )}?word=${encodeURIComponent(word)}&p=${p}`
+  ): Promise<SearchData | NovelSearchData> {
+    word = encodeURIComponent(word)
+    let url = `https://www.pixiv.net/ajax/search/${path}/${word}?q=${word}&p=${p}`
 
     // 把可选项添加到 url 里
     let temp = new URL(url)
@@ -555,6 +547,15 @@ class API {
     )
   }
 
+  /**获取数据分析里图像或小说分类下的数据 */
+  static async getDashboardData(
+    workType: 'illust' | 'novel'
+  ): Promise<DashboardData> {
+    return this.fetch(
+      `https://www.pixiv.net/ajax/dashboard/works/${workType}/request_strategy`
+    )
+  }
+
   /**关注一个用户 */
   // restrict: false 为公开关注，true 为非公开关注
   // recaptcha_enterprise_score_token 对于有些用户是不需要的。允许传递空值
@@ -588,6 +589,21 @@ class API {
         return resolve(error.status || 0)
       }
     })
+  }
+
+  /** 获取比赛里的应募作品列表，每次 1 页（最对 50 个作品） */
+  static async getContestWorksData(
+    type: 'illust' | 'novel',
+    name: string,
+    p: number,
+    order: 'date_d' | 'date' | 'popular_d' = 'date_d'
+  ): Promise<ContestData> {
+    let typePath = ''
+    if (type === 'novel') {
+      typePath = 'novel/'
+    }
+    const url = `https://www.pixiv.net/ajax/${typePath}contest/${name}/entries?order=${order}&p=${p}`
+    return this.fetch(url)
   }
 }
 
